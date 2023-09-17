@@ -8,5 +8,6 @@ public class CxxLanguagePlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
+        project.getExtensions().create("cxx",CxxExtension.class,project.getObjects());
     }
 }

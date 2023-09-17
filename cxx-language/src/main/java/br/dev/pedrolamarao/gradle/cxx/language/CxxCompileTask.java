@@ -8,6 +8,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public abstract class CxxCompileTask extends DefaultTask
@@ -24,6 +25,8 @@ public abstract class CxxCompileTask extends DefaultTask
     @TaskAction
     public void compile () throws IOException, InterruptedException
     {
+        Files.createDirectories( getTarget().getAsFile().get().toPath().getParent() );
+
         final var command = new ArrayList<String>();
         command.add("clang");
         command.addAll(getOptions().get());

@@ -1,3 +1,5 @@
+// Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
+
 package br.dev.pedrolamarao.gradle.cxx.language;
 
 import org.gradle.api.file.*;

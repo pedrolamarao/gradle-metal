@@ -3,7 +3,9 @@ package br.dev.pedrolamarao.gradle.cxx.language;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.options.Option;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +18,9 @@ public abstract class CxxCompileTask extends SourceTask
 
     @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory ();
+
+    @Input @Option(option="target",description="code generation target") @Optional
+    public abstract Property<String> getTarget ();
 
     @TaskAction
     public void compile () throws InterruptedException
@@ -31,7 +36,12 @@ public abstract class CxxCompileTask extends SourceTask
 
                 final var command = new ArrayList<String>();
                 command.add("clang");
+                if (getTarget().isPresent()) {
+                    command.add("-target");
+                    command.add(getTarget().get());
+                }
                 command.addAll(getOptions().get());
+                command.add("-v");
                 command.add("-c");
                 command.add(source.toString());
                 command.add("-o");
@@ -40,6 +50,8 @@ public abstract class CxxCompileTask extends SourceTask
 
                 final var processBuilder = new ProcessBuilder();
                 processBuilder.command(command);
+                processBuilder.redirectError( getTemporaryDir().toPath().resolve("error").toFile() );
+                processBuilder.redirectOutput( getTemporaryDir().toPath().resolve("out").toFile() );
                 final var process = processBuilder.start();
                 processes.add(process);
             }
@@ -51,6 +63,7 @@ public abstract class CxxCompileTask extends SourceTask
             final var status = process.waitFor();
             if (status != 0) {
                 getLogger().error("clang failed: {}",status);
+                throw new RuntimeException("clang failed: %s".formatted(status));
             }
         }
     }

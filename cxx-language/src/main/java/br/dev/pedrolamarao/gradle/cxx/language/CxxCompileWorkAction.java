@@ -28,16 +28,11 @@ abstract class CxxCompileWorkAction implements WorkAction<CxxCompileWorkParamete
 
             final var command = new ArrayList<String>();
             command.add("clang");
-            if (parameters.getTarget() != null) {
-                command.add("-target");
-                command.add(parameters.getTarget().get());
-            }
             command.addAll(parameters.getOptions().get());
             command.add("-c");
             command.add(parameters.getSource().get().toString());
             command.add("-o");
             command.add(parameters.getOutput().getAsFile().get().toString());
-//            getLogger().info("{}", command);
 
             execOperations.exec(it ->
             {

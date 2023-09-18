@@ -23,9 +23,6 @@ public abstract class CxxLinkTask extends SourceTask
     @OutputFile
     public abstract RegularFileProperty getOutput ();
 
-    @Input @Option(option="target",description="code generation target") @Optional
-    public abstract Property<String> getTarget ();
-
     @Inject
     public CxxLinkTask (ExecOperations execOperations)
     {
@@ -33,18 +30,12 @@ public abstract class CxxLinkTask extends SourceTask
     }
 
     @TaskAction
-    public void compile () throws IOException, InterruptedException
+    public void compile ()
     {
         final var target = getOutput().getAsFile().get().toPath();
-        Files.createDirectories(target.getParent());
 
         final var command = new ArrayList<String>();
         command.add("clang");
-        if (getTarget().isPresent()) {
-            command.add("-target");
-            command.add(getTarget().get());
-            command.add("-fuse-ld=lld");
-        }
         command.addAll(getOptions().get());
         command.add("-o");
         command.add(target.toString());

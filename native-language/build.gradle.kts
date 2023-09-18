@@ -5,15 +5,11 @@ plugins {
     id("jvm-test-suite")
 }
 
-dependencies {
-    implementation(project(":native-language"))
-}
-
 gradlePlugin {
     plugins {
-        create("cxx-language") {
-            id = "br.dev.pedrolamarao.cxx.language"
-            implementationClass = "br.dev.pedrolamarao.gradle.cxx.language.CxxLanguagePlugin"
+        create("native-language") {
+            id = "br.dev.pedrolamarao.native.language"
+            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeLanguagePlugin"
         }
     }
 }

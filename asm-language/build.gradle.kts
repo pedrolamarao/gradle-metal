@@ -5,6 +5,10 @@ plugins {
     id("jvm-test-suite")
 }
 
+dependencies {
+    implementation(project(":native-language"))
+}
+
 gradlePlugin {
     plugins {
         create("asm-language") {

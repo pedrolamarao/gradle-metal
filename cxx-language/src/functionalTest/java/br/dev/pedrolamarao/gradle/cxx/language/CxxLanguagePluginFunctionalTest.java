@@ -58,8 +58,8 @@ public class CxxLanguagePluginFunctionalTest
         }
         
         tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
+            outputDirectory = file("object")
             source(file("main.cpp"))
-            targetDirectory = file("object")
         }
         """;
 
@@ -99,8 +99,8 @@ public class CxxLanguagePluginFunctionalTest
             
             tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
                 options = listOf("-g")
+                outputDirectory = file("object")
                 source(file("main.cpp"))
-                targetDirectory = file("object")
             }
             """;
 
@@ -115,92 +115,5 @@ public class CxxLanguagePluginFunctionalTest
         try (var stream = Files.list(projectDir.resolve("object"))) {
             assertEquals(1, stream.count() );
         }
-    }
-
-    @Test
-    public void link () throws Exception
-    {
-        Files.createDirectories(projectDir);
-
-        final var mainCpp =
-            """
-            int main (int argc, char * argv[])
-            {
-                return 0;
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("main.cpp"), mainCpp);
-
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.cxx.language")
-            }
-            
-            val compile = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
-                source(file("main.cpp"))
-                targetDirectory = file("object")
-            }
-            
-            val link = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxLinkTask>("link") {
-                source = compile.get().source
-                target = file("executable/out")
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("link")
-            .build();
-
-        assertTrue( Files.exists( projectDir.resolve("executable/out") ) );
-    }
-
-    @Test
-    public void linkOptions () throws Exception
-    {
-        Files.createDirectories(projectDir);
-
-        final var mainCpp =
-            """
-            int main (int argc, char * argv[])
-            {
-                return 0;
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("main.cpp"), mainCpp);
-
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.cxx.language")
-            }
-            
-            val compile = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
-                source(file("main.cpp"))
-                targetDirectory = file("object")
-            }
-            
-            val link = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxLinkTask>("link") {
-                options = listOf("-g")
-                source = compile.get().source
-                target = file("executable/out")
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("link")
-            .build();
-
-        assertTrue( Files.exists( projectDir.resolve("executable/out") ) );
     }
 }

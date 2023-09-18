@@ -6,13 +6,15 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.options.Option;
+import org.gradle.workers.WorkerExecutor;
 
-import java.nio.file.Files;
+import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public abstract class CxxCompileTask extends SourceTask
 {
+    final WorkerExecutor workerExecutor;
+
     @Input
     public abstract ListProperty<String> getOptions ();
 
@@ -22,53 +24,31 @@ public abstract class CxxCompileTask extends SourceTask
     @Input @Option(option="target",description="code generation target") @Optional
     public abstract Property<String> getTarget ();
 
-    @TaskAction
-    public void compile () throws InterruptedException
+    @Inject
+    public CxxCompileTask (WorkerExecutor workerExecutor)
     {
-        final var processes = new ArrayList<Process>();
+        this.workerExecutor = workerExecutor;
+    }
+
+    @TaskAction
+    public void compile ()
+    {
+        final var queue = workerExecutor.noIsolation();
 
         getSource().forEach(source ->
         {
-            try
+            queue.submit(CxxCompileWorkAction.class, parameters ->
             {
-                final var target = toTargetPath(getProject(),source.toPath());
-                Files.createDirectories(target.getParent());
-
-                final var command = new ArrayList<String>();
-                command.add("clang");
-                if (getTarget().isPresent()) {
-                    command.add("-target");
-                    command.add(getTarget().get());
-                }
-                command.addAll(getOptions().get());
-                command.add("-v");
-                command.add("-c");
-                command.add(source.toString());
-                command.add("-o");
-                command.add(target.toString());
-                getLogger().info("{}", command);
-
-                final var processBuilder = new ProcessBuilder();
-                processBuilder.command(command);
-                processBuilder.redirectError( getTemporaryDir().toPath().resolve("error").toFile() );
-                processBuilder.redirectOutput( getTemporaryDir().toPath().resolve("out").toFile() );
-                final var process = processBuilder.start();
-                processes.add(process);
-            }
-            catch (RuntimeException e) { throw e; }
-            catch (Exception e) { throw new RuntimeException(e); }
+                final var output = toOutputPath(getProject(),source.toPath());
+                parameters.getOutput().set(output.toFile());
+                parameters.getOptions().set(getOptions());
+                parameters.getSource().set(source);
+                parameters.getTarget().set(getTarget());
+            });
         });
-
-        for (var process : processes) {
-            final var status = process.waitFor();
-            if (status != 0) {
-                getLogger().error("clang failed: {}",status);
-                throw new RuntimeException("clang failed: %s".formatted(status));
-            }
-        }
     }
 
-    Path toTargetPath (Project project, Path source)
+    Path toOutputPath (Project project, Path source)
     {
         final var relative = project.getProjectDir().toPath().relativize(source);
         final var target = getOutputDirectory().get().getAsFile().toPath().resolve("%X".formatted(relative.hashCode()));

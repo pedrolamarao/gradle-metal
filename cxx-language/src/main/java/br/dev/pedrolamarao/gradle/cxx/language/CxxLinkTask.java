@@ -5,13 +5,18 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.options.Option;
+import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkerExecutor;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
 public abstract class CxxLinkTask extends SourceTask
 {
+    final ExecOperations execOperations;
+
     @Input
     public abstract ListProperty<String> getOptions ();
 
@@ -20,6 +25,12 @@ public abstract class CxxLinkTask extends SourceTask
 
     @Input @Option(option="target",description="code generation target") @Optional
     public abstract Property<String> getTarget ();
+
+    @Inject
+    public CxxLinkTask (ExecOperations execOperations)
+    {
+        this.execOperations = execOperations;
+    }
 
     @TaskAction
     public void compile () throws IOException, InterruptedException
@@ -35,21 +46,13 @@ public abstract class CxxLinkTask extends SourceTask
             command.add("-fuse-ld=lld");
         }
         command.addAll(getOptions().get());
-        command.add("-v");
         command.add("-o");
         command.add(target.toString());
         getSource().forEach(file -> command.add(file.toString()));
-        getLogger().info("{}", command);
 
-        final var processBuilder = new ProcessBuilder();
-        processBuilder.command(command);
-        processBuilder.redirectError( getTemporaryDir().toPath().resolve("error").toFile() );
-        processBuilder.redirectOutput( getTemporaryDir().toPath().resolve("out").toFile() );
-        final var process = processBuilder.start();
-        final var status = process.waitFor();
-        if (status != 0) {
-            getLogger().error("clang failed: {}",status);
-            throw new RuntimeException("clang failed: %s".formatted(status));
-        }
+        execOperations.exec(it ->
+        {
+            it.commandLine(command);
+        });
     }
 }

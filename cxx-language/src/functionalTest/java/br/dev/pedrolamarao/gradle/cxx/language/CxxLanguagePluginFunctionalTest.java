@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CxxLanguagePluginFunctionalTest
@@ -57,8 +58,8 @@ public class CxxLanguagePluginFunctionalTest
         }
         
         tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
-            source = file("main.cpp")
-            target = file("main.o")
+            source(file("main.cpp"))
+            targetDirectory = file("object")
         }
         """;
 
@@ -70,7 +71,9 @@ public class CxxLanguagePluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        assertTrue( Files.exists( projectDir.resolve("main.o") ) );
+        try (var stream = Files.list(projectDir.resolve("object"))) {
+            assertEquals(1, stream.count() );
+        }
     }
 
     @Test
@@ -96,8 +99,8 @@ public class CxxLanguagePluginFunctionalTest
             
             tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
                 options = listOf("-g")
-                source = file("main.cpp")
-                target = file("main.o")
+                source(file("main.cpp"))
+                targetDirectory = file("object")
             }
             """;
 
@@ -109,7 +112,9 @@ public class CxxLanguagePluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        assertTrue( Files.exists( projectDir.resolve("main.o") ) );
+        try (var stream = Files.list(projectDir.resolve("object"))) {
+            assertEquals(1, stream.count() );
+        }
     }
 
     @Test
@@ -134,13 +139,13 @@ public class CxxLanguagePluginFunctionalTest
             }
             
             val compile = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
-                source = file("main.cpp")
-                target = file("main.o")
+                source(file("main.cpp"))
+                targetDirectory = file("object")
             }
             
             val link = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxLinkTask>("link") {
                 source = compile.get().source
-                target = file("executable")
+                target = file("executable/out")
             }
             """;
 
@@ -152,7 +157,7 @@ public class CxxLanguagePluginFunctionalTest
             .withArguments("link")
             .build();
 
-        assertTrue( Files.exists( projectDir.resolve("executable") ) );
+        assertTrue( Files.exists( projectDir.resolve("executable/out") ) );
     }
 
     @Test
@@ -177,14 +182,14 @@ public class CxxLanguagePluginFunctionalTest
             }
             
             val compile = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
-                source = file("main.cpp")
-                target = file("main.o")
+                source(file("main.cpp"))
+                targetDirectory = file("object")
             }
             
             val link = tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxLinkTask>("link") {
                 options = listOf("-g")
                 source = compile.get().source
-                target = file("executable")
+                target = file("executable/out")
             }
             """;
 
@@ -196,6 +201,6 @@ public class CxxLanguagePluginFunctionalTest
             .withArguments("link")
             .build();
 
-        assertTrue( Files.exists( projectDir.resolve("executable") ) );
+        assertTrue( Files.exists( projectDir.resolve("executable/out") ) );
     }
 }

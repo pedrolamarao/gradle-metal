@@ -26,8 +26,7 @@ public class CxxSourceSetFunctionalTest
             
             cxx {
                 sourceSets {
-                    create("src") {
-                    }
+                    register("main")
                 }
             }
             """;

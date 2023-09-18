@@ -1,17 +1,12 @@
 package br.dev.pedrolamarao.gradle.cxx.language;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.*;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Array;
 import java.util.ArrayList;
 
 public abstract class CxxCompileTask extends SourceTask
@@ -19,8 +14,8 @@ public abstract class CxxCompileTask extends SourceTask
     @Input
     public abstract ListProperty<String> getOptions ();
 
-    @OutputFile
-    public abstract DirectoryProperty getTargetDirectory ();
+    @OutputDirectory
+    public abstract DirectoryProperty getOutputDirectory ();
 
     @TaskAction
     public void compile () throws InterruptedException
@@ -62,11 +57,8 @@ public abstract class CxxCompileTask extends SourceTask
 
     Path toTargetPath (Project project, Path source)
     {
-        project.getLogger().info("toTargetPath: 1: {}",source);
         final var relative = project.getProjectDir().toPath().relativize(source);
-        project.getLogger().info("toTargetPath: 2: {}",relative);
-        final var target = getTargetDirectory().get().getAsFile().toPath().resolve("%X".formatted(relative.hashCode()));
-        project.getLogger().info("toTargetPath: 3: {}",target);
+        final var target = getOutputDirectory().get().getAsFile().toPath().resolve("%X".formatted(relative.hashCode()));
         return target.resolve(source.getFileName() + ".o");
     }
 }

@@ -6,8 +6,6 @@ import br.dev.pedrolamarao.gradle.cxx.language.CxxLanguagePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import java.nio.file.Path;
-
 public class CxxApplicationPlugin implements Plugin<Project>
 {
     @Override
@@ -26,7 +24,7 @@ public class CxxApplicationPlugin implements Plugin<Project>
                 final var compileSourceSetTaskName = "compile%s".formatted(sourceSetName);
                 final var compileSourceSetTask = p.getTasks().register(compileSourceSetTaskName,CxxCompileTask.class);
                 compileSourceSetTask.get().setSource(sourceSet.getAsFileTree());
-                compileSourceSetTask.get().getTargetDirectory().set(project.getBuildDir().toPath().resolve("object/%s".formatted(sourceSetName)).toFile());
+                compileSourceSetTask.get().getOutputDirectory().set(project.getBuildDir().toPath().resolve("object/%s".formatted(sourceSetName)).toFile());
                 p.getLogger().info("{}",compileSourceSetTaskName);
                 compileTask.get().getDependsOn().add(compileSourceSetTask);
             });

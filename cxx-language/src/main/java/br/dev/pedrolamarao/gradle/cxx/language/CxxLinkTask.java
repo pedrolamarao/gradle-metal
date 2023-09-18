@@ -1,36 +1,33 @@
 package br.dev.pedrolamarao.gradle.cxx.language;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
-public abstract class CxxLinkTask extends DefaultTask
+public abstract class CxxLinkTask extends SourceTask
 {
     @Input
     public abstract ListProperty<String> getOptions ();
 
-    @InputFile
-    public abstract RegularFileProperty getSource ();
-
     @OutputFile
-    public abstract RegularFileProperty getTarget ();
+    public abstract RegularFileProperty getOutput ();
 
     @TaskAction
     public void compile () throws IOException, InterruptedException
     {
+        final var target = getOutput().getAsFile().get().toPath();
+        Files.createDirectories(target.getParent());
+
         final var command = new ArrayList<String>();
         command.add("clang");
         command.addAll(getOptions().get());
         command.add("-o");
-        command.add(getTarget().getAsFile().get().getPath());
-        command.add(getSource().getAsFile().get().getPath());
+        command.add(target.toString());
+        getSource().forEach(file -> command.add(file.toString()));
         getLogger().info("{}", command);
 
         final var processBuilder = new ProcessBuilder();

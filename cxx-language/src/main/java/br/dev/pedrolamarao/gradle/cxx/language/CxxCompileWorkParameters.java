@@ -9,6 +9,8 @@ import org.gradle.workers.WorkParameters;
 
 public abstract class CxxCompileWorkParameters implements WorkParameters
 {
+    public abstract ConfigurableFileCollection getModules ();
+
     public abstract ListProperty<String> getOptions ();
 
     public abstract RegularFileProperty getOutput ();

@@ -20,6 +20,8 @@ public abstract class CxxCompileTask extends SourceTask
 {
     final WorkerExecutor workerExecutor;
 
+    @InputFiles
+    public abstract ConfigurableFileCollection getModules ();
 
     @Input
     public abstract ListProperty<String> getOptions ();
@@ -44,6 +46,7 @@ public abstract class CxxCompileTask extends SourceTask
             queue.submit(CxxCompileWorkAction.class, parameters ->
             {
                 final var output = toOutputPath(baseDirectory,source.toPath());
+                parameters.getModules().from(getModules());
                 parameters.getOutput().set(output.toFile());
                 parameters.getOptions().set(getOptions());
                 parameters.getSource().set(source);

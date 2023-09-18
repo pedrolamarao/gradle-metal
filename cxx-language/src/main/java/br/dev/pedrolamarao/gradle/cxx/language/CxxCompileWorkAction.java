@@ -31,6 +31,7 @@ abstract class CxxCompileWorkAction implements WorkAction<CxxCompileWorkParamete
             final var command = new ArrayList<String>();
             command.add("clang");
             command.addAll(parameters.getOptions().get());
+            parameters.getModules().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
             command.add("-c");
             command.add(parameters.getSource().get().toString());
             command.add("-o");

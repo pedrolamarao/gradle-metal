@@ -24,31 +24,12 @@ public class CxxApplicationPlugin implements Plugin<Project>
             {
                 final var sourceSetName = sourceSet.getName();
                 final var compileSourceSetTaskName = "compile%s".formatted(sourceSetName);
-                final var compileSourceSetTask = p.getTasks().register(compileSourceSetTaskName);
-                sourceSet.forEach(source ->
-                {
-                    final var target = toTargetPath(project,source.toPath());
-                    final var sourceName = source.getName();
-                    final var compileSourceTaskName = "compile%s%s".formatted(sourceSetName,sourceName);
-                    final var compileSourceTask = p.getTasks().register(compileSourceTaskName,CxxCompileTask.class);
-                    compileSourceTask.get().getSource().set(source);
-                    compileSourceTask.get().getTarget().set(target.toFile());
-                    compileSourceSetTask.get().getDependsOn().add(compileSourceTask);
-                    p.getLogger().info("{}",compileSourceTaskName);
-                });
+                final var compileSourceSetTask = p.getTasks().register(compileSourceSetTaskName,CxxCompileTask.class);
+                compileSourceSetTask.get().setSource(sourceSet.getAsFileTree());
+                compileSourceSetTask.get().getTargetDirectory().set(project.getBuildDir().toPath().resolve("object/%s".formatted(sourceSetName)).toFile());
                 p.getLogger().info("{}",compileSourceSetTaskName);
                 compileTask.get().getDependsOn().add(compileSourceSetTask);
             });
         });
-    }
-
-    static Path toTargetPath (Project project, Path source)
-    {
-        project.getLogger().info("toTarget: 1: {}",source);
-        final var relative = project.getProjectDir().toPath().relativize(source);
-        project.getLogger().info("toTarget: 2: {}",relative);
-        final var target = project.getBuildDir().toPath().resolve("object/%X".formatted(relative.hashCode()));
-        project.getLogger().info("toTarget: 3: {}",target);
-        return target.resolve(source.getFileName() + ".o");
     }
 }

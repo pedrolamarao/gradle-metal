@@ -12,5 +12,7 @@ public class AsmLanguagePlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(NativeLanguagePlugin.class);
+
+        project.getExtensions().create("asm", AsmExtension.class);
     }
 }

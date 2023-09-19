@@ -1,0 +1,25 @@
+= gradle-metal
+
+== to do
+
+* [ ] compile source dependencies independently of the commands database
+* [ ] compile multiple module interfaces in order
+* [ ] variant target machines
+* [ ] variant tools
+- [ ] GCC tools
+- [ ] MS tools
+* [ ] vcpkg dependency
+
+== done
+
+* [x] conveniently register sources with tasks
+* [x] support project dependencies
+* [x] archive task
+* [x] build assembler sources
+* [x] build module interfaces
+* [x] compile dependencies
+* [x] compile database
+* [x] parallel compilation
+* [x] cxx source sets
+* [x] link task
+* [x] compile task

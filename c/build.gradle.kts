@@ -1,17 +1,19 @@
+// Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
+
 plugins {
     id("java-gradle-plugin")
     id("jvm-test-suite")
 }
 
 dependencies {
-    implementation(project(":cxx-language"))
+    implementation(project(":native-language"))
 }
 
 gradlePlugin {
     plugins {
-        create("cxx-application") {
-            id = "br.dev.pedrolamarao.cxx.application"
-            implementationClass = "br.dev.pedrolamarao.gradle.cxx.application.CxxApplicationPlugin"
+        create("c") {
+            id = "br.dev.pedrolamarao.metal.c"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.c.CPlugin"
         }
     }
 }
@@ -22,9 +24,6 @@ testing {
             dependencies {
                 implementation("org.junit.jupiter:junit-jupiter:5.9.0")
             }
-        }
-        register<JvmTestSuite>("integrationTest") {
-
         }
     }
 }

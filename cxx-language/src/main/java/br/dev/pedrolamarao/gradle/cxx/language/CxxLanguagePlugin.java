@@ -12,6 +12,6 @@ public class CxxLanguagePlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(NativeLanguagePlugin.class);
-        project.getExtensions().create("cxx",CxxExtension.class,project.getObjects());
+        project.getExtensions().create("cxx",CxxExtension.class);
     }
 }

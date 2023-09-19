@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.nativelanguage;
 
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.*;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 public abstract class NativeLinkTask extends SourceTask
 {
     final ExecOperations execOperations;
+
+    @InputFiles
+    public abstract ConfigurableFileCollection getLibraryDependencies ();
 
     @Input
     public abstract ListProperty<String> getOptions ();
@@ -36,6 +40,7 @@ public abstract class NativeLinkTask extends SourceTask
         command.addAll(getOptions().get());
         command.add("-o");
         command.add(target.toString());
+        getLibraryDependencies().forEach(file -> command.add(file.toString()));
         getSource().forEach(file -> command.add(file.toString()));
 
         execOperations.exec(it ->

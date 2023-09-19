@@ -7,9 +7,17 @@ plugins {
 
 gradlePlugin {
     plugins {
+        create("native-application") {
+            id = "br.dev.pedrolamarao.native.application"
+            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeApplicationPlugin"
+        }
         create("native-language") {
             id = "br.dev.pedrolamarao.native.language"
             implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeLanguagePlugin"
+        }
+        create("native-archive") {
+            id = "br.dev.pedrolamarao.native.archive"
+            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeArchivePlugin"
         }
     }
 }

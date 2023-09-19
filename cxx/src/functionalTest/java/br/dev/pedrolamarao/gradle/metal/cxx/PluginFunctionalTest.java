@@ -1,8 +1,7 @@
-package br.dev.pedrolamarao.gradle.cxx.language;
+package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CxxLanguagePluginFunctionalTest
+public class PluginFunctionalTest
 {
     @TempDir Path projectDir;
 
@@ -22,11 +21,11 @@ public class CxxLanguagePluginFunctionalTest
         Files.createDirectories(projectDir);
 
         final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.cxx.language")
-            }
-            """;
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        """;
 
         Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
 
@@ -54,10 +53,10 @@ public class CxxLanguagePluginFunctionalTest
         final var buildGradleKts =
         """
         plugins {
-            id("br.dev.pedrolamarao.cxx.language")
+            id("br.dev.pedrolamarao.metal.cxx")
         }
         
-        tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
+        tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
             outputDirectory = file("object")
             source(file("main.cpp"))
         }
@@ -82,22 +81,22 @@ public class CxxLanguagePluginFunctionalTest
         Files.createDirectories(projectDir);
 
         final var mainCpp =
-            """
-            int main (int argc, char * argv[])
-            {
-                return 0;
-            }
-            """;
+        """
+        int main (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """;
 
         Files.writeString(projectDir.resolve("main.cpp"), mainCpp);
 
         final var buildGradleKts =
             """
             plugins {
-                id("br.dev.pedrolamarao.cxx.language")
+                id("br.dev.pedrolamarao.metal.cxx")
             }
             
-            tasks.register<br.dev.pedrolamarao.gradle.cxx.language.CxxCompileTask>("compile") {
+            tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
                 options = listOf("-g")
                 outputDirectory = file("object")
                 source(file("main.cpp"))

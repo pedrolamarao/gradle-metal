@@ -1,6 +1,6 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.cxx.language;
+package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;

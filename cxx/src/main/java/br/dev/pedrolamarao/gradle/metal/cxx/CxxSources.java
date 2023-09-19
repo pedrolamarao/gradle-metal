@@ -1,4 +1,4 @@
-package br.dev.pedrolamarao.gradle.cxx.language;
+package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskProvider;

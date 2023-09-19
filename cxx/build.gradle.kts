@@ -12,8 +12,8 @@ dependencies {
 gradlePlugin {
     plugins {
         create("cxx-language") {
-            id = "br.dev.pedrolamarao.cxx.language"
-            implementationClass = "br.dev.pedrolamarao.gradle.cxx.language.CxxLanguagePlugin"
+            id = "br.dev.pedrolamarao.metal.cxx"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.cxx.CxxPlugin"
         }
     }
 }

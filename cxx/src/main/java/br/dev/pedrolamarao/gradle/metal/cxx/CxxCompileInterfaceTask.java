@@ -1,17 +1,12 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.cxx.language;
+package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.*;
-import org.gradle.api.tasks.options.Option;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;

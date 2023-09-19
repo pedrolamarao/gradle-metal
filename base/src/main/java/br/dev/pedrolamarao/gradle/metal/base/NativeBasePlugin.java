@@ -1,11 +1,11 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.nativelanguage;
+package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class NativeLanguagePlugin implements Plugin<Project>
+public class NativeBasePlugin implements Plugin<Project>
 {
     @Override
     public void apply (Project project)

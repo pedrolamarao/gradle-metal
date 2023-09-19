@@ -1,7 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
-import br.dev.pedrolamarao.gradle.nativelanguage.NativeCapability;
-import br.dev.pedrolamarao.gradle.nativelanguage.NativeLanguagePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
+import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -10,7 +10,7 @@ public class CppPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().apply(NativeLanguagePlugin.class);
+        project.getPluginManager().apply(NativeBasePlugin.class);
 
         project.getExtensions().create("cpp",CppExtension.class);
 

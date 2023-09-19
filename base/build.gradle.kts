@@ -7,17 +7,17 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("native-application") {
-            id = "br.dev.pedrolamarao.native.application"
-            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeApplicationPlugin"
+        create("application") {
+            id = "br.dev.pedrolamarao.metal.application"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeApplicationPlugin"
         }
-        create("native-language") {
-            id = "br.dev.pedrolamarao.native.language"
-            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeLanguagePlugin"
+        create("base") {
+            id = "br.dev.pedrolamarao.metal.base"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin"
         }
-        create("native-archive") {
-            id = "br.dev.pedrolamarao.native.archive"
-            implementationClass = "br.dev.pedrolamarao.gradle.nativelanguage.NativeArchivePlugin"
+        create("archive") {
+            id = "br.dev.pedrolamarao.metal.archive"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeArchivePlugin"
         }
     }
 }

@@ -2,7 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.c;
 
-import br.dev.pedrolamarao.gradle.nativelanguage.NativeLanguagePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -11,7 +11,7 @@ public class CPlugin implements Plugin<Project>
     @Override
     public void apply (Project target)
     {
-        target.getPluginManager().apply(NativeLanguagePlugin.class);
+        target.getPluginManager().apply(NativeBasePlugin.class);
         target.getExtensions().create("c",CExtension.class);
     }
 }

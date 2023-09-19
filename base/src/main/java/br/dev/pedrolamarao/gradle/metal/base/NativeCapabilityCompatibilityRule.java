@@ -1,4 +1,4 @@
-package br.dev.pedrolamarao.gradle.nativelanguage;
+package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;

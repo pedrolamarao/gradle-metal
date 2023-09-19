@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.cxx.language;
 
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 

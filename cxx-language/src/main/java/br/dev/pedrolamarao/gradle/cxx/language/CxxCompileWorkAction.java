@@ -29,9 +29,10 @@ abstract class CxxCompileWorkAction implements WorkAction<CxxCompileWorkParamete
             Files.createDirectories(parameters.getOutput().getAsFile().get().toPath().getParent());
 
             final var command = new ArrayList<String>();
-            command.add("clang");
+            command.add("clang++");
             command.addAll(parameters.getOptions().get());
-            parameters.getModules().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
+            parameters.getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file)));
+            parameters.getModuleDependencies().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
             command.add("-c");
             command.add(parameters.getSource().get().toString());
             command.add("-o");

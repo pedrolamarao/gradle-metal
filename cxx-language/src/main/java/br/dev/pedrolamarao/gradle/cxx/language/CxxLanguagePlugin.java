@@ -14,5 +14,21 @@ public class CxxLanguagePlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(NativeBasePlugin.class);
         project.getExtensions().create("cxx",CxxExtension.class);
+
+        final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
+
+        project.getConfigurations().create("cxxImportDependencies", configuration -> {
+            configuration.setCanBeConsumed(false);
+            configuration.setCanBeResolved(true);
+            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
+            configuration.extendsFrom(nativeImplementation.get());
+        });
+
+        project.getConfigurations().create("cxxImportElements", configuration -> {
+            configuration.setCanBeConsumed(true);
+            configuration.setCanBeResolved(false);
+            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
+        });
+
     }
 }

@@ -2,32 +2,19 @@
 
 package br.dev.pedrolamarao.gradle.cxx.language;
 
-import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
-import org.gradle.api.tasks.options.Option;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
 
-public abstract class CxxCompileTask extends SourceTask
+public abstract class CxxCompileTask extends CxxCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
 
-    @InputFiles
-    public abstract ConfigurableFileCollection getModules ();
-
     @Input
     public abstract ListProperty<String> getOptions ();
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
 
     @Inject
     public CxxCompileTask (WorkerExecutor workerExecutor)
@@ -46,7 +33,8 @@ public abstract class CxxCompileTask extends SourceTask
             queue.submit(CxxCompileWorkAction.class, parameters ->
             {
                 final var output = toOutputPath(baseDirectory,source.toPath());
-                parameters.getModules().from(getModules());
+                parameters.getHeaderDependencies().from(getHeaderDependencies());
+                parameters.getModuleDependencies().from(getModuleDependencies());
                 parameters.getOutput().set(output.toFile());
                 parameters.getOptions().set(getOptions());
                 parameters.getSource().set(source);

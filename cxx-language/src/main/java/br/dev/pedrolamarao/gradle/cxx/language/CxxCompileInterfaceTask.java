@@ -2,11 +2,14 @@
 
 package br.dev.pedrolamarao.gradle.cxx.language;
 
-import groovy.transform.Internal;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.process.ExecOperations;
@@ -17,23 +20,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public abstract class CxxCompileInterfaceTask extends SourceTask
+public abstract class CxxCompileInterfaceTask extends CxxCompileBaseTask
 {
     final ExecOperations execOperations;
 
-    @InputFile
+    final ObjectFactory objectFactory;
+
+    @InputFile @Optional
     public abstract RegularFileProperty getDependencies ();
 
     @Input
     public abstract ListProperty<String> getOptions ();
 
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
+    @Internal
+    public FileCollection getInterfaceFiles ()
+    {
+        final var collection = objectFactory.fileCollection();
+        final var baseDirectory = getProject().getProjectDir().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+        getSource().forEach(source -> collection.from(toOutputPath(baseDirectory,source.toPath(),outputDirectory)));
+        return collection;
+    }
 
     @Inject
-    public CxxCompileInterfaceTask (ExecOperations execOperations)
+    public CxxCompileInterfaceTask (ExecOperations execOperations, ObjectFactory objectFactory)
     {
         this.execOperations = execOperations;
+        this.objectFactory = objectFactory;
     }
 
     @TaskAction
@@ -51,6 +64,8 @@ public abstract class CxxCompileInterfaceTask extends SourceTask
 
             final var command = new ArrayList<String>();
             command.add("clang++");
+            getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file)));
+            getModuleDependencies().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
             command.addAll(getOptions().get());
             command.add("--precompile");
             command.add("-o");

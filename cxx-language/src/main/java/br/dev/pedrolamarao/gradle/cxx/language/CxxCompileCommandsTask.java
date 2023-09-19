@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.cxx.language;
 
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
@@ -13,17 +14,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-public abstract class CxxCompileCommandsTask extends SourceTask
+public abstract class CxxCompileCommandsTask extends CxxCompileBaseTask
 {
     @Input
     public abstract ListProperty<String> getOptions ();
 
     @Input
     public abstract Property<File> getObjectDirectory ();
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
 
     @Internal
     public Provider<RegularFile> getOutput ()
@@ -43,7 +43,12 @@ public abstract class CxxCompileCommandsTask extends SourceTask
     @TaskAction
     public void generate () throws IOException
     {
-        final var arguments = getOptions().get().stream().reduce("\"clang++\"", (x, y) -> x + ", \"" + y + '\"');
+        final var command = new ArrayList<String>();
+        command.add("clang++");
+        command.addAll(getOptions().get());
+        getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
+
+        final var arguments = command.stream().collect(Collectors.joining("\",\"","\"","\""));
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
         final var baseDirectory = getProject().getProjectDir().toPath();
 

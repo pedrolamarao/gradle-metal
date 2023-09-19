@@ -1,0 +1,12 @@
+= gradle-metal
+:author: Pedro Lamarão <pedro.lamarao@gmail.com>
+
+`gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
+
+The goals of this project are:
+
+* compiling native source languages (`asm`, `c` and `cxx`)
+* producing native components (static archives, shared libraries and executables)
+* supporting C++ modules
+* supporting inter-project dependencies
+* supporting multiple target machines

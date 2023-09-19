@@ -2,7 +2,7 @@
 
 rootProject.name = "gradle-native"
 
-include("asm-language")
+include("asm")
 include("c")
 include("cpp")
 include("cxx-language")

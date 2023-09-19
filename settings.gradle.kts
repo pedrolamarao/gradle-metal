@@ -3,7 +3,7 @@
 rootProject.name = "gradle-metal"
 
 include("asm")
+include("base")
 include("c")
 include("cpp")
 include("cxx-language")
-include("native-language")

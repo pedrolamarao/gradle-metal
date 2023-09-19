@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":native-language"))
+    implementation(project(":base"))
 }
 
 gradlePlugin {

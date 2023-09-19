@@ -1,4 +1,4 @@
-package br.dev.pedrolamarao.gradle.asm.language;
+package br.dev.pedrolamarao.gradle.metal.asm;
 
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskProvider;

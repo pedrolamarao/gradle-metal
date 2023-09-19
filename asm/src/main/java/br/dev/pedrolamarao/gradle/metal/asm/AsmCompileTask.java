@@ -1,6 +1,6 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.asm.language;
+package br.dev.pedrolamarao.gradle.metal.asm;
 
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
@@ -11,7 +11,6 @@ import org.gradle.api.tasks.options.Option;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
-import java.nio.file.Path;
 
 public abstract class AsmCompileTask extends SourceTask
 {

@@ -1,13 +1,11 @@
-package br.dev.pedrolamarao.gradle.asm.language;
+package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-import java.nio.file.Path;
 
 public abstract class AsmExtension implements ExtensionAware
 {

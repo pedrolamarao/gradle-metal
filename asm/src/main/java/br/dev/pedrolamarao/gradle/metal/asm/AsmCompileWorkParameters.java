@@ -1,6 +1,6 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.asm.language;
+package br.dev.pedrolamarao.gradle.metal.asm;
 
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;

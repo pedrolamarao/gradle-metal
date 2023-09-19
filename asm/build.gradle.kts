@@ -11,9 +11,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("asm-language") {
-            id = "br.dev.pedrolamarao.asm.language"
-            implementationClass = "br.dev.pedrolamarao.gradle.asm.language.AsmLanguagePlugin"
+        create("asm") {
+            id = "br.dev.pedrolamarao.metal.asm"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.asm.AsmPlugin"
         }
     }
 }

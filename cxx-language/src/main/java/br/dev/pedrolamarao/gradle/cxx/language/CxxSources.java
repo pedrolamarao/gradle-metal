@@ -3,8 +3,6 @@ package br.dev.pedrolamarao.gradle.cxx.language;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskProvider;
 
-import javax.inject.Inject;
-
 public class CxxSources
 {
     final TaskProvider<CxxCompileTask> compileTask;

@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -7,6 +8,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public abstract class CppExtension implements ExtensionAware
@@ -31,7 +33,8 @@ public abstract class CppExtension implements ExtensionAware
         this.tasks = tasks;
     }
 
-    public CppSources create (String name)
+    @Nonnull
+    public CppSources sources (String name)
     {
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/cpp".formatted(name));
 
@@ -42,6 +45,14 @@ public abstract class CppExtension implements ExtensionAware
             it.getOutgoing().artifacts( providers.provider(sourceDirectorySet::getSourceDirectories) );
         });
 
-        return objects.newInstance(CppSources.class,sourceDirectorySet);
+        return new CppSources(sourceDirectorySet);
+    }
+
+    @Nonnull
+    public CppSources sources (String name, Action<? super CppSources> configure)
+    {
+        final var sources = sources(name);
+        configure.execute(sources);
+        return sources;
     }
 }

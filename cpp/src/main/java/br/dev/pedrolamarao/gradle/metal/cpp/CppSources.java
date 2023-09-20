@@ -1,22 +1,21 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public abstract class CppSources
+public class CppSources
 {
-    final SourceDirectorySet sourceDirectorySet;
+    final SourceDirectorySet sources;
 
-    @Inject
-    public CppSources (SourceDirectorySet sourceDirectorySet)
+    public CppSources (SourceDirectorySet sources)
     {
-        this.sourceDirectorySet = sourceDirectorySet;
+        this.sources = sources;
     }
 
-    public SourceDirectorySet getSourceDirectories ()
+    public SourceDirectorySet getSources ()
     {
-        return sourceDirectorySet;
+        return sources;
     }
 }

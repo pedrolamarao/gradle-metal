@@ -9,11 +9,5 @@ public class NativeArchivePlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(NativeBasePlugin.class);
-
-        project.getConfigurations().create("nativeLinkElements",configuration -> {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
-        });
     }
 }

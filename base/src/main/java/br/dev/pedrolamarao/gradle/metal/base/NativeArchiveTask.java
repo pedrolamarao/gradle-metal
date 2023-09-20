@@ -3,6 +3,8 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
@@ -14,6 +16,9 @@ import java.util.ArrayList;
 public abstract class NativeArchiveTask extends SourceTask
 {
     final ExecOperations execOperations;
+
+    @Input
+    public abstract ListProperty<String> getOptions ();
 
     @OutputFile
     public abstract RegularFileProperty getOutput ();
@@ -32,6 +37,7 @@ public abstract class NativeArchiveTask extends SourceTask
         final var command = new ArrayList<String>();
         command.add("llvm-ar");
         command.add("rcs");
+        command.addAll(getOptions().get());
         command.add(target.toString());
         getSource().forEach(file -> command.add(file.toString()));
 

@@ -3,7 +3,7 @@ import br.dev.pedrolamarao.gradle.metal.base.NativeArchiveTask
 plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.archive")
+    id("br.dev.pedrolamarao.metal.base")
 }
 
 // register "main" sources
@@ -14,15 +14,10 @@ mainCxx.options.languageDialect = "c++20"
 
 // register "main" archive
 
-val mainArchiveOptions = emptyList<String>()
+val mainArchive = metal.archive("main")
 
-val archiveMain = tasks.register<NativeArchiveTask>("archiveMain") {
-    output = project.layout.buildDirectory.file("lib/main/${project.name}.lib")
-    source = mainCxx.compileTask.get().outputs.files.asFileTree
-}
-
-configurations.nativeLinkElements.configure {
-    outgoing.artifact(archiveMain)
+mainArchive.archiveTask.configure {
+    source(mainCxx.compileTask.get().outputs.files.asFileTree)
 }
 
 // wire to base tasks
@@ -34,7 +29,7 @@ val compile = tasks.register("compile") {
 
 val archive = tasks.register("archive") {
     group = "build"
-    dependsOn(archiveMain)
+    dependsOn(mainArchive.archiveTask)
 }
 
 tasks.assemble.configure {

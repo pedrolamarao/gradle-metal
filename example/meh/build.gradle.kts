@@ -4,7 +4,7 @@ plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.asm")
     id("br.dev.pedrolamarao.metal.cpp")
-    id("br.dev.pedrolamarao.metal.archive")
+    id("br.dev.pedrolamarao.metal.base")
 }
 
 // register "main" sources
@@ -17,15 +17,10 @@ val mainCpp = metal.cpp.create("main")
 
 // add "main" archive
 
-val mainArchiveOptions = emptyList<String>()
+val mainArchive = metal.archive("main")
 
-val archiveMain = tasks.register<NativeArchiveTask>("archiveMain") {
-    output = project.layout.buildDirectory.file("lib/main/${project.name}.lib")
-    source = mainAsm.compileTask.get().outputs.files.asFileTree
-}
-
-configurations.nativeLinkElements.configure {
-    outgoing.artifact(archiveMain)
+mainArchive.archiveTask.configure {
+    source(mainAsm.compileTask.get().outputs.files.asFileTree)
 }
 
 // wire to base tasks
@@ -37,7 +32,7 @@ val compile = tasks.register("compile") {
 
 val archive = tasks.register("archive") {
     group = "native"
-    dependsOn(archiveMain)
+    dependsOn(mainArchive.archiveTask)
 }
 
 tasks.assemble.configure {

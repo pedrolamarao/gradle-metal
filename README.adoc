@@ -3,14 +3,16 @@
 
 `gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
 
-The `example` subfolder contains a project demonstrating various capabilities.
+JDK 17 or later is required.
+
+Try it with the following command in the `example` subfolder: `../gradlew --info build`
 
 *WARNING*: this project is under early development, APIs *will* change without prior notice.
 
 The goals of this project are:
 
-* compiling native source languages: `asm`, `c` and `cxx`
-* producing native components: static archives, shared libraries and executables
+* compiling multiple languages: assembler, c, c++ etc.
+* assembling multiple components: static archives, shared libraries, executables etc.
 * support inter-project dependency on module interfaces, headers and libraries
 * support multiple target machines
 

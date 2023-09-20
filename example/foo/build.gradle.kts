@@ -5,7 +5,7 @@ plugins {
     id("br.dev.pedrolamarao.metal.asm")
     id("br.dev.pedrolamarao.metal.cpp")
     id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.application")
+    id("br.dev.pedrolamarao.metal.base")
 }
 
 dependencies {
@@ -21,15 +21,15 @@ val mainCxx = metal.cxx.create("main")
 
 mainCxx.options.languageDialect = "c++20"
 
-// register "main" executable
+// register "main" application
 
-val mainLinkOptions = emptyList<String>()
+val mainApplication = metal.application("main")
 
-val linkMain = tasks.register<NativeLinkTask>("linkMain") {
-    libraryDependencies.from(configurations.nativeLinkDependencies)
-    output = project.layout.buildDirectory.file("exe/main/${project.name}.exe")
-    options = mainLinkOptions
-    source = mainCxx.compileTask.get().outputs.files.asFileTree + mainAsm.compileTask.get().outputs.files.asFileTree
+mainApplication.linkOptions = listOf("-flto","-g")
+
+mainApplication.linkTask.configure {
+    source(mainAsm.compileTask.get().outputs.files.asFileTree)
+    source(mainCxx.compileTask.get().outputs.files.asFileTree)
 }
 
 // wire to base tasks
@@ -41,7 +41,7 @@ val compile = tasks.register("compile") {
 
 val link = tasks.register("link") {
     group = "build"
-    dependsOn(linkMain)
+    dependsOn(mainApplication.linkTask)
 }
 
 tasks.assemble.configure {

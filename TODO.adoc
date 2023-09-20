@@ -2,6 +2,7 @@
 
 == to do
 
+* [ ] support project with main library and test executable
 * [ ] compile source dependencies independently of the commands database
 * [ ] compile multiple module interfaces in order
 * [ ] variant target machines

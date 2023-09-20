@@ -60,8 +60,7 @@ public abstract class CxxCompileInterfaceTask extends CxxCompileBaseTask
             getModuleDependencies().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
             command.addAll(getCompileOptions().get());
             command.add("--precompile");
-            command.add("-o");
-            command.add(output.toString());
+            command.add("--output=%s".formatted(output));
             command.add(source.toString());
 
             execOperations.exec(it -> {

@@ -11,33 +11,36 @@ dependencies {
     nativeImplementation(project(":meh"))
 }
 
-// register "main" sources
+// register "main" application with cxx sources
 
-val mainAsm = metal.asm.sources("main")
-
-val mainCxx = metal.cxx.sources("main") {
+val mainIxx = metal.ixx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
 }
 
-// register "main" application
+val mainCxx = metal.cxx.sources("main") {
+    compileOptions = listOf("-g","--std=c++20")
+    compileTask.configure {
+        moduleDependencies.from(mainIxx.compileTask)
+        source(mainIxx.compileTask)
+    }
+}
 
 val mainApplication = metal.application("main") {
     linkOptions = listOf("-g")
     linkTask.configure {
-        source(mainAsm.objects)
-        source(mainCxx.objects)
+        source(mainCxx.compileTask)
     }
 }
 
 // wire to base tasks
 
 val compile = tasks.register("compile") {
-    group = "build"
-    dependsOn(mainAsm.compileTask,mainCxx.compileTask);
+    group = "metal"
+    dependsOn(mainCxx.compileTask);
 }
 
 val link = tasks.register("link") {
-    group = "build"
+    group = "metal"
     dependsOn(mainApplication.linkTask)
 }
 

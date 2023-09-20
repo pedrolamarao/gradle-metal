@@ -5,29 +5,27 @@ plugins {
     id("br.dev.pedrolamarao.metal.base")
 }
 
-// register "main" sources
+// register "main" archive with asm and cpp sources
 
 val mainAsm = metal.asm.sources("main")
 
-val mainCpp = metal.cpp.create("main")
-
-// add "main" archive
+val mainCpp = metal.cpp.sources("main")
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainAsm.objects)
+        source(mainAsm.compileTask)
     }
 }
 
 // wire to base tasks
 
 val compile = tasks.register("compile") {
-    group = "native"
+    group = "metal"
     dependsOn(mainAsm.compileTask);
 }
 
 val archive = tasks.register("archive") {
-    group = "native"
+    group = "metal"
     dependsOn(mainArchive.archiveTask)
 }
 

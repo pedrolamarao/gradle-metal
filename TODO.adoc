@@ -2,7 +2,6 @@
 
 == to do
 
-* [ ] support project with main library and test executable
 * [ ] compile source dependencies independently of the commands database
 * [ ] compile multiple module interfaces in order
 * [ ] variant target machines
@@ -18,6 +17,7 @@
 
 == done
 
+* [x] minimally support project with main library and test executable
 * [x] conveniently register sources with tasks
 * [x] support project dependencies
 * [x] archive task

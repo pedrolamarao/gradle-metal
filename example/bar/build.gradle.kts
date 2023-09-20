@@ -1,35 +1,74 @@
 plugins {
     id("base")
+    id("br.dev.pedrolamarao.metal.cpp")
     id("br.dev.pedrolamarao.metal.cxx")
     id("br.dev.pedrolamarao.metal.base")
 }
 
-// register "main" sources
+dependencies {
+    nativeImplementation(project(":googletest"))
+}
+
+// register "main" archive with cpp and cxx sources
+
+val mainCpp = metal.cpp.sources("main")
+
+val mainIxx = metal.ixx.sources("main") {
+    compileOptions = listOf("-g","--std=c++20")
+    compileTask.configure {
+        headerDependencies.from(mainCpp.sources.sourceDirectories)
+    }
+}
 
 val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
+    compileTask.configure {
+        headerDependencies.from(mainCpp.sources.sourceDirectories)
+        moduleDependencies.from(mainIxx.compileTask)
+        source(mainIxx.compileTask)
+    }
 }
-
-// register "main" archive
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainCxx.objects)
+        source(mainCxx.compileTask)
+    }
+}
+
+// register "test" application with cxx sources
+
+val testCxx = metal.cxx.sources("test") {
+    compileOptions = listOf("-g","--std=c++17")
+    compileTask.configure {
+        headerDependencies.from(mainCpp.sources.sourceDirectories)
+        moduleDependencies.from(mainIxx.compileTask)
+    }
+}
+
+val testApplication = metal.application("test") {
+    linkTask.configure {
+        source(mainCxx.compileTask)
+        source(testCxx.compileTask)
     }
 }
 
 // wire to base tasks
 
-val compile = tasks.register("compile") {
-    group = "build"
-    dependsOn(mainCxx.compileTask);
-}
-
 val archive = tasks.register("archive") {
-    group = "build"
+    group = "metal"
     dependsOn(mainArchive.archiveTask)
 }
 
+val compile = tasks.register("compile") {
+    group = "metal"
+    dependsOn(mainCxx.compileTask,testCxx.compileTask);
+}
+
+val link = tasks.register("link") {
+    group = "metal"
+    dependsOn(testApplication.linkTask)
+}
+
 tasks.assemble.configure {
-    dependsOn(archive)
+    dependsOn(archive,link)
 }

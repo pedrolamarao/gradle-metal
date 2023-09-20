@@ -32,8 +32,8 @@ abstract class CCompileWorkAction implements WorkAction<CCompileWorkParameters>
 
             final var command = new ArrayList<String>();
             command.add("clang");
-            command.addAll(parameters.getOptions().get());
             parameters.getHeaderDependencies().forEach(it -> command.add("--include-directory=%s".formatted(it)));
+            command.addAll(parameters.getOptions().get());
             command.add("--compile");
             command.add("--output=%s".formatted(output));
             command.add("--language=c");

@@ -45,6 +45,9 @@ public abstract class CxxCompileInterfaceTask extends CxxCompileBaseTask
         final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
 
         // #TODO: sort sources accordingly with dependencies
+        if (getSource().getFiles().size() > 1) {
+            getLogger().warn("Task currently compiles a source set with multiple module interface files out of order");
+        }
 
         for (var source : getSource())
         {

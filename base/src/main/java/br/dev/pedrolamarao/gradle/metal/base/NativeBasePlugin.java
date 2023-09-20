@@ -10,6 +10,8 @@ public class NativeBasePlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
+        final var extension = project.getExtensions().create("metal",MetalExtension.class);
+
         project.getConfigurations().create("nativeNoElements",configuration -> {
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.NONE));
             configuration.setCanBeConsumed(true);

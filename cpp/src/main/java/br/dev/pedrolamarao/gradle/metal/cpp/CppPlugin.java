@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import org.gradle.api.Plugin;
@@ -12,7 +13,8 @@ public class CppPlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(NativeBasePlugin.class);
 
-        project.getExtensions().create("cpp",CppExtension.class);
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
+        metal.getExtensions().create("cpp",CppExtension.class);
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 

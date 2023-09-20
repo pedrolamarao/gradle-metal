@@ -15,9 +15,9 @@ dependencies {
 
 // register "main" sources
 
-val mainAsm = asm.create("main")
+val mainAsm = metal.asm.create("main")
 
-val mainCxx = cxx.create("main")
+val mainCxx = metal.cxx.create("main")
 
 mainCxx.options.languageDialect = "c++20"
 

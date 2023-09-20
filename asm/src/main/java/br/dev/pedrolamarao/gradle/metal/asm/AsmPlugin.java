@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -13,6 +14,7 @@ public class AsmPlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(NativeBasePlugin.class);
 
-        project.getExtensions().create("asm", AsmExtension.class);
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
+        metal.getExtensions().create("asm", AsmExtension.class);
     }
 }

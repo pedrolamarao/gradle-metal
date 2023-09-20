@@ -11,9 +11,9 @@ plugins {
 
 // add assembler sources
 
-val mainAsm = asm.create("main")
+val mainAsm = metal.asm.create("main")
 
-val mainCpp = cpp.create("main")
+val mainCpp = metal.cpp.create("main")
 
 // add "main" archive
 

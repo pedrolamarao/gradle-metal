@@ -8,7 +8,7 @@ plugins {
 
 // register "main" sources
 
-val mainCxx = cxx.create("main")
+val mainCxx = metal.cxx.create("main")
 
 mainCxx.options.languageDialect = "c++20"
 

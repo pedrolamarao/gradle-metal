@@ -1,5 +1,3 @@
-import br.dev.pedrolamarao.gradle.metal.base.NativeArchiveTask
-
 plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.asm")
@@ -9,7 +7,7 @@ plugins {
 
 // register "main" sources
 
-val mainAsm = metal.asm.create("main")
+val mainAsm = metal.asm.sources("main")
 
 val mainCpp = metal.cpp.create("main")
 

@@ -6,7 +6,7 @@ plugins {
 
 // register "main" sources
 
-val mainCxx = metal.cxx.create("main") {
+val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
 }
 

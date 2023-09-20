@@ -13,9 +13,9 @@ dependencies {
 
 // register "main" sources
 
-val mainAsm = metal.asm.create("main")
+val mainAsm = metal.asm.sources("main")
 
-val mainCxx = metal.cxx.create("main") {
+val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
 }
 

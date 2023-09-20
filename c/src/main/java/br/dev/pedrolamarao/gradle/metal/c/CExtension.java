@@ -34,7 +34,7 @@ public abstract class CExtension implements ExtensionAware
     }
 
     @Nonnull
-    public CSources create (String name)
+    public CSources sources (String name)
     {
         final var options = objects.newInstance(CCompileOptions.class);
 
@@ -56,9 +56,9 @@ public abstract class CExtension implements ExtensionAware
     }
 
     @Nonnull
-    public CSources create (String name, Action<? super CSources> configure)
+    public CSources sources (String name, Action<? super CSources> configure)
     {
-        final var sources = create(name);
+        final var sources = sources(name);
         configure.execute(sources);
         return sources;
     }

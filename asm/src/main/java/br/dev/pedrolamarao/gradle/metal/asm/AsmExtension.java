@@ -26,7 +26,7 @@ public abstract class AsmExtension implements ExtensionAware
     }
 
     @Nonnull
-    public AsmSources create (String name)
+    public AsmSources sources (String name)
     {
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/asm".formatted(name));
         final var outputDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
@@ -43,9 +43,9 @@ public abstract class AsmExtension implements ExtensionAware
     }
 
     @Nonnull
-    public AsmSources create (String name, Action<? super AsmSources> configure)
+    public AsmSources sources (String name, Action<? super AsmSources> configure)
     {
-        final var sources = create(name);
+        final var sources = sources(name);
         configure.execute(sources);
         return sources;
     }

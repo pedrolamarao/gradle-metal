@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
@@ -10,13 +11,16 @@ public class CSources
 
     final TaskProvider<CCompileTask> compileTask;
 
-    final SourceDirectorySet sourceDirectorySet;
+    final FileCollection objects;
 
-    public CSources (ListProperty<String> compileOptions, TaskProvider<CCompileTask> compileTask, SourceDirectorySet sourceDirectorySet)
+    final SourceDirectorySet sources;
+
+    public CSources (ListProperty<String> compileOptions, TaskProvider<CCompileTask> compileTask, FileCollection objects, SourceDirectorySet sources)
     {
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
-        this.sourceDirectorySet = sourceDirectorySet;
+        this.objects = objects;
+        this.sources = sources;
     }
 
     public ListProperty<String> getCompileOptions () { return compileOptions; }
@@ -26,8 +30,13 @@ public class CSources
         return compileTask;
     }
 
-    public SourceDirectorySet getSourceDirectories ()
+    public FileCollection getObjects ()
     {
-        return sourceDirectorySet;
+        return objects;
+    }
+
+    public SourceDirectorySet getSources ()
+    {
+        return sources;
     }
 }

@@ -1,30 +1,39 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public abstract class AsmSources
+public class AsmSources
 {
     final TaskProvider<AsmCompileTask> compileTask;
 
-    final SourceDirectorySet sourceDirectorySet;
+    final FileCollection objects;
+
+    final SourceDirectorySet sources;
 
     @Inject
-    public AsmSources (TaskProvider<AsmCompileTask> compileTask, SourceDirectorySet sourceDirectorySet)
+    public AsmSources (TaskProvider<AsmCompileTask> compileTask, FileCollection objects, SourceDirectorySet sources)
     {
         this.compileTask = compileTask;
-        this.sourceDirectorySet = sourceDirectorySet;
-    }
-
-    public SourceDirectorySet getSourceDirectories ()
-    {
-        return sourceDirectorySet;
+        this.objects = objects;
+        this.sources = sources;
     }
 
     public TaskProvider<AsmCompileTask> getCompileTask ()
     {
         return compileTask;
+    }
+
+    public FileCollection getObjects ()
+    {
+        return objects;
+    }
+
+    public SourceDirectorySet getSources ()
+    {
+        return sources;
     }
 }

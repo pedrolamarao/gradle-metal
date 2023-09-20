@@ -15,7 +15,7 @@ val mainCpp = metal.cpp.create("main")
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainAsm.compileTask.get().outputs.files.asFileTree)
+        source(mainAsm.objects)
     }
 }
 

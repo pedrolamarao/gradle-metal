@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
@@ -12,14 +13,17 @@ public class CxxSources
 
     final TaskProvider<CxxCompileInterfaceTask> compileInterfaceTask;
 
-    final SourceDirectorySet sourceDirectorySet;
+    final FileCollection objects;
 
-    public CxxSources (ListProperty<String> compileOptions, TaskProvider<CxxCompileTask> compileTask, TaskProvider<CxxCompileInterfaceTask> compileInterfaceTask, SourceDirectorySet sourceDirectorySet)
+    final SourceDirectorySet sources;
+
+    public CxxSources (ListProperty<String> compileOptions, TaskProvider<CxxCompileTask> compileTask, TaskProvider<CxxCompileInterfaceTask> compileInterfaceTask, FileCollection objects, SourceDirectorySet sources)
     {
+        this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.compileInterfaceTask = compileInterfaceTask;
-        this.sourceDirectorySet = sourceDirectorySet;
-        this.compileOptions = compileOptions;
+        this.objects = objects;
+        this.sources = sources;
     }
 
     public ListProperty<String> getCompileOptions () { return compileOptions; }
@@ -34,8 +38,13 @@ public class CxxSources
         return compileInterfaceTask;
     }
 
-    public SourceDirectorySet getSourceDirectories ()
+    public FileCollection getObjects ()
     {
-        return sourceDirectorySet;
+        return objects;
+    }
+
+    public SourceDirectorySet getSources ()
+    {
+        return sources;
     }
 }

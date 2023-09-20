@@ -75,7 +75,10 @@ public abstract class CxxExtension implements ExtensionAware
             it.setSource(cxxDirectorySet.plus(bmiTask.get().getInterfaceFiles()));
         });
 
-        return new CxxSources(options, objTask, bmiTask, cxxDirectorySet);
+        final var compileObjects = objects.fileCollection();
+        compileObjects.from(objTask.map(it -> it.getOutputs().getFiles()));
+
+        return new CxxSources(options, objTask, bmiTask, compileObjects, cxxDirectorySet);
     }
 
     @Nonnull

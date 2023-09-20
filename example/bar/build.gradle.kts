@@ -14,7 +14,7 @@ val mainCxx = metal.cxx.sources("main") {
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainCxx.compileTask.get().outputs.files.asFileTree)
+        source(mainCxx.objects)
     }
 }
 

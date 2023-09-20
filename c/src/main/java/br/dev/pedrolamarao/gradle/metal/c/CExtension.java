@@ -52,7 +52,10 @@ public abstract class CExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        return new CSources(options, objTask, sourceDirectorySet);
+        final var compileObjects = objects.fileCollection();
+        compileObjects.from(objTask.map(it -> it.getOutputs().getFiles()));
+
+        return new CSources(options, objTask, compileObjects, sourceDirectorySet);
     }
 
     @Nonnull

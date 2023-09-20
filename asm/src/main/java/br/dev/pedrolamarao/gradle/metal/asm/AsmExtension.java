@@ -34,12 +34,15 @@ public abstract class AsmExtension implements ExtensionAware
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s assembler sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
-        final var compileTask = tasks.register("compile%sassembler", AsmCompileTask.class, it -> {
+        final var compileTask = tasks.register("compile%sassembler".formatted(name), AsmCompileTask.class, it -> {
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
         });
 
-        return objects.newInstance(AsmSources.class,compileTask,sourceDirectorySet);
+        final var compileObjects = objects.fileCollection();
+        compileObjects.from(compileTask.map(it -> it.getOutputs().getFiles()));
+
+        return new AsmSources(compileTask, compileObjects, sourceDirectorySet);
     }
 
     @Nonnull

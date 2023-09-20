@@ -24,8 +24,8 @@ val mainCxx = metal.cxx.sources("main") {
 val mainApplication = metal.application("main") {
     linkOptions = listOf("-g")
     linkTask.configure {
-        source(mainAsm.compileTask.get().outputs.files.asFileTree)
-        source(mainCxx.compileTask.get().outputs.files.asFileTree)
+        source(mainAsm.objects)
+        source(mainCxx.objects)
     }
 }
 

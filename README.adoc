@@ -3,10 +3,15 @@
 
 `gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
 
+The `example` subfolder contains a project demonstrating various capabilities.
+
+*WARNING*: this project is under early development, APIs *will* change without prior notice.
+
 The goals of this project are:
 
-* compiling native source languages (`asm`, `c` and `cxx`)
-* producing native components (static archives, shared libraries and executables)
-* supporting C++ modules
-* supporting inter-project dependencies
-* supporting multiple target machines
+* compiling native source languages: `asm`, `c` and `cxx`
+* producing native components: static archives, shared libraries and executables
+* support inter-project dependency on module interfaces, headers and libraries
+* support multiple target machines
+
+For development status, see link:TODO.adoc[TODO.adoc]

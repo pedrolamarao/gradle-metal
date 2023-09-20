@@ -1,0 +1,8 @@
+export module br.dev.pedrolamarao.foo;
+
+export namespace br::dev::pedrolamarao::foo
+{
+    constexpr long long value = 123;
+
+    long long foo (char const * arg);
+}

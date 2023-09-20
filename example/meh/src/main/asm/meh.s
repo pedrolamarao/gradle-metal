@@ -1,0 +1,3 @@
+.global meh
+meh:
+    ret

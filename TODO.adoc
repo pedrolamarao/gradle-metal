@@ -5,10 +5,15 @@
 * [ ] compile source dependencies independently of the commands database
 * [ ] compile multiple module interfaces in order
 * [ ] variant target machines
+- [ ] build components for --target
+- [ ] ignore components incapable of target
 * [ ] variant tools
 - [ ] GCC tools
 - [ ] MS tools
-* [ ] vcpkg dependency
+* [ ] "prebuilt" dependencies
+* [ ] "sysroot" dependencies
+* [ ] vcpkg dependencies
+* [ ] maven dependencies
 
 == done
 

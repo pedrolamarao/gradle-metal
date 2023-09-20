@@ -2,32 +2,28 @@ package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
 @NonNullApi
-public class CxxSources implements Named
+public class IxxSources implements Named
 {
     final ListProperty<String> compileOptions;
 
-    final TaskProvider<CxxCompileTask> compileTask;
+    final TaskProvider<IxxCompileTask> compileTask;
 
     final String name;
 
-    final SourceDirectorySet sources;
-
-    public CxxSources (ListProperty<String> compileOptions, TaskProvider<CxxCompileTask> compileTask, String name, SourceDirectorySet sources)
+    public IxxSources (ListProperty<String> compileOptions, TaskProvider<IxxCompileTask> compileTask, String name)
     {
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
-        this.sources = sources;
     }
 
     public ListProperty<String> getCompileOptions () { return compileOptions; }
 
-    public TaskProvider<CxxCompileTask> getCompileTask ()
+    public TaskProvider<IxxCompileTask> getCompileTask ()
     {
         return compileTask;
     }
@@ -36,10 +32,5 @@ public class CxxSources implements Named
     public String getName ()
     {
         return name;
-    }
-
-    public SourceDirectorySet getSources ()
-    {
-        return sources;
     }
 }

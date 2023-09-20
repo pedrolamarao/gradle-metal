@@ -38,47 +38,26 @@ public abstract class CxxExtension implements ExtensionAware
     {
         final var options = objects.listProperty(String.class);
 
-        final var cxxDirectory = layout.getProjectDirectory().dir("src/%s/cxx".formatted(name));
-        final var cxxDirectorySet = objects.sourceDirectorySet(name, "%s c++ sources".formatted(name));
-        cxxDirectorySet.srcDir(cxxDirectory);
+        final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/cxx".formatted(name));
+        final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s c++ sources".formatted(name));
+        sourceDirectorySet.srcDir(sourceDirectory);
 
-        final var cxxmDirectory = layout.getProjectDirectory().dir("src/%s/cxxm".formatted(name));
-        final var cxxmDirectorySet = objects.sourceDirectorySet(name, "%s c++ module interface sources".formatted(name));
-        cxxmDirectorySet.srcDir(cxxmDirectory);
-
-        final var includeDependencies = configurations.findByName("cppIncludeDependencies");
-
-        final var importDependencies = configurations.named("cxxImportDependencies");
-
-        final var bmiDirectory = layout.getBuildDirectory().dir("bmi/%s/cxx".formatted(name));
-        final var bmiTask = tasks.register("compile%scxxinterface".formatted(name), CxxCompileInterfaceTask.class, it -> {
-            it.getCompileOptions().convention(options);
+        final var compileTask = tasks.register("compile-%s-cxx".formatted(name), CxxCompileTask.class, it ->
+        {
+            final var outputDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
+            final var includeDependencies = configurations.findByName("cppIncludeDependencies");
+            final var importDependencies = configurations.named("cxxImportDependencies");
+            it.getCompileOptions().set(options);
             if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
-            it.getModuleDependencies().from(importDependencies.get());
-            it.getOutputDirectory().set(bmiDirectory);
-            it.setSource(cxxmDirectorySet);
-        });
-
-        configurations.named("cxxImportElements").configure(configuration -> {
-            configuration.getOutgoing().artifacts(bmiTask.map(CxxCompileInterfaceTask::getInterfaceFiles), artifact -> {
-                artifact.builtBy(bmiTask);
-            });
-        });
-
-        final var objDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
-        final var objTask = tasks.register("compile%scxx".formatted(name), CxxCompileTask.class, it -> {
-            it.getCompileOptions().convention(options);
-            if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
-            it.getModuleDependencies().from(importDependencies.get());
-            it.getModuleDependencies().from(bmiTask.get().getOutputs().getFiles().getAsFileTree());
-            it.getOutputDirectory().set(objDirectory);
-            it.setSource(cxxDirectorySet.plus(bmiTask.get().getInterfaceFiles()));
+            it.getModuleDependencies().from(importDependencies);
+            it.getOutputDirectory().set(outputDirectory);
+            it.setSource(sourceDirectorySet);
         });
 
         final var compileObjects = objects.fileCollection();
-        compileObjects.from(objTask.map(it -> it.getOutputs().getFiles()));
+        compileObjects.from(compileTask.map(it -> it.getOutputs().getFiles()));
 
-        return new CxxSources(options, objTask, bmiTask, compileObjects, cxxDirectorySet);
+        return new CxxSources(options, compileTask, name, sourceDirectorySet);
     }
 
     @Nonnull

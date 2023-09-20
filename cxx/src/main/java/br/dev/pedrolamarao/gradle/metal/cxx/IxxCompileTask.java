@@ -1,0 +1,138 @@
+// Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
+
+package br.dev.pedrolamarao.gradle.metal.cxx;
+
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.tasks.*;
+import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
+import org.gradle.workers.WorkerExecutor;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public abstract class IxxCompileTask extends CxxCompileBaseTask
+{
+    final ExecOperations exec;
+
+    final ObjectFactory objects;
+
+    final WorkerExecutor workers;
+
+    @Internal @Nonnull
+    public FileCollection getInterfaceFiles ()
+    {
+        final var collection = objects.fileCollection();
+        final var baseDirectory = getProject().getProjectDir().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+        getSource().forEach(source -> collection.from(toOutputPath(baseDirectory,source.toPath(),outputDirectory)));
+        return collection;
+    }
+
+    @Inject
+    public IxxCompileTask (ExecOperations exec, ObjectFactory objects, WorkerExecutor workers)
+    {
+        this.exec = exec;
+        this.objects = objects;
+        this.workers = workers;
+    }
+
+    public interface ScanParameter extends WorkParameters
+    {
+        ListProperty<String> getCompileArgs ();
+
+        RegularFileProperty getSourceFile ();
+    }
+
+    public static abstract class ScanAction implements WorkAction<ScanParameter>
+    {
+        @Inject
+        public abstract ExecOperations getExecOperations ();
+
+        @Override
+        public void execute ()
+        {
+            final var parameters = getParameters();
+
+            final var scanArgs = new ArrayList<String>();
+            scanArgs.add("clang-scan-deps");
+            scanArgs.add("--format=p1689");
+            scanArgs.add("--");
+            scanArgs.addAll(parameters.getCompileArgs().get());
+            scanArgs.add(parameters.getSourceFile().get().toString());
+
+            final var buffer = new ByteArrayOutputStream();
+
+            getExecOperations().exec(it -> {
+                it.setCommandLine(scanArgs);
+                it.setStandardOutput(buffer);
+            });
+
+            final var map = (Map<?,?>) new groovy.json.JsonSlurper().parse(buffer.toByteArray());
+        }
+    }
+
+    @TaskAction
+    public void compile () throws IOException
+    {
+        final var compileArgs = new ArrayList<String>();
+        compileArgs.add("clang++");
+        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
+        getModuleDependencies().forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
+        compileArgs.addAll(getCompileOptions().get());
+        compileArgs.add("--language=c++-module");
+        compileArgs.add("--precompile");
+
+        final var scanWorkers = workers.noIsolation();
+        for (var sourceFile : getSource()) {
+            scanWorkers.submit(ScanAction.class, parameter ->
+            {
+                parameter.getCompileArgs().set(compileArgs);
+                parameter.getSourceFile().set(sourceFile);
+            });
+        }
+        scanWorkers.await();
+        // #TODO: build dependency graph
+
+        final var baseDirectory = getProject().getProjectDir().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+
+        // #TODO: sort sources in dependency order
+        if (getSource().getFiles().size() > 1) {
+            getLogger().warn("Task currently compiles module interface files out of order");
+        }
+
+        for (var sourceFile : getSource())
+        {
+            final var output = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory);
+            Files.createDirectories(output.getParent());
+
+            final var command = new ArrayList<>(compileArgs);
+            command.add("--output=%s".formatted(output));
+            command.add(sourceFile.toString());
+
+            exec.exec(it -> {
+                it.commandLine(command);
+            });
+        }
+    }
+
+    static Path toOutputPath (Path baseDirectory, Path source, Path outputDirectory)
+    {
+        final var relative = baseDirectory.relativize(source);
+        final var output = outputDirectory.resolve("%X".formatted(relative.hashCode()));
+        return output.resolve(source.getFileName() + ".pcm");
+    }
+}

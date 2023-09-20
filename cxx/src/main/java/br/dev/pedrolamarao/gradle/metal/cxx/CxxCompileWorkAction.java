@@ -33,7 +33,8 @@ abstract class CxxCompileWorkAction implements WorkAction<CxxCompileWorkParamete
             final var command = new ArrayList<String>();
             command.add("clang++");
             parameters.getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file)));
-            parameters.getModuleDependencies().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
+            parameters.getModuleDependencies().getAsFileTree()
+                .forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
             command.addAll(parameters.getOptions().get());
             command.add("--compile");
             command.add("--output=%s".formatted(output));

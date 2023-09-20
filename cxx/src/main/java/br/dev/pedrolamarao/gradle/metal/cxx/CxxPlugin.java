@@ -17,6 +17,7 @@ public class CxxPlugin implements Plugin<Project>
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
         metal.getExtensions().create("cxx",CxxExtension.class);
+        metal.getExtensions().create("ixx",IxxExtension.class);
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 

@@ -3,7 +3,7 @@
 
 `gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
 
-JDK 17 or later is required.
+JDK 17 and LLVM 16 (clang, llvm-ar, lld) are required.
 
 Try it with the following command in the `example` subfolder: `../gradlew --info build`
 

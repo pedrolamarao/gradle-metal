@@ -38,8 +38,7 @@ public abstract class NativeLinkTask extends SourceTask
         final var command = new ArrayList<String>();
         command.add("clang");
         command.addAll(getOptions().get());
-        command.add("-o");
-        command.add(target.toString());
+        command.add("--output=%s".formatted(target));
         getLibraryDependencies().forEach(file -> command.add(file.toString()));
         getSource().forEach(file -> command.add(file.toString()));
 

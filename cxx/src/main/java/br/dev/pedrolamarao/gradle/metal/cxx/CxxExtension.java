@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -8,6 +9,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public abstract class CxxExtension implements ExtensionAware
@@ -32,6 +34,7 @@ public abstract class CxxExtension implements ExtensionAware
         this.tasks = tasks;
     }
 
+    @Nonnull
     public CxxSources create (String name)
     {
         final var options = objects.listProperty(String.class);
@@ -74,5 +77,13 @@ public abstract class CxxExtension implements ExtensionAware
         });
 
         return new CxxSources(options, objTask, bmiTask, cxxDirectorySet);
+    }
+
+    @Nonnull
+    public CxxSources create (String name, Action<? super CxxSources> configure)
+    {
+        final var sources = create(name);
+        configure.execute(sources);
+        return sources;
     }
 }

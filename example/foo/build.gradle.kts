@@ -15,19 +15,18 @@ dependencies {
 
 val mainAsm = metal.asm.create("main")
 
-val mainCxx = metal.cxx.create("main")
-
-mainCxx.compileOptions = listOf("-g","--std=c++20")
+val mainCxx = metal.cxx.create("main") {
+    compileOptions = listOf("-g","--std=c++20")
+}
 
 // register "main" application
 
-val mainApplication = metal.application("main")
-
-mainApplication.linkOptions = listOf("-g")
-
-mainApplication.linkTask.configure {
-    source(mainAsm.compileTask.get().outputs.files.asFileTree)
-    source(mainCxx.compileTask.get().outputs.files.asFileTree)
+val mainApplication = metal.application("main") {
+    linkOptions = listOf("-g")
+    linkTask.configure {
+        source(mainAsm.compileTask.get().outputs.files.asFileTree)
+        source(mainCxx.compileTask.get().outputs.files.asFileTree)
+    }
 }
 
 // wire to base tasks

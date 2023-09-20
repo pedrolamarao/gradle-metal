@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -43,6 +44,14 @@ public abstract class MetalExtension implements ExtensionAware
     }
 
     @Nonnull
+    public MetalApplication application (String name, Action<? super MetalApplication> configure)
+    {
+        final var sources = application(name);
+        configure.execute(sources);
+        return sources;
+    }
+
+    @Nonnull
     public MetalArchive archive (String name)
     {
         final var archiveOptions = objects.listProperty(String.class);
@@ -60,5 +69,13 @@ public abstract class MetalExtension implements ExtensionAware
         });
 
         return new MetalArchive(archiveOptions, archiveTask);
+    }
+
+    @Nonnull
+    public MetalArchive archive (String name, Action<? super MetalArchive> configure)
+    {
+        final var sources = archive(name);
+        configure.execute(sources);
+        return sources;
     }
 }

@@ -1,10 +1,12 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import org.gradle.api.Action;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public abstract class AsmExtension implements ExtensionAware
@@ -23,6 +25,7 @@ public abstract class AsmExtension implements ExtensionAware
         this.tasks = tasks;
     }
 
+    @Nonnull
     public AsmSources create (String name)
     {
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/asm".formatted(name));
@@ -37,5 +40,13 @@ public abstract class AsmExtension implements ExtensionAware
         });
 
         return objects.newInstance(AsmSources.class,compileTask,sourceDirectorySet);
+    }
+
+    @Nonnull
+    public AsmSources create (String name, Action<? super AsmSources> configure)
+    {
+        final var sources = create(name);
+        configure.execute(sources);
+        return sources;
     }
 }

@@ -6,16 +6,16 @@ plugins {
 
 // register "main" sources
 
-val mainCxx = metal.cxx.create("main")
-
-mainCxx.compileOptions = listOf("-g","--std=c++20")
+val mainCxx = metal.cxx.create("main") {
+    compileOptions = listOf("-g","--std=c++20")
+}
 
 // register "main" archive
 
-val mainArchive = metal.archive("main")
-
-mainArchive.archiveTask.configure {
-    source(mainCxx.compileTask.get().outputs.files.asFileTree)
+val mainArchive = metal.archive("main") {
+    archiveTask.configure {
+        source(mainCxx.compileTask.get().outputs.files.asFileTree)
+    }
 }
 
 // wire to base tasks

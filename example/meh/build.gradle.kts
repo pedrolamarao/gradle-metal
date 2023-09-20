@@ -9,18 +9,16 @@ plugins {
 
 // register "main" sources
 
-// add assembler sources
-
 val mainAsm = metal.asm.create("main")
 
 val mainCpp = metal.cpp.create("main")
 
 // add "main" archive
 
-val mainArchive = metal.archive("main")
-
-mainArchive.archiveTask.configure {
-    source(mainAsm.compileTask.get().outputs.files.asFileTree)
+val mainArchive = metal.archive("main") {
+    archiveTask.configure {
+        source(mainAsm.compileTask.get().outputs.files.asFileTree)
+    }
 }
 
 // wire to base tasks

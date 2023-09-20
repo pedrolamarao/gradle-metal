@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -7,6 +8,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public abstract class CExtension implements ExtensionAware
@@ -22,7 +24,7 @@ public abstract class CExtension implements ExtensionAware
     final TaskContainer tasks;
 
     @Inject
-    public CExtension(ConfigurationContainer configurations, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskContainer tasks)
+    public CExtension (ConfigurationContainer configurations, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskContainer tasks)
     {
         this.configurations = configurations;
         this.objects = objects;
@@ -31,6 +33,7 @@ public abstract class CExtension implements ExtensionAware
         this.tasks = tasks;
     }
 
+    @Nonnull
     public CSources create (String name)
     {
         final var options = objects.newInstance(CCompileOptions.class);
@@ -50,5 +53,13 @@ public abstract class CExtension implements ExtensionAware
         });
 
         return new CSources(objTask, sourceDirectorySet, options);
+    }
+
+    @Nonnull
+    public CSources create (String name, Action<? super CSources> configure)
+    {
+        final var sources = create(name);
+        configure.execute(sources);
+        return sources;
     }
 }

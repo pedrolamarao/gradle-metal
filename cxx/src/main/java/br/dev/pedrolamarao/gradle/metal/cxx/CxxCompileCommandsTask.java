@@ -18,9 +18,6 @@ import java.util.stream.Collectors;
 public abstract class CxxCompileCommandsTask extends CxxCompileBaseTask
 {
     @Input
-    public abstract ListProperty<String> getOptions ();
-
-    @Input
     public abstract Property<File> getObjectDirectory ();
 
     @Internal
@@ -43,8 +40,8 @@ public abstract class CxxCompileCommandsTask extends CxxCompileBaseTask
     {
         final var command = new ArrayList<String>();
         command.add("clang++");
-        command.addAll(getOptions().get());
         getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
+        command.addAll(getCompileOptions().get());
 
         final var arguments = command.stream().collect(Collectors.joining("\",\"","\"","\""));
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");

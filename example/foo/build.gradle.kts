@@ -1,5 +1,3 @@
-import br.dev.pedrolamarao.gradle.metal.base.NativeLinkTask
-
 plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.asm")
@@ -19,13 +17,13 @@ val mainAsm = metal.asm.create("main")
 
 val mainCxx = metal.cxx.create("main")
 
-mainCxx.options.languageDialect = "c++20"
+mainCxx.compileOptions = listOf("-g","--std=c++20")
 
 // register "main" application
 
 val mainApplication = metal.application("main")
 
-mainApplication.linkOptions = listOf("-flto","-g")
+mainApplication.linkOptions = listOf("-g")
 
 mainApplication.linkTask.configure {
     source(mainAsm.compileTask.get().outputs.files.asFileTree)

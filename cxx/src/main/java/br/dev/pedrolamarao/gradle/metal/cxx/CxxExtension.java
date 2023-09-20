@@ -4,6 +4,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
@@ -33,7 +34,7 @@ public abstract class CxxExtension implements ExtensionAware
 
     public CxxSources create (String name)
     {
-        final var options = objects.newInstance(CxxCompileOptions.class);
+        final var options = objects.listProperty(String.class);
 
         final var cxxDirectory = layout.getProjectDirectory().dir("src/%s/cxx".formatted(name));
         final var cxxDirectorySet = objects.sourceDirectorySet(name, "%s c++ sources".formatted(name));
@@ -49,9 +50,9 @@ public abstract class CxxExtension implements ExtensionAware
 
         final var bmiDirectory = layout.getBuildDirectory().dir("bmi/%s/cxx".formatted(name));
         final var bmiTask = tasks.register("compile%scxxinterface".formatted(name), CxxCompileInterfaceTask.class, it -> {
+            it.getCompileOptions().convention(options);
             if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
             it.getModuleDependencies().from(importDependencies.get());
-            it.getOptions().set(options.toList());
             it.getOutputDirectory().set(bmiDirectory);
             it.setSource(cxxmDirectorySet);
         });
@@ -64,14 +65,14 @@ public abstract class CxxExtension implements ExtensionAware
 
         final var objDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
         final var objTask = tasks.register("compile%scxx".formatted(name), CxxCompileTask.class, it -> {
+            it.getCompileOptions().convention(options);
             if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
             it.getModuleDependencies().from(importDependencies.get());
             it.getModuleDependencies().from(bmiTask.get().getOutputs().getFiles().getAsFileTree());
-            it.getOptions().set(options.toList());
             it.getOutputDirectory().set(objDirectory);
             it.setSource(cxxDirectorySet.plus(bmiTask.get().getInterfaceFiles()));
         });
 
-        return new CxxSources(objTask, bmiTask, cxxDirectorySet, options);
+        return new CxxSources(options, objTask, bmiTask, cxxDirectorySet);
     }
 }

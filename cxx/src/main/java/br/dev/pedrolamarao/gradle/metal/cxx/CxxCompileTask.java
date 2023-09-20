@@ -13,9 +13,6 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
 
-    @Input
-    public abstract ListProperty<String> getOptions ();
-
     @Inject
     public CxxCompileTask (WorkerExecutor workerExecutor)
     {
@@ -35,8 +32,8 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
                 final var output = toOutputPath(baseDirectory,source.toPath());
                 parameters.getHeaderDependencies().from(getHeaderDependencies());
                 parameters.getModuleDependencies().from(getModuleDependencies());
+                parameters.getOptions().set(getCompileOptions());
                 parameters.getOutput().set(output.toFile());
-                parameters.getOptions().set(getOptions());
                 parameters.getSource().set(source);
             });
         });

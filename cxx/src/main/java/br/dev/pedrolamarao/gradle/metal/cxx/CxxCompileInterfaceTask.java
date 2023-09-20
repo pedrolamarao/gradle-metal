@@ -21,12 +21,6 @@ public abstract class CxxCompileInterfaceTask extends CxxCompileBaseTask
 
     final ObjectFactory objectFactory;
 
-    @InputFile @Optional
-    public abstract RegularFileProperty getDependencies ();
-
-    @Input
-    public abstract ListProperty<String> getOptions ();
-
     @Internal
     public FileCollection getInterfaceFiles ()
     {
@@ -61,7 +55,7 @@ public abstract class CxxCompileInterfaceTask extends CxxCompileBaseTask
             command.add("clang++");
             getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file)));
             getModuleDependencies().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
-            command.addAll(getOptions().get());
+            command.addAll(getCompileOptions().get());
             command.add("--precompile");
             command.add("-o");
             command.add(output.toString());

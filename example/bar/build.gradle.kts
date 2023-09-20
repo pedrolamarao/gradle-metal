@@ -1,5 +1,3 @@
-import br.dev.pedrolamarao.gradle.metal.base.NativeArchiveTask
-
 plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.cxx")
@@ -10,7 +8,7 @@ plugins {
 
 val mainCxx = metal.cxx.create("main")
 
-mainCxx.options.languageDialect = "c++20"
+mainCxx.compileOptions = listOf("-g","--std=c++20")
 
 // register "main" archive
 

@@ -39,14 +39,10 @@ abstract class AsmCompileWorkAction implements WorkAction<AsmCompileWorkParamete
 
             final var command = new ArrayList<String>();
             command.add("clang");
-            if (parameters.getTargetMachine().isPresent()) {
-                command.add("-target");
-                command.add(parameters.getTargetMachine().get());
-            }
             command.addAll(parameters.getOptions().get());
-            command.add("-o");
-            command.add(output.toString());
-            command.add("-c");
+            command.add("--compile");
+            command.add("--output=%s".formatted(output));
+            command.add("--language=assembler");
             command.add(source.toString());
 
             execOperations.exec(it ->
@@ -58,7 +54,7 @@ abstract class AsmCompileWorkAction implements WorkAction<AsmCompileWorkParamete
         catch (Exception e) { throw new RuntimeException(e); }
     }
 
-    Path toOutputPath (Path base, Path source, Path output)
+    static Path toOutputPath (Path base, Path source, Path output)
     {
         final var relative = base.relativize(source);
         final var target = output.resolve("%X".formatted(relative.hashCode()));

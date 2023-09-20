@@ -17,6 +17,4 @@ public abstract class AsmCompileWorkParameters implements WorkParameters
     public abstract DirectoryProperty getOutputDirectory ();
 
     public abstract RegularFileProperty getSourceFile ();
-
-    public abstract Property<String> getTargetMachine ();
 }

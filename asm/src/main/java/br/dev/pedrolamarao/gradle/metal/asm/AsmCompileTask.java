@@ -20,13 +20,10 @@ public abstract class AsmCompileTask extends SourceTask
     public abstract ConfigurableFileCollection getModules ();
 
     @Input
-    public abstract ListProperty<String> getOptions ();
+    public abstract ListProperty<String> getCompileOptions ();
 
     @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory ();
-
-    @Input @Option(option="target",description="code generation target") @Optional
-    public abstract Property<String> getTarget ();
 
     @Inject
     public AsmCompileTask (WorkerExecutor workerExecutor)
@@ -46,9 +43,8 @@ public abstract class AsmCompileTask extends SourceTask
             {
                 parameters.getBaseDirectory().set(baseDirectory);
                 parameters.getOutputDirectory().set(getOutputDirectory());
-                parameters.getOptions().set(getOptions());
+                parameters.getOptions().set(getCompileOptions());
                 parameters.getSourceFile().set(source);
-                parameters.getTargetMachine().set(getTarget());
             });
         });
     }

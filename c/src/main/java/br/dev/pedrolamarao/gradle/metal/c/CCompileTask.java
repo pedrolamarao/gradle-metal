@@ -19,7 +19,7 @@ public abstract class CCompileTask extends SourceTask
     public abstract ConfigurableFileCollection getHeaderDependencies ();
 
     @Input
-    public abstract ListProperty<String> getOptions ();
+    public abstract ListProperty<String> getCompileOptions ();
 
     @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory ();
@@ -43,7 +43,7 @@ public abstract class CCompileTask extends SourceTask
                 final var output = toOutputPath(baseDirectory,source.toPath());
                 parameters.getHeaderDependencies().from(getHeaderDependencies());
                 parameters.getOutput().set(output.toFile());
-                parameters.getOptions().set(getOptions());
+                parameters.getOptions().set(getCompileOptions());
                 parameters.getSource().set(source);
             });
         });

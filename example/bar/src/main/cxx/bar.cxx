@@ -2,8 +2,8 @@ module br.dev.pedrolamarao.bar;
 
 namespace br::dev::pedrolamarao::bar
 {
-    long long bar (char const * arg)
+    i32 bar (char const * arg)
     {
-        return -2;
+        return i32::interpret(arg);
     }
 }

@@ -1,12 +1,12 @@
 import br.dev.pedrolamarao.bar;
 import br.dev.pedrolamarao.foo;
 
-extern "C" void meh ();
+using namespace br::dev::pedrolamarao::bar;
+using namespace br::dev::pedrolamarao::foo;
 
 int main (int argc, char * argv [])
 {
-    using br::dev::pedrolamarao::bar::bar;
-    using br::dev::pedrolamarao::foo::foo;
+    array<s32,4> numbers {};
 
-    return bar(argv[0]) + foo(argv[1]);
+    return convert<int>( sum( bar(argv[0]), foo(argv[1]) ) );
 }

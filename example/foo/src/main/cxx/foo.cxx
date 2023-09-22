@@ -4,9 +4,11 @@ module;
 
 module br.dev.pedrolamarao.foo;
 
+import br.dev.pedrolamarao.bar;
+
 namespace br::dev::pedrolamarao::foo
 {
-    long long foo (char const * arg)
+    i32 foo (char const * arg)
     {
         meh();
         return value;

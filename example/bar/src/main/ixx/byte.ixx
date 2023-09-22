@@ -1,3 +1,7 @@
+module;
+
+#include <compare>
+
 export module br.dev.pedrolamarao.bar:byte;
 
 using _size = decltype(sizeof(nullptr));
@@ -14,7 +18,8 @@ export namespace be::dev::pedrolamarao::bar
 
         byte () = default;
 
-        constexpr explicit byte (storage_type value) : storage{value} {}
+        constexpr explicit
+        byte (storage_type value) : storage{value} {}
 
         byte (byte const &) = default;
 
@@ -31,6 +36,50 @@ export namespace be::dev::pedrolamarao::bar
             auto tmp = storage;
             storage = that.storage;
             that.storage = tmp;
+        }
+
+        //
+
+        constexpr
+        auto is_equal (byte that) const
+        {
+            return storage == that.storage;
+        }
+
+        constexpr
+        auto not_equal (byte that) const
+        {
+            return storage != that.storage;
+        }
+
+        constexpr
+        auto is_less (byte that) const
+        {
+            return storage < that.storage;
+        }
+
+        constexpr
+        auto is_greater (byte that) const
+        {
+            return storage > that.storage;
+        }
+
+        constexpr
+        auto is_not_less (byte that) const
+        {
+            return storage <= that.storage;
+        }
+
+        constexpr
+        auto is_not_greater (byte that) const
+        {
+            return storage >= that.storage;
+        }
+
+        constexpr
+        auto compare (byte that) const
+        {
+            return storage <=> that.storage;
         }
     };
 }

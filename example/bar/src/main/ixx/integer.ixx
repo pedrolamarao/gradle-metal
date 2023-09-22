@@ -1,3 +1,7 @@
+module;
+
+#include <compare>
+
 export module br.dev.pedrolamarao.bar:integer;
 
 using _size = decltype(sizeof(nullptr));
@@ -15,7 +19,8 @@ export namespace br::dev::pedrolamarao::bar
 
         integer () = default;
 
-        constexpr integer (storage_type value) : storage{value} {}
+        constexpr explicit
+        integer (storage_type value) : storage{value} {}
 
         integer (integer const &) = default;
 
@@ -27,6 +32,7 @@ export namespace br::dev::pedrolamarao::bar
 
         auto operator= (integer &&) -> integer & = default;
 
+        constexpr
         void swap (integer & that)
         {
             auto tmp = storage;
@@ -37,7 +43,7 @@ export namespace br::dev::pedrolamarao::bar
         //
 
         template <typename T>
-        static constexpr
+        constexpr static
         auto convert (T t) -> integer
         {
             const storage_type x { t };
@@ -53,7 +59,7 @@ export namespace br::dev::pedrolamarao::bar
         }
 
         template <typename T>
-        static constexpr
+        constexpr static
         auto interpret (T t) -> integer
         {
             const auto x { reinterpret_cast<storage_type>(t) };
@@ -70,36 +76,43 @@ export namespace br::dev::pedrolamarao::bar
 
         //
 
+        constexpr
         auto is_equal (integer that) const
         {
             return storage == that.storage;
         }
 
+        constexpr
         auto not_equal (integer that) const
         {
             return storage != that.storage;
         }
 
+        constexpr
         auto is_less (integer that) const
         {
             return storage < that.storage;
         }
 
+        constexpr
         auto is_greater (integer that) const
         {
             return storage > that.storage;
         }
 
+        constexpr
         auto is_not_less (integer that) const
         {
             return storage <= that.storage;
         }
 
+        constexpr
         auto is_not_greater (integer that) const
         {
             return storage >= that.storage;
         }
 
+        constexpr
         auto compare (integer that) const
         {
             return storage <=> that.storage;
@@ -107,26 +120,31 @@ export namespace br::dev::pedrolamarao::bar
 
         //
 
+        constexpr
         auto sum (integer that) const
         {
            return integer{storage+that.storage};
         }
 
+        constexpr
         auto difference (integer that) const
         {
            return integer{storage-that.storage};
         }
 
+        constexpr
         auto product (integer that) const
         {
            return integer{storage*that.storage};
         }
 
+        constexpr
         auto quotient (integer that) const
         {
            return integer{storage/that.storage};
         }
 
+        constexpr
         auto remainder (integer that) const
         {
            return integer{storage%that.storage};
@@ -134,11 +152,13 @@ export namespace br::dev::pedrolamarao::bar
 
         //
 
+        constexpr
         auto doubled (_size times) const
         {
             return integer{storage<<times};
         }
 
+        constexpr
         auto halved (_size times) const
         {
             return integer{storage>>times};

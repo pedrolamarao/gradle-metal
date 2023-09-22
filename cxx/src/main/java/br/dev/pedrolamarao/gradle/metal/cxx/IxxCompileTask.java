@@ -4,8 +4,6 @@ package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.*;
@@ -16,15 +14,10 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class IxxCompileTask extends CxxCompileBaseTask
 {
@@ -63,8 +56,6 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
 
     public static abstract class ScanAction implements WorkAction<ScanParameter>
     {
-        static final Logger logger = Logging.getLogger(ScanAction.class);
-
         @Inject
         public abstract ExecOperations getExecOperations ();
 
@@ -73,9 +64,10 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
         {
             final var parameters = getParameters();
             final var sourceFile = parameters.getSourceFile().getAsFile().get();
+            final var outputFile = parameters.getOutputFile().getAsFile().get();
 
+            // obtain P1689 dependency information from sources
             final var buffer = new ByteArrayOutputStream();
-
             try
             {
                 final var scanArgs = new ArrayList<String>();
@@ -93,9 +85,10 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
 
+            // parse P1689 dependency information
             final var sourceProvides = new ArrayList<String>();
             final var sourceRequires = new ArrayList<String>();
-
+            final IxxDependencies dependencies;
             try
             {
                 final var json = (Map<?,?>) new groovy.json.JsonSlurper().parse( buffer.toByteArray() );
@@ -116,20 +109,32 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
                         sourceRequires.add(logicalName.toString());
                     }
                 }
+
+                dependencies = new IxxDependencies(sourceFile,sourceProvides,sourceRequires);
             }
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
 
-            logger.info("dependencies: {}: provides: {}",sourceFile,sourceProvides);
-            logger.info("dependencies: {}: requires: {}",sourceFile,sourceRequires);
+            // serialize IxxDependencies
+            try
+            {
+                Files.createDirectories(outputFile.toPath().getParent());
+                try (var outputStream = new ObjectOutputStream(Files.newOutputStream(outputFile.toPath()))) {
+                    outputStream.writeObject(dependencies);
+                    outputStream.flush();
+                }
+            }
+            catch (RuntimeException e) { throw e; }
+            catch (Exception e) { throw new RuntimeException(e); }
         }
     }
 
     @TaskAction
-    public void compile () throws IOException
+    public void compile () throws ClassNotFoundException, IOException
     {
         final var baseDirectory = getProject().getProjectDir().toPath();
 
+        // prepare compile arguments
         final var compileArgs = new ArrayList<String>();
         compileArgs.add("clang++");
         getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
@@ -138,11 +143,12 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
         compileArgs.add("--language=c++-module");
         compileArgs.add("--precompile");
 
+        // discover dependencies from sources: assemble dependency files
         final var scanWorkers = workers.noIsolation();
+        getProject().delete(getTemporaryDir());
         for (var sourceFile : getSource()) {
             final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), getTemporaryDir().toPath(), ".deps");
-            scanWorkers.submit(ScanAction.class, parameter ->
-            {
+            scanWorkers.submit(ScanAction.class, parameter -> {
                 parameter.getCompileArgs().set(compileArgs);
                 parameter.getOutputFile().set(outputPath.toFile());
                 parameter.getSourceFile().set(sourceFile);
@@ -150,19 +156,40 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
         }
         scanWorkers.await();
 
-        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
-
-        // #TODO: sort sources in dependency order
-        if (getSource().getFiles().size() > 1) {
-            getLogger().warn("Task currently compiles module interface files out of order");
+        // discover dependencies from sources: parse dependency files
+        final var dependencyGraph = new ArrayList<IxxDependencies>();
+        for (var dependencyFile : objects.fileCollection().from(getTemporaryDir()).getAsFileTree()) {
+            try (var stream = new ObjectInputStream(Files.newInputStream(dependencyFile.toPath()))) {
+                final var dependencies = (IxxDependencies) stream.readObject();
+                dependencyGraph.add(dependencies);
+            }
         }
 
-        for (var sourceFile : getSource())
+        // sort sources in dependency order
+        dependencyGraph.sort((x,y) -> {
+            for (var requires : y.requires())
+                if (x.provides().contains(requires))
+                    return -1;
+            for (var provides : y.provides())
+                if (x.requires().contains(provides))
+                    return 1;
+            return 0;
+        });
+
+        // remove old objects
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+        getProject().delete(outputDirectory);
+
+        // compile objects from sources
+        final var outputList = new ArrayList<Path>();
+        for (var sourceFile : dependencyGraph.stream().map(IxxDependencies::file).toList())
         {
             final var output = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory, ".pcm");
+            outputList.add(output);
             Files.createDirectories(output.getParent());
 
             final var command = new ArrayList<>(compileArgs);
+            outputList.forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
             command.add("--output=%s".formatted(output));
             command.add(sourceFile.toString());
 

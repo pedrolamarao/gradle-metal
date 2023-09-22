@@ -34,13 +34,18 @@ public abstract class CCompileTask extends SourceTask
     public void compile ()
     {
         final var baseDirectory = getProject().getProjectDir().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
         final var queue = workerExecutor.noIsolation();
 
+        // remove old objects
+        getProject().delete(getOutputDirectory());
+
+        // compile objects from sources
         getSource().forEach(source ->
         {
             queue.submit(CCompileWorkAction.class, parameters ->
             {
-                final var output = toOutputPath(baseDirectory,source.toPath());
+                final var output = toOutputPath(baseDirectory,source.toPath(),outputDirectory);
                 parameters.getHeaderDependencies().from(getHeaderDependencies());
                 parameters.getOutput().set(output.toFile());
                 parameters.getOptions().set(getCompileOptions());
@@ -49,10 +54,10 @@ public abstract class CCompileTask extends SourceTask
         });
     }
 
-    Path toOutputPath (Path base, Path source)
+    static Path toOutputPath (Path base, Path source, Path outputDirectory)
     {
         final var relative = base.relativize(source);
-        final var target = getOutputDirectory().get().getAsFile().toPath().resolve("%X".formatted(relative.hashCode()));
+        final var target = outputDirectory.resolve("%X".formatted(relative.hashCode()));
         return target.resolve(source.getFileName() + ".o");
     }
 }

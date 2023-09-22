@@ -35,14 +35,19 @@ public abstract class AsmCompileTask extends SourceTask
     public void compile ()
     {
         final var baseDirectory = getProject().getProjectDir();
+        final var outputDirectory = getOutputDirectory();
         final var queue = workerExecutor.noIsolation();
 
+        // remove old objects
+        getProject().delete(outputDirectory);
+
+        // assemble objects from sources
         getSource().forEach(source ->
         {
             queue.submit(AsmCompileWorkAction.class, parameters ->
             {
                 parameters.getBaseDirectory().set(baseDirectory);
-                parameters.getOutputDirectory().set(getOutputDirectory());
+                parameters.getOutputDirectory().set(outputDirectory);
                 parameters.getOptions().set(getCompileOptions());
                 parameters.getSourceFile().set(source);
             });

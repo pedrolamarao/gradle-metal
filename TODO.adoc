@@ -2,8 +2,6 @@
 
 == to do
 
-* [ ] compile source dependencies independently of the commands database
-* [ ] compile multiple module interfaces in order
 * [ ] variant target machines
 - [ ] build components for --target
 - [ ] ignore components incapable of target
@@ -17,6 +15,8 @@
 
 == done
 
+* [x] compile multiple module interfaces in order
+* [x] compile source dependencies independently of the commands database
 * [x] minimally support project with main library and test executable
 * [x] conveniently register sources with tasks
 * [x] support project dependencies

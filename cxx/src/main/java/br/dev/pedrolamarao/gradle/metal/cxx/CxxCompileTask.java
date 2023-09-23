@@ -39,7 +39,7 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         RegularFileProperty getSource ();
     }
 
-    public abstract static class CompileAction implements WorkAction<CompileParameters>
+    public static abstract class CompileAction implements WorkAction<CompileParameters>
     {
         final ExecOperations execOperations;
 

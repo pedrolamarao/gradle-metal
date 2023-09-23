@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":base"))
+    implementation(project(":cpp"))
 }
 
 gradlePlugin {

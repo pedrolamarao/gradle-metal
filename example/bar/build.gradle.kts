@@ -1,6 +1,5 @@
 plugins {
     id("base")
-    id("br.dev.pedrolamarao.metal.cpp")
     id("br.dev.pedrolamarao.metal.cxx")
     id("br.dev.pedrolamarao.metal.base")
 }

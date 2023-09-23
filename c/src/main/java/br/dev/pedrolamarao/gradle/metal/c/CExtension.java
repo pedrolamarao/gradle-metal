@@ -48,7 +48,7 @@ public abstract class CExtension implements ExtensionAware
 
         final var objDirectory = layout.getBuildDirectory().dir("obj/%s/c".formatted(name));
         final var objTask = tasks.register("compile%scxx".formatted(name), CCompileTask.class, it -> {
-            if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
+            it.getHeaderDependencies().from(includeDependencies);
             it.getCompileOptions().convention(options);
             it.getOutputDirectory().set(objDirectory);
             it.setSource(sourceDirectorySet);

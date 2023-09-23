@@ -50,7 +50,7 @@ public abstract class CxxExtension implements ExtensionAware
             final var includeDependencies = configurations.findByName("cppIncludeDependencies");
             final var importDependencies = configurations.named("cxxImportDependencies");
             it.getCompileOptions().set(options);
-            if (includeDependencies != null) it.getHeaderDependencies().from(includeDependencies);
+            it.getHeaderDependencies().from(includeDependencies);
             it.getModuleDependencies().from(importDependencies);
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);

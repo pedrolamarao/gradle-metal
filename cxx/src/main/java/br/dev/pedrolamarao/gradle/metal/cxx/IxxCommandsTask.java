@@ -60,7 +60,7 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
             final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".bmi").toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
-            moduleList.forEach(it -> baseArgs.add("-fmodule-file=%s".formatted(it).replace("\\","\\\\")));
+            moduleList.forEach(it -> compileArgs.add("-fmodule-file=%s".formatted(it).replace("\\","\\\\")));
             compileArgs.add("--language=c++-module");
             compileArgs.add("--precompile");
             compileArgs.add("--output=%s".formatted(output));

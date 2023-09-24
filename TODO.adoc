@@ -2,7 +2,7 @@
 
 == to do
 
-* [ ] defect: in example project, module dependency from primary to partition ":byte" is missing
+* [ ] defect: can't compile example project googletest application
 
 * [ ] build cache
 * [ ] build incremental
@@ -20,6 +20,7 @@
 
 == done
 
+* [x] defect: in example project, module dependency from primary to partition ":byte" is missing
 * [x] generate compile_commands.json
 * [x] compile multiple module interfaces in order
 * [x] compile source dependencies independently of the commands database

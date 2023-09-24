@@ -61,6 +61,11 @@ tasks.register("compile") {
     dependsOn(mainCxx.compileTask,testCxx.compileTask)
 }
 
+tasks.register("precompile") {
+    group = "metal"
+    dependsOn(mainIxx.compileTask)
+}
+
 val link = tasks.register("link") {
     group = "metal"
     dependsOn(testApplication.linkTask)

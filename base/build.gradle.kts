@@ -11,13 +11,17 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.application"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeApplicationPlugin"
         }
+        create("archive") {
+            id = "br.dev.pedrolamarao.metal.archive"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeArchivePlugin"
+        }
         create("base") {
             id = "br.dev.pedrolamarao.metal.base"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin"
         }
-        create("archive") {
-            id = "br.dev.pedrolamarao.metal.archive"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeArchivePlugin"
+        create("root") {
+            id = "br.dev.pedrolamarao.metal.root"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalRootPlugin"
         }
     }
 }

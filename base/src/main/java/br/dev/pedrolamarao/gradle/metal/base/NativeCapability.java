@@ -6,6 +6,7 @@ import org.gradle.api.attributes.Attribute;
 
 public enum NativeCapability
 {
+    COMMANDS,
     EXECUTABLE,
     IMPORTABLE,
     INCLUDABLE,

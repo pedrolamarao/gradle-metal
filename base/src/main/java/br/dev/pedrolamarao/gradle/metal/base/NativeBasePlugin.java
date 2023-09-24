@@ -12,17 +12,21 @@ public class NativeBasePlugin implements Plugin<Project>
     {
         final var extension = project.getExtensions().create("metal",MetalExtension.class);
 
-        project.getConfigurations().create("commandsElements",it -> {
-            it.setCanBeConsumed(true);
-            it.setCanBeResolved(false);
+        final var configurations = project.getConfigurations();
+
+        configurations.create(MetalConfigurations.COMMANDS_ELEMENTS,configuration ->
+        {
+            configuration.setCanBeConsumed(true);
+            configuration.setCanBeResolved(false);
+            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.COMMANDS));
         });
 
-        final var nativeImplementation = project.getConfigurations().create("nativeImplementation",configuration -> {
+        final var nativeImplementation = configurations.create("nativeImplementation",configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
         });
 
-        project.getConfigurations().create("nativeNoElements",configuration -> {
+        configurations.create("nativeNoElements",configuration -> {
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.NONE));
             configuration.setCanBeConsumed(true);
             configuration.setCanBeDeclared(false);
@@ -30,14 +34,14 @@ public class NativeBasePlugin implements Plugin<Project>
             configuration.setVisible(false);
         });
 
-        project.getConfigurations().create("nativeLinkDependencies", configuration -> {
+        configurations.create("nativeLinkDependencies", configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
             configuration.extendsFrom(nativeImplementation);
         });
 
-        project.getConfigurations().create("nativeLinkElements",configuration -> {
+        configurations.create("nativeLinkElements",configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));

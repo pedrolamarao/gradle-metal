@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.Directory;
@@ -79,8 +80,8 @@ public abstract class IxxExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        configurations.named("commandsElements").configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(IxxCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
+        configurations.named(MetalConfigurations.COMMANDS_ELEMENTS).configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(IxxCommandsTask::getOutputFile),it -> it.builtBy(commandsTask));
         });
 
         return new IxxSources(compileOptions, compileTask, importDependencies, includeDependencies, name);

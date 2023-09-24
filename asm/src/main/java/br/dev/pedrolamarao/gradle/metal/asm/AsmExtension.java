@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.Directory;
@@ -62,8 +63,8 @@ public abstract class AsmExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        configurations.named("commandsElements").configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(AsmCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
+        configurations.named(MetalConfigurations.COMMANDS_ELEMENTS).configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(AsmCommandsTask::getOutputFile),it -> it.builtBy(commandsTask));
         });
 
         return new AsmSources(compileTask, includeDependencies, name, sourceDirectorySet);

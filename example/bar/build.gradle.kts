@@ -14,16 +14,14 @@ val mainCpp = metal.cpp.sources("main")
 
 val mainIxx = metal.ixx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
-    compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
-    }
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
 }
 
 val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
+    importDependencies.from(mainIxx.compileTask)
     compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
-        moduleDependencies.from(mainIxx.compileTask)
         source(mainIxx.compileTask)
     }
 }
@@ -38,8 +36,8 @@ val mainArchive = metal.archive("main") {
 
 val testCxx = metal.cxx.sources("test") {
     compileOptions = listOf("-g","--std=c++17")
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
     compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
         moduleDependencies.from(mainIxx.compileTask)
     }
 }

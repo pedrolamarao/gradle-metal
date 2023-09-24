@@ -42,12 +42,13 @@ public abstract class CExtension implements ExtensionAware
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/c".formatted(name));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/c".formatted(name));
 
-        final var compileOptions = objects.listProperty(String.class);
-
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s c sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
-        final var includeDependencies = configurations.findByName("cppIncludeDependencies");
+        final var compileOptions = objects.listProperty(String.class);
+
+        final var includeDependencies = objects.fileCollection();
+        includeDependencies.from( configurations.named("cppIncludeDependencies") );
 
         final var compileTask = tasks.register("compile-%s-c".formatted(name), CCompileTask.class, it -> {
             it.getHeaderDependencies().from(includeDependencies);
@@ -65,7 +66,7 @@ public abstract class CExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        return new CSources(compileOptions, compileTask, name, sourceDirectorySet);
+        return new CSources(compileOptions, compileTask, includeDependencies, name, sourceDirectorySet);
     }
 
     @Nonnull

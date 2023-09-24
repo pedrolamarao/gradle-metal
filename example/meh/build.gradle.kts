@@ -9,14 +9,10 @@ plugins {
 
 val mainCpp = metal.cpp.sources("main")
 val mainAsm = metal.asm.sources("main") {
-    compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
-    }
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
 }
 val mainC = metal.c.sources("main") {
-    compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
-    }
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
 }
 
 val mainArchive = metal.archive("main") {

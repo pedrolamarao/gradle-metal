@@ -38,21 +38,25 @@ public abstract class IxxExtension implements ExtensionAware
     @Nonnull
     public IxxSources sources (String name)
     {
-        final var options = objects.listProperty(String.class);
-
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/ixx".formatted(name));
         final var outputDirectory = layout.getBuildDirectory().dir("bmi/%s/ixx".formatted(name));
 
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s c++ module interface sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
+        final var compileOptions = objects.listProperty(String.class);
+
+        final var importDependencies = objects.fileCollection();
+        importDependencies.from( configurations.named("cxxImportDependencies") );
+
+        final var includeDependencies = objects.fileCollection();
+        includeDependencies.from( configurations.named("cppIncludeDependencies") );
+
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), IxxCompileTask.class, task ->
         {
-            final var importDependencies = configurations.named("cxxImportDependencies");
-            final var includeDependencies = configurations.findByName("cppIncludeDependencies");
-            task.getCompileOptions().set(options);
-            if (includeDependencies != null) task.getHeaderDependencies().from(includeDependencies);
-            task.getModuleDependencies().from(importDependencies.get());
+            task.getCompileOptions().set(compileOptions);
+            task.getHeaderDependencies().from(includeDependencies);
+            task.getModuleDependencies().from(importDependencies);
             task.getOutputDirectory().set(outputDirectory);
             task.setSource(sourceDirectorySet);
         });
@@ -63,7 +67,7 @@ public abstract class IxxExtension implements ExtensionAware
             });
         });
 
-        return new IxxSources(options, compileTask, name);
+        return new IxxSources(compileOptions, compileTask, importDependencies, includeDependencies, name);
     }
 
     @Nonnull

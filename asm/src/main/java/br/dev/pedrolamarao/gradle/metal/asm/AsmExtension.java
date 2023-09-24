@@ -1,6 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
 import org.gradle.api.Action;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -12,6 +13,8 @@ import javax.inject.Inject;
 
 public abstract class AsmExtension implements ExtensionAware
 {
+    final ConfigurationContainer configurations;
+
     final ObjectFactory objects;
 
     final ProjectLayout layout;
@@ -19,8 +22,9 @@ public abstract class AsmExtension implements ExtensionAware
     final TaskContainer tasks;
 
     @Inject
-    public AsmExtension (ObjectFactory objects, ProjectLayout layout, TaskContainer tasks)
+    public AsmExtension (ConfigurationContainer configurations, ObjectFactory objects, ProjectLayout layout, TaskContainer tasks)
     {
+        this.configurations = configurations;
         this.objects = objects;
         this.layout = layout;
         this.tasks = tasks;
@@ -35,8 +39,15 @@ public abstract class AsmExtension implements ExtensionAware
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s assembler sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
+        final var compileOptions = objects.listProperty(String.class);
+
+        final var includeDependencies = objects.fileCollection();
+        includeDependencies.from( configurations.named("cppIncludeDependencies") );
+
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), AsmCompileTask.class, it ->
         {
+            it.getCompileOptions().set(compileOptions);
+            it.getHeaderDependencies().from(includeDependencies);
             it.getOutputDirectory().set(objectDirectory);
             it.setSource(sourceDirectorySet);
         });
@@ -44,12 +55,14 @@ public abstract class AsmExtension implements ExtensionAware
         tasks.register("commands-%s-asm".formatted(name), AsmCommandsTask.class, it ->
         {
             final var outputDirectory = layout.getBuildDirectory().dir("db/%s/asm".formatted(name));
+            it.getCompileOptions().set(compileOptions);
+            it.getHeaderDependencies().from(includeDependencies);
             it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
         });
 
-        return new AsmSources(compileTask, name, sourceDirectorySet);
+        return new AsmSources(compileTask, includeDependencies, name, sourceDirectorySet);
     }
 
     @Nonnull

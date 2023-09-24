@@ -1,6 +1,5 @@
 plugins {
     id("base")
-    id("br.dev.pedrolamarao.metal.asm")
     id("br.dev.pedrolamarao.metal.cxx")
     id("br.dev.pedrolamarao.metal.base")
 }
@@ -18,8 +17,8 @@ val mainIxx = metal.ixx.sources("main") {
 
 val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++20")
+    importDependencies.from(mainIxx.compileTask)
     compileTask.configure {
-        moduleDependencies.from(mainIxx.compileTask)
         source(mainIxx.compileTask)
     }
 }

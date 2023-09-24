@@ -34,7 +34,7 @@ public abstract class CxxCommandsTask extends CxxCompileBaseTask
         "arguments": [ %s ],
         "file": "%s",
         "output": "%s"
-      },
+      }
     """;
 
     @TaskAction
@@ -53,18 +53,17 @@ public abstract class CxxCommandsTask extends CxxCompileBaseTask
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
         final var arguments = compileArgs.stream().collect(Collectors.joining("\", \"","\"","\""));
 
-        try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8))
-        {
+        final var list = new ArrayList<String>();
+        getSource().forEach(source -> {
+            final var file = source.toString().replace("\\","\\\\");
+            final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
+            list.add( template.formatted(directory, arguments + ", \"" + file + '\"', file, output) );
+        });
+
+        try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8)) {
             writer.write("[\n");
-            getSource().forEach(source -> {
-                try {
-                    final var file = source.toString().replace("\\","\\\\");
-                    final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
-                    writer.write( template.formatted(directory, arguments + ", \"" + file + '\"', file, output) );
-                }
-                catch (IOException e) { throw new RuntimeException(e); }
-            });
-            writer.write(']');
+            writer.write( String.join(",\n",list) );
+            writer.write("]");
         }
     }
 

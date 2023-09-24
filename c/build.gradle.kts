@@ -25,10 +25,15 @@ testing {
             dependencies {
                 implementation("org.junit.jupiter:junit-jupiter:5.9.0")
             }
+            useJUnitJupiter()
         }
     }
 }
 
 gradlePlugin {
     testSourceSets(sourceSets["functionalTest"])
+}
+
+tasks.check.configure {
+    dependsOn(testing.suites.named("functionalTest"))
 }

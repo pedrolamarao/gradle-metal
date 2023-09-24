@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PluginFunctionalTest
 {
@@ -40,7 +39,7 @@ public class PluginFunctionalTest
     {
         Files.createDirectories(projectDir.resolve("src"));
 
-        final var mainCpp =
+        final var mainCxx =
         """
         int main (int argc, char * argv[])
         {
@@ -48,7 +47,7 @@ public class PluginFunctionalTest
         }
         """;
 
-        Files.writeString(projectDir.resolve("src/main.cpp"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.cxx"), mainCxx);
 
         final var buildGradleKts =
         """
@@ -80,7 +79,7 @@ public class PluginFunctionalTest
     {
         Files.createDirectories(projectDir.resolve("src"));
 
-        final var mainCpp =
+        final var mainCxx =
         """
         int main (int argc, char * argv[])
         {
@@ -88,7 +87,7 @@ public class PluginFunctionalTest
         }
         """;
 
-        Files.writeString(projectDir.resolve("src/main.cpp"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.cxx"), mainCxx);
 
         final var buildGradleKts =
             """

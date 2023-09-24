@@ -35,6 +35,8 @@ public class PluginFunctionalTest
     @Test
     public void compile () throws Exception
     {
+        Files.createDirectories(projectDir.resolve("src"));
+
         final var mainCpp =
         """
         .global meh
@@ -42,7 +44,7 @@ public class PluginFunctionalTest
             ret
         """;
 
-        Files.writeString(projectDir.resolve("main.s"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.s"), mainCpp);
 
         final var buildGradleKts =
         """
@@ -51,8 +53,8 @@ public class PluginFunctionalTest
         }
         
         tasks.register<br.dev.pedrolamarao.gradle.metal.asm.AsmCompileTask>("compile") {
-            outputDirectory = file("object")
-            source(file("main.s"))
+            outputDirectory = file("obj")
+            source("src")
         }
         """;
 
@@ -64,7 +66,7 @@ public class PluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("object"))) {
+        try (var stream = Files.list(projectDir.resolve("obj"))) {
             assertEquals(1, stream.count() );
         }
     }

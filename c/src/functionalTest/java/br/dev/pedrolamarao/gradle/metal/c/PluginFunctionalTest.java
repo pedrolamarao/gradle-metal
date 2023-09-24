@@ -37,7 +37,7 @@ public class PluginFunctionalTest
     @Test
     public void compile () throws Exception
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src"));
 
         final var mainCpp =
         """
@@ -47,7 +47,7 @@ public class PluginFunctionalTest
         }
         """;
 
-        Files.writeString(projectDir.resolve("main.c"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.c"), mainCpp);
 
         final var buildGradleKts =
         """
@@ -56,8 +56,8 @@ public class PluginFunctionalTest
         }
         
         tasks.register<br.dev.pedrolamarao.gradle.metal.c.CCompileTask>("compile") {
-            outputDirectory = file("object")
-            source(file("main.c"))
+            outputDirectory = file("obj")
+            source("src")
         }
         """;
 
@@ -69,7 +69,7 @@ public class PluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("object"))) {
+        try (var stream = Files.list(projectDir.resolve("obj"))) {
             assertEquals(1, stream.count() );
         }
     }
@@ -77,7 +77,7 @@ public class PluginFunctionalTest
     @Test
     public void compileOptions () throws Exception
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src"));
 
         final var mainCpp =
             """
@@ -87,7 +87,7 @@ public class PluginFunctionalTest
             }
             """;
 
-        Files.writeString(projectDir.resolve("main.c"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.c"), mainCpp);
 
         final var buildGradleKts =
             """
@@ -96,9 +96,9 @@ public class PluginFunctionalTest
             }
             
             tasks.register<br.dev.pedrolamarao.gradle.metal.c.CCompileTask>("compile") {
-                options = listOf("-g")
-                outputDirectory = file("object")
-                source(file("main.c"))
+                compileOptions = listOf("-g")
+                outputDirectory = file("obj")
+                source("src")
             }
             """;
 
@@ -110,7 +110,7 @@ public class PluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("object"))) {
+        try (var stream = Files.list(projectDir.resolve("obj"))) {
             assertEquals(1, stream.count() );
         }
     }

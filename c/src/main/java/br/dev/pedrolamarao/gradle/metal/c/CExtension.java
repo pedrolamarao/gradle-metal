@@ -57,13 +57,17 @@ public abstract class CExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        tasks.register("commands-%s-c".formatted(name), CCommandsTask.class, it -> {
+        final var commandsTask = tasks.register("commands-%s-c".formatted(name), CCommandsTask.class, it -> {
             final var outputDirectory = layout.getBuildDirectory().dir("db/%s/c".formatted(name));
             it.getHeaderDependencies().from(includeDependencies);
             it.getCompileOptions().convention(compileOptions);
             it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
+        });
+
+        configurations.named("commandsElements").configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(CCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
         });
 
         return new CSources(compileOptions, compileTask, includeDependencies, name, sourceDirectorySet);

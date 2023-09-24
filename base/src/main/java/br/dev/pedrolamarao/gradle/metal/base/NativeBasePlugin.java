@@ -12,6 +12,11 @@ public class NativeBasePlugin implements Plugin<Project>
     {
         final var extension = project.getExtensions().create("metal",MetalExtension.class);
 
+        project.getConfigurations().create("commandsElements",it -> {
+            it.setCanBeConsumed(true);
+            it.setCanBeResolved(false);
+        });
+
         final var nativeImplementation = project.getConfigurations().create("nativeImplementation",configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);

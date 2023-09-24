@@ -52,7 +52,7 @@ public abstract class AsmExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        tasks.register("commands-%s-asm".formatted(name), AsmCommandsTask.class, it ->
+        final var commandsTask = tasks.register("commands-%s-asm".formatted(name), AsmCommandsTask.class, it ->
         {
             final var outputDirectory = layout.getBuildDirectory().dir("db/%s/asm".formatted(name));
             it.getCompileOptions().set(compileOptions);
@@ -60,6 +60,10 @@ public abstract class AsmExtension implements ExtensionAware
             it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
+        });
+
+        configurations.named("commandsElements").configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(AsmCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
         });
 
         return new AsmSources(compileTask, includeDependencies, name, sourceDirectorySet);

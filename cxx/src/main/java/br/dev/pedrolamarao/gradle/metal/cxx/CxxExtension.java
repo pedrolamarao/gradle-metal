@@ -62,7 +62,7 @@ public abstract class CxxExtension implements ExtensionAware
             it.setSource(sourceDirectorySet);
         });
 
-        tasks.register("commands-%s-cxx".formatted(name), CxxCommandsTask.class, it ->
+        final var commandsTask = tasks.register("commands-%s-cxx".formatted(name), CxxCommandsTask.class, it ->
         {
             final var outputDirectory = layout.getBuildDirectory().dir("db/%s/cxx".formatted(name));
             it.getCompileOptions().set(compileOptions);
@@ -71,6 +71,10 @@ public abstract class CxxExtension implements ExtensionAware
             it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
+        });
+
+        configurations.named("commandsElements").configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(CxxCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
         });
 
         return new CxxSources(compileOptions, compileTask, importDependencies, includeDependencies, name, sourceDirectorySet);

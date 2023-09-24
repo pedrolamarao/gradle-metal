@@ -58,7 +58,7 @@ val archive = tasks.register("archive") {
 
 tasks.register("commands") {
     group = "metal"
-    dependsOn("commands-main-cxx")
+    dependsOn("commands-main-cxx","commands-test-cxx")
 }
 
 tasks.register("compile") {

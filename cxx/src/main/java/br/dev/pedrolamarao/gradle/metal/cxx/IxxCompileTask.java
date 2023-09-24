@@ -6,7 +6,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -14,10 +15,15 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class IxxCompileTask extends CxxCompileBaseTask
 {
@@ -137,14 +143,17 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
     {
         final var baseDirectory = getProject().getProjectDir().toPath();
 
-        // prepare compile arguments
-        final var compileArgs = new ArrayList<String>();
-        compileArgs.add("clang++");
-        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
-        getModuleDependencies().forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
-        compileArgs.addAll(getCompileOptions().get());
-        compileArgs.add("--language=c++-module");
-        compileArgs.add("--precompile");
+        // prepare base arguments
+        final var baseArgs = new ArrayList<String>();
+        baseArgs.add("clang++");
+        baseArgs.addAll(getCompileOptions().get());
+        getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
+        getModuleDependencies().forEach(file -> baseArgs.add("-fmodule-file=%s".formatted(file)));
+
+        // prepare scanner arguments
+        final var scanArgs = new ArrayList<>(baseArgs);
+        scanArgs.add("--language=c++-module");
+        scanArgs.add("--precompile");
 
         // discover dependencies from sources: assemble dependency files
         final var scanWorkers = workers.noIsolation();
@@ -152,7 +161,7 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
         for (var sourceFile : getSource()) {
             final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), getTemporaryDir().toPath(), ".deps");
             scanWorkers.submit(ScanAction.class, parameter -> {
-                parameter.getCompileArgs().set(compileArgs);
+                parameter.getCompileArgs().set(scanArgs);
                 parameter.getOutputFile().set(outputPath.toFile());
                 parameter.getSourceFile().set(sourceFile);
             });
@@ -187,18 +196,22 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
         final var outputList = new ArrayList<Path>();
         for (var sourceFile : dependencyGraph.stream().map(IxxDependencies::file).toList())
         {
-            final var output = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory, ".pcm");
-            outputList.add(output);
-            Files.createDirectories(output.getParent());
+            final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory, ".pcm");
+            Files.createDirectories(outputPath.getParent());
 
-            final var command = new ArrayList<>(compileArgs);
+            // prepare compiler arguments
+            final var compileArgs = new ArrayList<>(baseArgs);
             outputList.forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
-            command.add("--output=%s".formatted(output));
-            command.add(sourceFile.toString());
+            compileArgs.add("--language=c++-module");
+            compileArgs.add("--precompile");
+            compileArgs.add("--output=%s".formatted(outputPath));
+            compileArgs.add(sourceFile.toString());
 
             exec.exec(it -> {
-                it.commandLine(command);
+                it.commandLine(compileArgs);
             });
+
+            outputList.add(outputPath);
         }
     }
 

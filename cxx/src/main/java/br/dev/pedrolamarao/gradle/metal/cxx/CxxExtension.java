@@ -4,6 +4,7 @@ package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -44,20 +45,29 @@ public abstract class CxxExtension implements ExtensionAware
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s c++ sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
+        final var includeDependencies = configurations.findByName("cppIncludeDependencies");
+        final var importDependencies = configurations.named("cxxImportDependencies");
+        final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
+
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name), CxxCompileTask.class, it ->
         {
-            final var outputDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
-            final var includeDependencies = configurations.findByName("cppIncludeDependencies");
-            final var importDependencies = configurations.named("cxxImportDependencies");
             it.getCompileOptions().set(options);
             it.getHeaderDependencies().from(includeDependencies);
             it.getModuleDependencies().from(importDependencies);
-            it.getOutputDirectory().set(outputDirectory);
+            it.getOutputDirectory().set(objectDirectory);
             it.setSource(sourceDirectorySet);
         });
 
-        final var compileObjects = objects.fileCollection();
-        compileObjects.from(compileTask.map(it -> it.getOutputs().getFiles()));
+        tasks.register("commands-%s-cxx".formatted(name), CxxCommandsTask.class, it ->
+        {
+            final var outputDirectory = layout.getBuildDirectory().dir("db/%s/cxx".formatted(name));
+            it.getCompileOptions().set(options);
+            it.getHeaderDependencies().from(includeDependencies);
+            it.getModuleDependencies().from(importDependencies);
+            it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
+            it.getOutputDirectory().set(outputDirectory);
+            it.setSource(sourceDirectorySet);
+        });
 
         return new CxxSources(options, compileTask, name, sourceDirectorySet);
     }

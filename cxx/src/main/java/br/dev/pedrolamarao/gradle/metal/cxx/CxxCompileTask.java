@@ -2,10 +2,9 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -28,15 +27,11 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
 
     public interface CompileParameters extends WorkParameters
     {
-        ConfigurableFileCollection getHeaderDependencies ();
+        ListProperty<String> getCompileArgs ();
 
-        ConfigurableFileCollection getModuleDependencies ();
+        RegularFileProperty getOutputFile ();
 
-        ListProperty<String> getOptions ();
-
-        RegularFileProperty getOutput ();
-
-        RegularFileProperty getSource ();
+        RegularFileProperty getSourceFile ();
     }
 
     public static abstract class CompileAction implements WorkAction<CompileParameters>
@@ -54,23 +49,17 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         {
             final var parameters = getParameters();
 
-            final var output = parameters.getOutput().getAsFile().get();
+            final var output = parameters.getOutputFile().getAsFile().get();
+
+            final var command = new ArrayList<>(parameters.getCompileArgs().get());
+            command.add("--output=%s".formatted(output));
+            command.add(parameters.getSourceFile().get().toString());
 
             try
             {
                 Files.createDirectories(output.toPath().getParent());
 
-                final var command = new ArrayList<String>();
-                command.add("clang++");
-                parameters.getHeaderDependencies().forEach(file -> command.add("--include-directory=%s".formatted(file)));
-                parameters.getModuleDependencies().getAsFileTree().forEach(file -> command.add("-fmodule-file=%s".formatted(file)));
-                command.addAll(parameters.getOptions().get());
-                command.add("--compile");
-                command.add("--output=%s".formatted(output));
-                command.add(parameters.getSource().get().toString());
-
-                execOperations.exec(it ->
-                {
+                execOperations.exec(it -> {
                     it.commandLine(command);
                 });
             }
@@ -86,6 +75,14 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
         final var queue = workerExecutor.noIsolation();
 
+        // prepare arguments
+        final var compileArgs = new ArrayList<String>();
+        compileArgs.add("clang++");
+        compileArgs.addAll(getCompileOptions().get());
+        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
+        getModuleDependencies().getAsFileTree().forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
+        compileArgs.add("--compile");
+
         // delete old objects
         getProject().delete(outputDirectory);
 
@@ -95,11 +92,9 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
             queue.submit(CompileAction.class, parameters ->
             {
                 final var output = toOutputPath(baseDirectory,source.toPath(),outputDirectory);
-                parameters.getHeaderDependencies().from(getHeaderDependencies());
-                parameters.getModuleDependencies().from(getModuleDependencies());
-                parameters.getOptions().set(getCompileOptions());
-                parameters.getOutput().set(output.toFile());
-                parameters.getSource().set(source);
+                parameters.getCompileArgs().set(compileArgs);
+                parameters.getOutputFile().set(output.toFile());
+                parameters.getSourceFile().set(source);
             });
         });
     }

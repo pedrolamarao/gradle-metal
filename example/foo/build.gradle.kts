@@ -34,7 +34,7 @@ val mainApplication = metal.application("main") {
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainCxx.compileTask);
+    dependsOn(mainCxx.compileTask)
 }
 
 val link = tasks.register("link") {

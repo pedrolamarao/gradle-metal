@@ -2,13 +2,6 @@
 
 == to do
 
-* [ ] IDE support
-- [x] generate compile database
-- [x] improve compile database include path
-- [x] improve compile database import path
-- [x] aggregate compile databases
-- [x] generate compile database entries for c++ module interfaces
-- [ ] improve compile database import path for c++ module interfaces
 * [ ] variant target machines
 * [ ] support composite projects
 * [ ] variant tools
@@ -16,6 +9,7 @@
 
 == done
 
+* [x] generate compile_commands.json
 * [x] compile multiple module interfaces in order
 * [x] compile source dependencies independently of the commands database
 * [x] minimally support project with main library and test executable

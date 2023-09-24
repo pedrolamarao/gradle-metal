@@ -58,7 +58,7 @@ val archive = tasks.register("archive") {
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainCxx.compileTask,testCxx.compileTask);
+    dependsOn(mainCxx.compileTask,testCxx.compileTask)
 }
 
 val link = tasks.register("link") {

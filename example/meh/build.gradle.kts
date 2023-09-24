@@ -25,7 +25,7 @@ val mainArchive = metal.archive("main") {
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainAsm.compileTask,mainC.compileTask);
+    dependsOn(mainAsm.compileTask,mainC.compileTask)
 }
 
 val archive = tasks.register("archive") {

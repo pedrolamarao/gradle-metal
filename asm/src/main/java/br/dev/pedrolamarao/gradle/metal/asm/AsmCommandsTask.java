@@ -43,21 +43,27 @@ public abstract class AsmCommandsTask extends AsmCompileBaseTask
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         // prepare arguments
-        final var compileArgs = new ArrayList<String>();
-        compileArgs.add("clang");
-        compileArgs.addAll(getCompileOptions().get());
-        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
-        compileArgs.add("--language=assembler");
-        compileArgs.add("--compile");
+        final var baseArgs = new ArrayList<String>();
+        baseArgs.add("clang");
+        baseArgs.addAll(getCompileOptions().get());
+        getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
+        baseArgs.add("--language=assembler");
+        baseArgs.add("--compile");
 
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
-        final var arguments = compileArgs.stream().collect(Collectors.joining("\", \"","\"","\""));
 
         final var list = new ArrayList<String>();
-        getSource().forEach(source -> {
+        getSource().forEach(source ->
+        {
             final var file = source.toString().replace("\\","\\\\");
             final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
-            list.add( template.formatted(directory, arguments + ", \"" + file + '\"', file, output) );
+
+            final var compileArgs = new ArrayList<>(baseArgs);
+            compileArgs.add("--output=%s".formatted(output));
+            compileArgs.add(file);
+            final var arguments = compileArgs.stream().collect(Collectors.joining("\", \"","\"","\""));
+
+            list.add( template.formatted(directory, arguments, file, output) );
         });
 
         try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8)) {

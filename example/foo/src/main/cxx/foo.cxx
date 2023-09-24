@@ -10,7 +10,8 @@ namespace br::dev::pedrolamarao::foo
 {
     i32 foo (char const * arg)
     {
-        meh();
+        meh0();
+        meh1();
         return value;
     }
 }

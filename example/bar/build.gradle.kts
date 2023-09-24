@@ -58,7 +58,12 @@ val archive = tasks.register("archive") {
     dependsOn(mainArchive.archiveTask)
 }
 
-val compile = tasks.register("compile") {
+tasks.register("commands") {
+    group = "metal"
+    dependsOn("commands-main-cxx")
+}
+
+tasks.register("compile") {
     group = "metal"
     dependsOn(mainCxx.compileTask,testCxx.compileTask);
 }

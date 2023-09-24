@@ -2,11 +2,10 @@
 
 package br.dev.pedrolamarao.gradle.metal.c;
 
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -17,18 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public abstract class CCompileTask extends SourceTask
+public abstract class CCompileTask extends CCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
-
-    @InputFiles
-    public abstract ConfigurableFileCollection getHeaderDependencies ();
-
-    @Input
-    public abstract ListProperty<String> getCompileOptions ();
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
 
     @Inject
     public CCompileTask (WorkerExecutor workerExecutor)
@@ -38,13 +28,13 @@ public abstract class CCompileTask extends SourceTask
 
     public interface CompileParameters extends WorkParameters
     {
-        ConfigurableFileCollection getHeaderDependencies ();
+        DirectoryProperty getBaseDirectory ();
 
-        ListProperty<String> getOptions ();
+        ListProperty<String> getCompileArgs ();
 
-        RegularFileProperty getOutput ();
+        DirectoryProperty getOutputDirectory ();
 
-        RegularFileProperty getSource ();
+        RegularFileProperty getSourceFile ();
     }
 
     public static abstract class CompileAction implements WorkAction<CompileParameters>
@@ -62,25 +52,22 @@ public abstract class CCompileTask extends SourceTask
         {
             final var parameters = getParameters();
 
-            final var output = parameters.getOutput().getAsFile().get();
+            final var sourcePath = parameters.getSourceFile().get().getAsFile().toPath();
+
+            final var outputPath = toOutputPath(
+                parameters.getBaseDirectory().get().getAsFile().toPath(),
+                sourcePath,
+                parameters.getOutputDirectory().get().getAsFile().toPath()
+            );
+
+            final var compileArgs = new ArrayList<>(parameters.getCompileArgs().get());
+            compileArgs.add("--output=%s".formatted(outputPath));
+            compileArgs.add(sourcePath.toString());
 
             try
             {
-                Files.createDirectories(output.toPath().getParent());
-
-                final var command = new ArrayList<String>();
-                command.add("clang");
-                parameters.getHeaderDependencies().forEach(it -> command.add("--include-directory=%s".formatted(it)));
-                command.addAll(parameters.getOptions().get());
-                command.add("--compile");
-                command.add("--output=%s".formatted(output));
-                command.add("--language=c");
-                command.add(parameters.getSource().get().toString());
-
-                execOperations.exec(it ->
-                {
-                    it.commandLine(command);
-                });
+                Files.createDirectories(outputPath.getParent());
+                execOperations.exec(it -> it.commandLine(compileArgs));
             }
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
@@ -90,9 +77,17 @@ public abstract class CCompileTask extends SourceTask
     @TaskAction
     public void compile ()
     {
-        final var baseDirectory = getProject().getProjectDir().toPath();
-        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
-        final var queue = workerExecutor.noIsolation();
+        final var baseDirectory = getProject().getProjectDir();
+        final var outputDirectory = getOutputDirectory();
+        final var workers = workerExecutor.noIsolation();
+
+        // prepare compile args
+        final var compileArgs = new ArrayList<String>();
+        compileArgs.add("clang");
+        compileArgs.addAll(getCompileOptions().get());
+        getHeaderDependencies().forEach(it -> compileArgs.add("--include-directory=%s".formatted(it)));
+        compileArgs.add("--language=c");
+        compileArgs.add("--compile");
 
         // remove old objects
         getProject().delete(getOutputDirectory());
@@ -100,21 +95,20 @@ public abstract class CCompileTask extends SourceTask
         // compile objects from sources
         getSource().forEach(source ->
         {
-            queue.submit(CompileAction.class, parameters ->
+            workers.submit(CompileAction.class, parameters ->
             {
-                final var output = toOutputPath(baseDirectory,source.toPath(),outputDirectory);
-                parameters.getHeaderDependencies().from(getHeaderDependencies());
-                parameters.getOutput().set(output.toFile());
-                parameters.getOptions().set(getCompileOptions());
-                parameters.getSource().set(source);
+                parameters.getBaseDirectory().set(baseDirectory);
+                parameters.getCompileArgs().set(compileArgs);
+                parameters.getOutputDirectory().set(outputDirectory);
+                parameters.getSourceFile().set(source);
             });
         });
     }
 
-    static Path toOutputPath (Path base, Path source, Path outputDirectory)
+    static Path toOutputPath (Path base, Path source, Path output)
     {
-        final var relative = base.relativize(source);
-        final var target = outputDirectory.resolve("%X".formatted(relative.hashCode()));
-        return target.resolve(source.getFileName() + ".o");
+        final var p0 = base.relativize(source);
+        final var p1 = output.resolve("%X".formatted(p0.hashCode()));
+        return p1.resolve(source.getFileName() + ".o");
     }
 }

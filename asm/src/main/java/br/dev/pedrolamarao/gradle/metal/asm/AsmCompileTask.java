@@ -2,11 +2,10 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -17,18 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public abstract class AsmCompileTask extends SourceTask
+public abstract class AsmCompileTask extends AsmCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
-
-    @InputFiles
-    public abstract ConfigurableFileCollection getModules ();
-
-    @Input
-    public abstract ListProperty<String> getCompileOptions ();
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
 
     @Inject
     public AsmCompileTask (WorkerExecutor workerExecutor)
@@ -40,7 +30,7 @@ public abstract class AsmCompileTask extends SourceTask
     {
         DirectoryProperty getBaseDirectory ();
 
-        ListProperty<String> getOptions ();
+        ListProperty<String> getCompileArgs ();
 
         DirectoryProperty getOutputDirectory ();
 
@@ -62,30 +52,22 @@ public abstract class AsmCompileTask extends SourceTask
         {
             final var parameters = getParameters();
 
+            final var sourcePath = parameters.getSourceFile().get().getAsFile().toPath();
+
+            final var outputPath = toOutputPath(
+                parameters.getBaseDirectory().get().getAsFile().toPath(),
+                sourcePath,
+                parameters.getOutputDirectory().get().getAsFile().toPath()
+            );
+
+            final var compileArgs = new ArrayList<>(parameters.getCompileArgs().get());
+            compileArgs.add("--output=%s".formatted(outputPath));
+            compileArgs.add(sourcePath.toString());
+
             try
             {
-                final var source = parameters.getSourceFile().get().getAsFile().toPath();
-
-                final var output = toOutputPath(
-                    parameters.getBaseDirectory().get().getAsFile().toPath(),
-                    source,
-                    parameters.getOutputDirectory().get().getAsFile().toPath()
-                );
-
-                Files.createDirectories(output.getParent());
-
-                final var command = new ArrayList<String>();
-                command.add("clang");
-                command.addAll(parameters.getOptions().get());
-                command.add("--compile");
-                command.add("--output=%s".formatted(output));
-                command.add("--language=assembler");
-                command.add(source.toString());
-
-                execOperations.exec(it ->
-                {
-                    it.commandLine(command);
-                });
+                Files.createDirectories(outputPath.getParent());
+                execOperations.exec(it -> it.commandLine(compileArgs));
             }
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
@@ -97,7 +79,15 @@ public abstract class AsmCompileTask extends SourceTask
     {
         final var baseDirectory = getProject().getProjectDir();
         final var outputDirectory = getOutputDirectory();
-        final var queue = workerExecutor.noIsolation();
+        final var workers = workerExecutor.noIsolation();
+
+        // prepare arguments
+        final var compileArgs = new ArrayList<String>();
+        compileArgs.add("clang");
+        compileArgs.addAll(getCompileOptions().get());
+        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
+        compileArgs.add("--language=assembler");
+        compileArgs.add("--compile");
 
         // remove old objects
         getProject().delete(outputDirectory);
@@ -105,11 +95,11 @@ public abstract class AsmCompileTask extends SourceTask
         // assemble objects from sources
         getSource().forEach(source ->
         {
-            queue.submit(CompileAction.class, parameters ->
+            workers.submit(CompileAction.class, parameters ->
             {
                 parameters.getBaseDirectory().set(baseDirectory);
+                parameters.getCompileArgs().set(compileArgs);
                 parameters.getOutputDirectory().set(outputDirectory);
-                parameters.getOptions().set(getCompileOptions());
                 parameters.getSourceFile().set(source);
             });
         });
@@ -117,8 +107,8 @@ public abstract class AsmCompileTask extends SourceTask
 
     static Path toOutputPath (Path base, Path source, Path output)
     {
-        final var relative = base.relativize(source);
-        final var target = output.resolve("%X".formatted(relative.hashCode()));
-        return target.resolve(source.getFileName() + ".o");
+        final var p0 = base.relativize(source);
+        final var p1 = output.resolve("%X".formatted(p0.hashCode()));
+        return p1.resolve(source.getFileName() + ".o");
     }
 }

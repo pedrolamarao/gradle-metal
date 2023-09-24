@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskAction;
@@ -27,9 +28,11 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
 
     public interface CompileParameters extends WorkParameters
     {
+        DirectoryProperty getBaseDirectory ();
+
         ListProperty<String> getCompileArgs ();
 
-        RegularFileProperty getOutputFile ();
+        DirectoryProperty getOutputDirectory ();
 
         RegularFileProperty getSourceFile ();
     }
@@ -49,19 +52,22 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         {
             final var parameters = getParameters();
 
-            final var output = parameters.getOutputFile().getAsFile().get();
+            final var sourcePath = parameters.getSourceFile().get().getAsFile().toPath();
 
-            final var command = new ArrayList<>(parameters.getCompileArgs().get());
-            command.add("--output=%s".formatted(output));
-            command.add(parameters.getSourceFile().get().toString());
+            final var outputPath = toOutputPath(
+                parameters.getBaseDirectory().get().getAsFile().toPath(),
+                sourcePath,
+                parameters.getOutputDirectory().get().getAsFile().toPath()
+            );
+
+            final var compileArgs = new ArrayList<>(parameters.getCompileArgs().get());
+            compileArgs.add("--output=%s".formatted(outputPath));
+            compileArgs.add(sourcePath.toString());
 
             try
             {
-                Files.createDirectories(output.toPath().getParent());
-
-                execOperations.exec(it -> {
-                    it.commandLine(command);
-                });
+                Files.createDirectories(outputPath.getParent());
+                execOperations.exec(it -> it.commandLine(compileArgs));
             }
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
@@ -71,8 +77,8 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
     @TaskAction
     public void compile ()
     {
-        final var baseDirectory = getProject().getProjectDir().toPath();
-        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+        final var baseDirectory = getProject().getProjectDir();
+        final var outputDirectory = getOutputDirectory();
         final var queue = workerExecutor.noIsolation();
 
         // prepare arguments
@@ -91,18 +97,18 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         {
             queue.submit(CompileAction.class, parameters ->
             {
-                final var output = toOutputPath(baseDirectory,source.toPath(),outputDirectory);
+                parameters.getBaseDirectory().set(baseDirectory);
                 parameters.getCompileArgs().set(compileArgs);
-                parameters.getOutputFile().set(output.toFile());
+                parameters.getOutputDirectory().set(outputDirectory);
                 parameters.getSourceFile().set(source);
             });
         });
     }
 
-    static Path toOutputPath (Path base, Path source, Path outputDirectory)
+    static Path toOutputPath (Path base, Path source, Path output)
     {
-        final var relative = base.relativize(source);
-        final var target = outputDirectory.resolve("%X".formatted(relative.hashCode()));
-        return target.resolve(source.getFileName() + ".o");
+        final var p0 = base.relativize(source);
+        final var p1 = output.resolve("%X".formatted(p0.hashCode()));
+        return p1.resolve(source.getFileName() + ".o");
     }
 }

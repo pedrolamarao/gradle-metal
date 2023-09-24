@@ -2,25 +2,27 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.FileCollection;
+import org.gradle.api.Named;
+import org.gradle.api.NonNullApi;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public class AsmSources
+@NonNullApi
+public class AsmSources implements Named
 {
     final TaskProvider<AsmCompileTask> compileTask;
 
-    final FileCollection objects;
+    final String name;
 
     final SourceDirectorySet sources;
 
     @Inject
-    public AsmSources (TaskProvider<AsmCompileTask> compileTask, FileCollection objects, SourceDirectorySet sources)
+    public AsmSources (TaskProvider<AsmCompileTask> compileTask, String name, SourceDirectorySet sources)
     {
         this.compileTask = compileTask;
-        this.objects = objects;
+        this.name = name;
         this.sources = sources;
     }
 
@@ -29,9 +31,9 @@ public class AsmSources
         return compileTask;
     }
 
-    public FileCollection getObjects ()
+    public String getName ()
     {
-        return objects;
+        return name;
     }
 
     public SourceDirectorySet getSources ()

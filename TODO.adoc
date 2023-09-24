@@ -2,16 +2,15 @@
 
 == to do
 
+* [ ] IDE support
+- [x] generate compile database
+- [ ] fix compile database include path
+- [ ] generate compile database entries for c++ module interfaces
+- [ ] aggregate compile databases
 * [ ] variant target machines
-- [ ] build components for --target
-- [ ] ignore components incapable of target
+* [ ] support composite projects
 * [ ] variant tools
-- [ ] GCC tools
-- [ ] MS tools
 * [ ] "prebuilt" dependencies
-* [ ] "sysroot" dependencies
-* [ ] vcpkg dependencies
-* [ ] maven dependencies
 
 == done
 

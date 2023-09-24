@@ -1,6 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
 import org.gradle.api.Action;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -29,20 +30,26 @@ public abstract class AsmExtension implements ExtensionAware
     public AsmSources sources (String name)
     {
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/asm".formatted(name));
-        final var outputDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
+        final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
 
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s assembler sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
-        final var compileTask = tasks.register("compile%sassembler".formatted(name), AsmCompileTask.class, it -> {
+        final var compileTask = tasks.register("compile-%s-asm".formatted(name), AsmCompileTask.class, it ->
+        {
+            it.getOutputDirectory().set(objectDirectory);
+            it.setSource(sourceDirectorySet);
+        });
+
+        tasks.register("commands-%s-asm".formatted(name), AsmCommandsTask.class, it ->
+        {
+            final var outputDirectory = layout.getBuildDirectory().dir("db/%s/asm".formatted(name));
+            it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             it.getOutputDirectory().set(outputDirectory);
             it.setSource(sourceDirectorySet);
         });
 
-        final var compileObjects = objects.fileCollection();
-        compileObjects.from(compileTask.map(it -> it.getOutputs().getFiles()));
-
-        return new AsmSources(compileTask, compileObjects, sourceDirectorySet);
+        return new AsmSources(compileTask, name, sourceDirectorySet);
     }
 
     @Nonnull

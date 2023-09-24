@@ -4,6 +4,7 @@ package br.dev.pedrolamarao.gradle.metal.c;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -38,26 +39,33 @@ public abstract class CExtension implements ExtensionAware
     @Nonnull
     public CSources sources (String name)
     {
-        final var options = objects.listProperty(String.class);
-
         final var sourceDirectory = layout.getProjectDirectory().dir("src/%s/c".formatted(name));
+        final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/c".formatted(name));
+
+        final var compileOptions = objects.listProperty(String.class);
+
         final var sourceDirectorySet = objects.sourceDirectorySet(name, "%s c sources".formatted(name));
         sourceDirectorySet.srcDir(sourceDirectory);
 
         final var includeDependencies = configurations.findByName("cppIncludeDependencies");
 
-        final var objDirectory = layout.getBuildDirectory().dir("obj/%s/c".formatted(name));
-        final var objTask = tasks.register("compile%scxx".formatted(name), CCompileTask.class, it -> {
+        final var compileTask = tasks.register("compile-%s-c".formatted(name), CCompileTask.class, it -> {
             it.getHeaderDependencies().from(includeDependencies);
-            it.getCompileOptions().convention(options);
-            it.getOutputDirectory().set(objDirectory);
+            it.getCompileOptions().convention(compileOptions);
+            it.getOutputDirectory().set(objectDirectory);
             it.setSource(sourceDirectorySet);
         });
 
-        final var compileObjects = objects.fileCollection();
-        compileObjects.from(objTask.map(it -> it.getOutputs().getFiles()));
+        tasks.register("commands-%s-c".formatted(name), CCommandsTask.class, it -> {
+            final var outputDirectory = layout.getBuildDirectory().dir("db/%s/c".formatted(name));
+            it.getHeaderDependencies().from(includeDependencies);
+            it.getCompileOptions().convention(compileOptions);
+            it.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
+            it.getOutputDirectory().set(outputDirectory);
+            it.setSource(sourceDirectorySet);
+        });
 
-        return new CSources(options, objTask, compileObjects, sourceDirectorySet);
+        return new CSources(compileOptions, compileTask, name, sourceDirectorySet);
     }
 
     @Nonnull

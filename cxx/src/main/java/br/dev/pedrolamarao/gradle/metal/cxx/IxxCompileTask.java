@@ -96,17 +96,20 @@ public abstract class IxxCompileTask extends CxxCompileBaseTask
                 for (var ruleObj : rules) {
                     final var rule = (Map<?,?>) ruleObj;
                     final var provides = (List<?>) rule.get("provides");
-                    for (var provideObj : provides) {
-                        final var provide = (Map<?,?>) provideObj;
-                        final var logicalName = provide.get("logical-name");
-                        sourceProvides.add(logicalName.toString());
+                    if (provides != null) {
+                        for (var provideObj : provides) {
+                            final var provide = (Map<?, ?>) provideObj;
+                            final var logicalName = provide.get("logical-name");
+                            sourceProvides.add(logicalName.toString());
+                        }
                     }
                     final var requires = (List<?>) rule.get("requires");
-                    if (requires == null) continue;
-                    for (var requireObj : requires) {
-                        final var require = (Map<?,?>) requireObj;
-                        final var logicalName = require.get("logical-name");
-                        sourceRequires.add(logicalName.toString());
+                    if (requires != null) {
+                        for (var requireObj : requires) {
+                            final var require = (Map<?, ?>) requireObj;
+                            final var logicalName = require.get("logical-name");
+                            sourceRequires.add(logicalName.toString());
+                        }
                     }
                 }
 

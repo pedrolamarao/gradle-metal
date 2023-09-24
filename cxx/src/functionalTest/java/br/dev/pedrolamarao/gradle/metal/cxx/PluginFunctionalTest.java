@@ -38,7 +38,7 @@ public class PluginFunctionalTest
     @Test
     public void compile () throws Exception
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src"));
 
         final var mainCpp =
         """
@@ -48,7 +48,7 @@ public class PluginFunctionalTest
         }
         """;
 
-        Files.writeString(projectDir.resolve("main.cpp"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.cpp"), mainCpp);
 
         final var buildGradleKts =
         """
@@ -57,8 +57,8 @@ public class PluginFunctionalTest
         }
         
         tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
-            outputDirectory = file("object")
-            source(file("main.cpp"))
+            outputDirectory = file("obj")
+            source("src")
         }
         """;
 
@@ -70,7 +70,7 @@ public class PluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("object"))) {
+        try (var stream = Files.list(projectDir.resolve("obj"))) {
             assertEquals(1, stream.count() );
         }
     }
@@ -78,7 +78,7 @@ public class PluginFunctionalTest
     @Test
     public void compileOptions () throws Exception
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src"));
 
         final var mainCpp =
         """
@@ -88,7 +88,7 @@ public class PluginFunctionalTest
         }
         """;
 
-        Files.writeString(projectDir.resolve("main.cpp"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main.cpp"), mainCpp);
 
         final var buildGradleKts =
             """
@@ -97,9 +97,9 @@ public class PluginFunctionalTest
             }
             
             tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
-                options = listOf("-g")
-                outputDirectory = file("object")
-                source(file("main.cpp"))
+                compileOptions = listOf("-g")
+                outputDirectory = file("obj")
+                source("src")
             }
             """;
 
@@ -111,8 +111,65 @@ public class PluginFunctionalTest
             .withArguments("compile")
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("object"))) {
+        try (var stream = Files.list(projectDir.resolve("obj"))) {
             assertEquals(1, stream.count() );
+        }
+    }
+
+    @Test
+    public void compileDependencies () throws Exception
+    {
+        Files.createDirectories(projectDir.resolve("src"));
+
+        final var fooIxx =
+            """
+            export module foo;
+            
+            export namespace foo
+            {
+                int f () { return 0; }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/foo.ixx"), fooIxx);
+
+        final var barIxx =
+            """
+            export module bar;
+            
+            import foo;
+            
+            export namespace bar
+            {
+                int g () { return foo::f(); }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/bar.ixx"), barIxx);
+
+        final var buildGradleKts =
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.IxxCompileTask>("compile") {
+                compileOptions = listOf("-g","-std=c++20")
+                outputDirectory = file("bmi")
+                source("src")
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("compile")
+            .build();
+
+        try (var stream = Files.list(projectDir.resolve("bmi"))) {
+            assertEquals(2, stream.count() );
         }
     }
 }

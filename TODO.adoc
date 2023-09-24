@@ -7,7 +7,8 @@
 - [x] improve compile database include path
 - [x] improve compile database import path
 - [x] aggregate compile databases
-- [ ] generate compile database entries for c++ module interfaces
+- [x] generate compile database entries for c++ module interfaces
+- [ ] improve compile database import path for c++ module interfaces
 * [ ] variant target machines
 * [ ] support composite projects
 * [ ] variant tools

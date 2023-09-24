@@ -32,11 +32,6 @@ val mainApplication = metal.application("main") {
 
 // wire to base tasks
 
-tasks.register("commands") {
-    group = "metal"
-    dependsOn("commands-main-cxx")
-}
-
 tasks.register("compile") {
     group = "metal"
     dependsOn(mainCxx.compileTask);

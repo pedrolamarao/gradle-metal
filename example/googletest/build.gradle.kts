@@ -11,9 +11,7 @@ val mainCpp = metal.cpp.sources("main")
 
 val mainCxx = metal.cxx.sources("main") {
     compileOptions = listOf("-g","--std=c++17")
-    compileTask.configure {
-        headerDependencies.from(mainCpp.sources.sourceDirectories)
-    }
+    includeDependencies.from(mainCpp.sources.sourceDirectories)
     sources.exclude("**/*.h")
 }
 

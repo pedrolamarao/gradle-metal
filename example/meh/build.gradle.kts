@@ -23,11 +23,6 @@ val mainArchive = metal.archive("main") {
 
 // wire to base tasks
 
-tasks.register("commands") {
-    group = "metal"
-    dependsOn("commands-main-asm","commands-main-c")
-}
-
 tasks.register("compile") {
     group = "metal"
     dependsOn(mainAsm.compileTask,mainC.compileTask);

@@ -10,6 +10,7 @@ val commands by configurations.creating {
 dependencies {
     commands(project(":bar","commandsElements"))
     commands(project(":foo","commandsElements"))
+    commands(project(":googletest","commandsElements"))
     commands(project(":meh","commandsElements"))
 }
 

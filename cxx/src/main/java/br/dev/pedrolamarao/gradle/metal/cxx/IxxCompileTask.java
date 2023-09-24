@@ -30,7 +30,7 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
         final var collection = objects.fileCollection();
         final var baseDirectory = getProject().getProjectDir().toPath();
         final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
-        getSource().forEach(source -> collection.from( toOutputPath(baseDirectory,source.toPath(),outputDirectory) ));
+        getSource().forEach(source -> collection.from( toOutputPath(baseDirectory,source.toPath(),outputDirectory,".bmi") ));
         return collection;
     }
 
@@ -65,7 +65,7 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
         final var outputList = new ArrayList<Path>();
         for (var sourceFile : dependencyGraph.stream().map(IxxDependency::file).toList())
         {
-            final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory);
+            final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory, ".bmi");
             Files.createDirectories(outputPath.getParent());
 
             // prepare compiler arguments
@@ -82,11 +82,5 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
 
             outputList.add(outputPath);
         }
-    }
-
-    static Path toOutputPath (Path baseDirectory, Path source, Path output)
-    {
-        final var relative = baseDirectory.relativize(source);
-        return output.resolve("%X/%s.pcm".formatted(relative.hashCode(), relative.getFileName()));
     }
 }

@@ -13,7 +13,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public abstract class CxxCompileTask extends CxxCompileBaseTask
@@ -52,13 +51,11 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         {
             final var parameters = getParameters();
 
+            final var basePath = parameters.getBaseDirectory().get().getAsFile().toPath();
+            final var objectPath = parameters.getOutputDirectory().get().getAsFile().toPath();
             final var sourcePath = parameters.getSourceFile().get().getAsFile().toPath();
 
-            final var outputPath = toOutputPath(
-                parameters.getBaseDirectory().get().getAsFile().toPath(),
-                sourcePath,
-                parameters.getOutputDirectory().get().getAsFile().toPath()
-            );
+            final var outputPath = toOutputPath(basePath, sourcePath, objectPath, ".o");
 
             final var compileArgs = new ArrayList<>(parameters.getCompileArgs().get());
             compileArgs.add("--output=%s".formatted(outputPath));
@@ -103,12 +100,5 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
                 parameters.getSourceFile().set(source);
             });
         });
-    }
-
-    static Path toOutputPath (Path base, Path source, Path output)
-    {
-        final var p0 = base.relativize(source);
-        final var p1 = output.resolve("%X".formatted(p0.hashCode()));
-        return p1.resolve(source.getFileName() + ".o");
     }
 }

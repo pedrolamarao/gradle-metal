@@ -12,7 +12,6 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -39,6 +38,7 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
     @TaskAction
     public void generate () throws Exception
     {
+        final var baseDirectory = getProject().getProjectDir().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         final var dependencies = scan();
@@ -57,7 +57,7 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
         dependencies.stream().map(IxxDependency::file).forEach(source ->
         {
             final var file = source.toString().replace("\\","\\\\");
-            final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
+            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".bmi").toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
             moduleList.forEach(it -> baseArgs.add("-fmodule-file=%s".formatted(it).replace("\\","\\\\")));
@@ -77,10 +77,5 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
             writer.write( String.join(",\n", commandList) );
             writer.write("]");
         }
-    }
-
-    static Path toOutputPath (Path directory, Path source)
-    {
-        return directory.resolve( "%X/%s".formatted(source.hashCode(),source.getFileName() + ".bmi") );
     }
 }

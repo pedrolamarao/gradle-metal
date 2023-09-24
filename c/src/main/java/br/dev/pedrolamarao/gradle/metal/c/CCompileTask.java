@@ -13,7 +13,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public abstract class CCompileTask extends CCompileBaseTask
@@ -103,12 +102,5 @@ public abstract class CCompileTask extends CCompileBaseTask
                 parameters.getSourceFile().set(source);
             });
         });
-    }
-
-    static Path toOutputPath (Path base, Path source, Path output)
-    {
-        final var p0 = base.relativize(source);
-        final var p1 = output.resolve("%X".formatted(p0.hashCode()));
-        return p1.resolve(source.getFileName() + ".o");
     }
 }

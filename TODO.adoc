@@ -2,10 +2,21 @@
 
 == to do
 
+* [ ] defect: in example project, module dependency from primary to partition ":byte" is missing
+
+* [ ] build cache
+* [ ] build incremental
+* [ ] dependencies from included build
+* [ ] dependencies from maven repositories
+* [ ] dependencies from prebuilt distribution
+* [ ] integration with google/test
+* [ ] integration with google/benchmark
+* [ ] integration with nanobenchmark
+* [ ] integration with CLion
+* [ ] toolset specification
+* [ ] toolset GCC
+* [ ] toolset MSVC
 * [ ] variant target machines
-* [ ] support composite projects
-* [ ] variant tools
-* [ ] "prebuilt" dependencies
 
 == done
 

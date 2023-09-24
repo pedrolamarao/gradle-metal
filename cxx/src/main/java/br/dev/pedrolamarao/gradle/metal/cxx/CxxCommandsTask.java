@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,7 @@ public abstract class CxxCommandsTask extends CxxCompileBaseTask
     @TaskAction
     public void generate () throws IOException
     {
+        final var baseDirectory = getProject().getProjectDir().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         // prepare arguments
@@ -56,7 +56,7 @@ public abstract class CxxCommandsTask extends CxxCompileBaseTask
         getSource().forEach(source ->
         {
             final var file = source.toString().replace("\\","\\\\");
-            final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
+            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".o").toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
             compileArgs.add("--output=%s".formatted(output));
@@ -71,10 +71,5 @@ public abstract class CxxCommandsTask extends CxxCompileBaseTask
             writer.write( String.join(",\n",list) );
             writer.write("]");
         }
-    }
-
-    static Path toOutputPath (Path directory, Path source)
-    {
-        return directory.resolve( "%X/%s".formatted(source.hashCode(),source.getFileName() + ".o") );
     }
 }

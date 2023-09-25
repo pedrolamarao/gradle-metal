@@ -14,7 +14,7 @@ gradlePlugin {
     plugins {
         create("c") {
             id = "br.dev.pedrolamarao.metal.c"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.c.CPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.c.MetalCPlugin"
         }
     }
 }

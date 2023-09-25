@@ -11,22 +11,20 @@ dependencies {
 
 // register "main" application with cxx sources
 
-val mainIxx = metal.ixx.sources("main") {
+val mainIxx = metal.ixx.sources.create("main") {
     compileOptions = listOf("-g","--std=c++20")
 }
 
-val mainCxx = metal.cxx.sources("main") {
+val mainCxx = metal.cxx.sources.create("main") {
     compileOptions = listOf("-g","--std=c++20")
-    importDependencies.from(mainIxx.compileTask)
-    compileTask.configure {
-        source(mainIxx.compileTask)
-    }
 }
 
 val mainApplication = metal.application("main") {
     linkOptions = listOf("-g")
     linkTask.configure {
-        source(mainCxx.compileTask)
+        source(
+            tasks.named("compile-main-cxx")
+        )
     }
 }
 
@@ -34,17 +32,21 @@ val mainApplication = metal.application("main") {
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainCxx.compileTask)
+    dependsOn(
+        tasks.named("compile-main-cxx"))
 }
 
 tasks.register("precompile") {
     group = "metal"
-    dependsOn(mainIxx.compileTask)
+    dependsOn(
+        tasks.named("compile-main-ixx"))
 }
 
 val link = tasks.register("link") {
     group = "metal"
-    dependsOn(mainApplication.linkTask)
+    dependsOn(
+        tasks.named("link-main")
+    )
 }
 
 tasks.assemble.configure {

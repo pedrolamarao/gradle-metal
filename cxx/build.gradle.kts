@@ -12,9 +12,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("cxx-language") {
+        create("cxx") {
             id = "br.dev.pedrolamarao.metal.cxx"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.cxx.CxxPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxPlugin"
         }
     }
 }

@@ -7,17 +7,18 @@ plugins {
 
 // register "main" archive with cxx sources
 
-val mainCpp = metal.cpp.sources("main")
+val mainCpp = metal.cpp.sources.create("main")
 
-val mainCxx = metal.cxx.sources("main") {
+val mainCxx = metal.cxx.sources.create("main") {
     compileOptions = listOf("-g","--std=c++17")
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
     sources.exclude("**/*.h")
 }
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainCxx.compileTask)
+        source(
+            tasks.named("compile-main-cxx")
+        )
     }
 }
 
@@ -25,12 +26,16 @@ val mainArchive = metal.archive("main") {
 
 val archive = tasks.register("archive") {
     group = "metal"
-    dependsOn(mainArchive.archiveTask)
+    dependsOn(
+        tasks.named("archive-main")
+    )
 }
 
 val compile = tasks.register("compile") {
     group = "metal"
-    dependsOn(mainCxx.compileTask);
+    dependsOn(
+        tasks.named("compile-main-cxx")
+    )
 }
 
 tasks.assemble.configure {

@@ -15,79 +15,35 @@ public class PluginFunctionalTest
     @TempDir Path projectDir;
 
     @Test
-    public void apply () throws IOException
+    public void compile () throws IOException
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.createDirectories(projectDir.resolve("src/main/c"));
 
-        final var buildGradleKts =
+        final var greetH =
             """
-            plugins {
-                id("br.dev.pedrolamarao.metal.c")
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .build();
-    }
-
-    @Test
-    public void compile () throws Exception
-    {
-        Files.createDirectories(projectDir.resolve("src"));
-
-        final var mainCpp =
-        """
-        int main (int argc, char * argv[])
-        {
-            return 0;
-        }
-        """;
-
-        Files.writeString(projectDir.resolve("src/main.c"), mainCpp);
-
-        final var buildGradleKts =
-        """
-        plugins {
-            id("br.dev.pedrolamarao.metal.c")
-        }
-        
-        tasks.register<br.dev.pedrolamarao.gradle.metal.c.CCompileTask>("compile") {
-            outputDirectory = file("obj")
-            source("src")
-        }
-        """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
-            .build();
-
-        try (var stream = Files.list(projectDir.resolve("obj"))) {
-            assertEquals(1, stream.count() );
-        }
-    }
-
-    @Test
-    public void compileOptions () throws Exception
-    {
-        Files.createDirectories(projectDir.resolve("src"));
-
-        final var mainCpp =
-            """
-            int main (int argc, char * argv[])
+            inline
+            int greet (int argc, char * argv [])
             {
                 return 0;
             }
             """;
 
-        Files.writeString(projectDir.resolve("src/main.c"), mainCpp);
+        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),greetH);
+
+        Files.createDirectories(projectDir.resolve("src/main/c"));
+
+        final var mainC =
+            """
+            #include <greet.h>
+            
+            int main (int argc, char * argv [])
+            {
+                return greet(argc,argv);
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/c/main.c"),mainC);
 
         final var buildGradleKts =
             """
@@ -95,23 +51,31 @@ public class PluginFunctionalTest
                 id("br.dev.pedrolamarao.metal.c")
             }
             
-            tasks.register<br.dev.pedrolamarao.gradle.metal.c.CCompileTask>("compile") {
-                compileOptions = listOf("-g")
-                outputDirectory = file("obj")
-                source("src")
+            metal {
+                c {
+                    sources {
+                        create("main")
+                    }
+                }
+                cpp {
+                    sources {
+                        create("main")
+                    }
+                }
             }
             """;
 
         Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
 
-        GradleRunner.create()
+        final var result = GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
+            .withArguments("compile-main-c")
+            .withDebug(true)
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("obj"))) {
-            assertEquals(1, stream.count() );
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
         }
     }
 }

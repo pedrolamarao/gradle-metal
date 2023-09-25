@@ -14,7 +14,7 @@ gradlePlugin {
     plugins {
         create("asm") {
             id = "br.dev.pedrolamarao.metal.asm"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.asm.AsmPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.asm.MetalAsmPlugin"
         }
     }
 }

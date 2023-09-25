@@ -15,59 +15,63 @@ public class PluginFunctionalTest
     @TempDir Path projectDir;
 
     @Test
-    public void apply () throws IOException
+    public void compile () throws IOException
     {
+        Files.createDirectories(projectDir.resolve("src/main/asm"));
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+
+        final var fooH =
+            """
+            extern "C" void foo ();
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),fooH);
+
+        Files.createDirectories(projectDir.resolve("src/main/asm"));
+
+        final var barS =
+            """
+            #include <foo.h>
+            
+            .global bar
+            bar:
+                call foo
+                ret
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/asm/bar.s"),barS);
+
         final var buildGradleKts =
-        """
-        plugins {
-            id("br.dev.pedrolamarao.metal.asm")
-        }
-        """;
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.asm")
+            }
+            
+            metal {
+                asm {
+                    sources {
+                        create("main")
+                    }
+                }
+                cpp {
+                    sources {
+                        create("main")
+                    }
+                }
+            }
+            """;
 
         Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
 
-        GradleRunner.create()
+        final var result = GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .build();
-    }
-
-    @Test
-    public void compile () throws Exception
-    {
-        Files.createDirectories(projectDir.resolve("src"));
-
-        final var mainCpp =
-        """
-        .global meh
-        meh:
-            ret
-        """;
-
-        Files.writeString(projectDir.resolve("src/main.s"), mainCpp);
-
-        final var buildGradleKts =
-        """
-        plugins {
-            id("br.dev.pedrolamarao.metal.asm")
-        }
-        
-        tasks.register<br.dev.pedrolamarao.gradle.metal.asm.AsmCompileTask>("compile") {
-            outputDirectory = file("obj")
-            source("src")
-        }
-        """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
+            .withArguments("compile-main-asm")
+            .withDebug(true)
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("obj"))) {
-            assertEquals(1, stream.count() );
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
         }
     }
 }

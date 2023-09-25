@@ -7,17 +7,16 @@ plugins {
 
 // register "main" archive with asm and cpp sources
 
-val mainCpp = metal.cpp.sources("main")
-val mainAsm = metal.asm.sources("main") {
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
-}
-val mainC = metal.c.sources("main") {
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
-}
+val mainCpp = metal.cpp.sources.create("main")
+val mainAsm = metal.asm.sources.create("main")
+val mainC = metal.c.sources.create("main")
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainAsm.compileTask,mainC.compileTask)
+        source(
+            tasks.named("compile-main-asm"),
+            tasks.named("compile-main-c")
+        )
     }
 }
 
@@ -25,12 +24,17 @@ val mainArchive = metal.archive("main") {
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainAsm.compileTask,mainC.compileTask)
+    dependsOn(
+        tasks.named("compile-main-asm"),
+        tasks.named("compile-main-c")
+    )
 }
 
 val archive = tasks.register("archive") {
     group = "metal"
-    dependsOn(mainArchive.archiveTask)
+    dependsOn(
+        tasks.named("archive-main")
+    )
 }
 
 tasks.assemble.configure {

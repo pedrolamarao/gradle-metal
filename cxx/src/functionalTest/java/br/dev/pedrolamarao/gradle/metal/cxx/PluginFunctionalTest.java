@@ -15,79 +15,34 @@ public class PluginFunctionalTest
     @TempDir Path projectDir;
 
     @Test
-    public void apply () throws IOException
+    public void compileCppCxx () throws IOException
     {
-        Files.createDirectories(projectDir);
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
 
-        final var buildGradleKts =
-        """
-        plugins {
-            id("br.dev.pedrolamarao.metal.cxx")
-        }
-        """;
+        final var mainCpp =
+            """
+            inline
+            int greet (int argc, char * argv [])
+            {
+                return 0;
+            }
+            """;
 
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
+        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),mainCpp);
 
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .build();
-    }
-
-    @Test
-    public void compile () throws Exception
-    {
-        Files.createDirectories(projectDir.resolve("src"));
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
 
         final var mainCxx =
-        """
-        int main (int argc, char * argv[])
-        {
-            return 0;
-        }
-        """;
+            """
+            #include <greet.h>
+            
+            int main (int argc, char * argv [])
+            {
+                return greet(argc,argv);
+            }
+            """;
 
-        Files.writeString(projectDir.resolve("src/main.cxx"), mainCxx);
-
-        final var buildGradleKts =
-        """
-        plugins {
-            id("br.dev.pedrolamarao.metal.cxx")
-        }
-        
-        tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
-            outputDirectory = file("obj")
-            source("src")
-        }
-        """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
-            .build();
-
-        try (var stream = Files.list(projectDir.resolve("obj"))) {
-            assertEquals(1, stream.count() );
-        }
-    }
-
-    @Test
-    public void compileOptions () throws Exception
-    {
-        Files.createDirectories(projectDir.resolve("src"));
-
-        final var mainCxx =
-        """
-        int main (int argc, char * argv[])
-        {
-            return 0;
-        }
-        """;
-
-        Files.writeString(projectDir.resolve("src/main.cxx"), mainCxx);
+        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),mainCxx);
 
         final var buildGradleKts =
             """
@@ -95,56 +50,63 @@ public class PluginFunctionalTest
                 id("br.dev.pedrolamarao.metal.cxx")
             }
             
-            tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.CxxCompileTask>("compile") {
-                compileOptions = listOf("-g")
-                outputDirectory = file("obj")
-                source("src")
+            metal {
+                cpp {
+                    sources {
+                        create("main")
+                    }
+                }
+                cxx {
+                    sources {
+                        create("main")
+                    }
+                }
             }
             """;
 
         Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
 
-        GradleRunner.create()
+        final var result = GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
+            .withArguments("compile-main-cxx")
+            .withDebug(true)
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("obj"))) {
-            assertEquals(1, stream.count() );
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
         }
     }
 
     @Test
-    public void compileDependencies () throws Exception
+    public void compileCxxCpp () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src"));
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
 
-        final var fooIxx =
+        final var mainCpp =
             """
-            export module foo;
-            
-            export namespace foo
+            inline
+            int greet (int argc, char * argv [])
             {
-                int f () { return 0; }
+                return 0;
             }
             """;
 
-        Files.writeString(projectDir.resolve("src/foo.ixx"), fooIxx);
+        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),mainCpp);
 
-        final var barIxx =
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+
+        final var mainCxx =
             """
-            export module bar;
+            #include <greet.h>
             
-            import foo;
-            
-            export namespace bar
+            int main (int argc, char * argv [])
             {
-                int g () { return foo::f(); }
+                return greet(argc,argv);
             }
             """;
 
-        Files.writeString(projectDir.resolve("src/bar.ixx"), barIxx);
+        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),mainCxx);
 
         final var buildGradleKts =
             """
@@ -152,23 +114,157 @@ public class PluginFunctionalTest
                 id("br.dev.pedrolamarao.metal.cxx")
             }
             
-            tasks.register<br.dev.pedrolamarao.gradle.metal.cxx.IxxCompileTask>("compile") {
-                compileOptions = listOf("-g","-std=c++20")
-                outputDirectory = file("bmi")
-                source("src")
+            metal {
+                cxx {
+                    sources {
+                        create("main")
+                    }
+                }
+                cpp {
+                    sources {
+                        create("main")
+                    }
+                }
             }
             """;
 
         Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
 
-        GradleRunner.create()
+        final var result = GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile")
+            .withArguments("compile-main-cxx")
+            .withDebug(true)
             .build();
 
-        try (var stream = Files.list(projectDir.resolve("bmi"))) {
-            assertEquals(2, stream.count() );
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
+        }
+    }
+
+    @Test
+    public void compileIxx () throws IOException
+    {
+        Files.createDirectories(projectDir.resolve("src/main/ixx"));
+
+        final var mainCxx =
+            """
+            export module br.dev.pedrolamarao;
+            
+            export namespace br::dev::pedrolamarao
+            {
+                int greet (int argc, char * argv[])
+                {
+                    return 0;
+                }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/ixx/greet.ixx"),mainCxx);
+
+        final var buildGradleKts =
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            metal {
+                ixx {
+                    sources {
+                        create("main") {
+                            compileOptions = listOf("-std=c++20")
+                        }
+                    }
+                }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
+
+        final var result = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("compile-main-ixx")
+            .withDebug(true)
+            .build();
+
+        try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
+        }
+    }
+
+    @Test
+    public void compileCxxIxx () throws IOException
+    {
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+        Files.createDirectories(projectDir.resolve("src/main/ixx"));
+
+        final var greetCxx =
+            """
+            module br.dev.pedrolamarao;
+            
+            namespace br::dev::pedrolamarao
+            {
+                int greet (int argc, char * argv[])
+                {
+                    return 0;
+                }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/cxx/greet.cxx"),greetCxx);
+
+        final var greetIxx =
+            """
+            export module br.dev.pedrolamarao;
+            
+            export namespace br::dev::pedrolamarao
+            {
+                int greet (int argc, char * argv[]);
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("src/main/ixx/greet.ixx"),greetIxx);
+
+        final var buildGradleKts =
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            metal {
+                cxx {
+                    sources {
+                        create("main") {
+                            compileOptions = listOf("-std=c++20")
+                        }
+                    }
+                }
+                ixx {
+                    sources {
+                        create("main") {
+                            compileOptions = listOf("-std=c++20")
+                        }
+                    }
+                }
+            }
+            """;
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
+
+        final var result = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("--info","compile-main-cxx")
+            .withDebug(true)
+            .build();
+
+        try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
+        }
+
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
         }
     }
 }

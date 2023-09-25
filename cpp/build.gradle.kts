@@ -13,7 +13,7 @@ gradlePlugin {
     plugins {
         create("cpp") {
             id = "br.dev.pedrolamarao.metal.cpp"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.cpp.CppPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin"
         }
     }
 }

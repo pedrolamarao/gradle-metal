@@ -1,7 +1,6 @@
 plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.base")
 }
 
 dependencies {
@@ -10,42 +9,33 @@ dependencies {
 
 // register "main" archive with cpp and cxx sources
 
-val mainCpp = metal.cpp.sources("main")
+val mainCpp = metal.cpp.sources.create("main")
 
-val mainIxx = metal.ixx.sources("main") {
+val mainIxx = metal.ixx.sources.create("main") {
     compileOptions = listOf("-g","--std=c++20")
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
 }
 
-val mainCxx = metal.cxx.sources("main") {
+val mainCxx = metal.cxx.sources.create("main") {
     compileOptions = listOf("-g","--std=c++20")
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
-    importDependencies.from(mainIxx.compileTask)
-    compileTask.configure {
-        source(mainIxx.compileTask)
-    }
 }
 
 val mainArchive = metal.archive("main") {
     archiveTask.configure {
-        source(mainCxx.compileTask)
+        source(tasks.named("compile-main-cxx"))
     }
 }
 
 // register "test" application with cxx sources
 
-val testCxx = metal.cxx.sources("test") {
-    compileOptions = listOf("-g","--std=c++17")
-    includeDependencies.from(mainCpp.sources.sourceDirectories)
-    compileTask.configure {
-        moduleDependencies.from(mainIxx.compileTask)
-    }
+val testCxx = metal.cxx.sources.create("test") {
+    compileOptions = listOf("-g","--std=c++20")
+    modules.from( tasks.named("compile-main-ixx") )
 }
 
 val testApplication = metal.application("test") {
     linkTask.configure {
-        source(mainCxx.compileTask)
-        source(testCxx.compileTask)
+        source(tasks.named("compile-main-cxx"))
+        source(tasks.named("compile-test-cxx"))
     }
 }
 
@@ -53,22 +43,29 @@ val testApplication = metal.application("test") {
 
 val archive = tasks.register("archive") {
     group = "metal"
-    dependsOn(mainArchive.archiveTask)
+    dependsOn(tasks.named("archive-main"))
 }
 
 tasks.register("compile") {
     group = "metal"
-    dependsOn(mainCxx.compileTask,testCxx.compileTask)
+    dependsOn(
+        tasks.named("compile-main-cxx"),
+        tasks.named("compile-test-cxx")
+    )
 }
 
 tasks.register("precompile") {
     group = "metal"
-    dependsOn(mainIxx.compileTask)
+    dependsOn(
+        tasks.named("compile-main-ixx"),
+    )
 }
 
 val link = tasks.register("link") {
     group = "metal"
-    dependsOn(testApplication.linkTask)
+    dependsOn(
+        tasks.named("link-main")
+    )
 }
 
 tasks.assemble.configure {

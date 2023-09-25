@@ -120,7 +120,6 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
         scanArgs.add("clang++");
         scanArgs.addAll(getCompileOptions().get());
         getHeaderDependencies().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
-        getModuleDependencies().forEach(file -> scanArgs.add("-fmodule-file=%s".formatted(file)));
         scanArgs.add("--language=c++-module");
         scanArgs.add("--precompile");
 

@@ -83,7 +83,7 @@ public abstract class CxxCompileTask extends CxxCompileBaseTask
         compileArgs.add("clang++");
         compileArgs.addAll(getCompileOptions().get());
         getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
-        getModuleDependencies().getAsFileTree().forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
+        getModuleDependencies().forEach(file -> compileArgs.add("-fprebuilt-module-path=%s".formatted(file)));
         compileArgs.add("--compile");
 
         // delete old objects

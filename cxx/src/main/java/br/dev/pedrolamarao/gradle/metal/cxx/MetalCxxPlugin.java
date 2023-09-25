@@ -109,9 +109,7 @@ public class MetalCxxPlugin implements Plugin<Project>
         });
 
         configurations.named(CXX_IMPORT_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifacts(compileTask.map(IxxCompileTask::getInterfaceFiles), artifact -> {
-                artifact.builtBy(compileTask);
-            });
+            configuration.getOutgoing().artifact(compileTask.map(IxxCompileTask::getOutputDirectory), it -> it.builtBy(compileTask));
         });
 
         final var importables = configurations.create(CXX_IMPORTABLES.apply(name),configuration ->
@@ -119,7 +117,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
             configuration.setVisible(false);
-            configuration.getOutgoing().artifacts(compileTask.map(IxxCompileTask::getInterfaceFiles),it -> it.builtBy(compileTask));
+            configuration.getOutgoing().artifact(compileTask.map(IxxCompileTask::getOutputDirectory),it -> it.builtBy(compileTask));
         });
 
         return new MetalIxxSources(compileOptions, name, sourceDirectorySet);

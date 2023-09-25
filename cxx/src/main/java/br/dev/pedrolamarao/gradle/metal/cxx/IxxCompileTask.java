@@ -2,18 +2,14 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkerExecutor;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public abstract class IxxCompileTask extends IxxCompileBaseTask
@@ -23,16 +19,6 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
     final ObjectFactory objects;
 
     final WorkerExecutor workers;
-
-    @Internal @Nonnull
-    public FileCollection getInterfaceFiles ()
-    {
-        final var collection = objects.fileCollection();
-        final var baseDirectory = getProject().getProjectDir().toPath();
-        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
-        getSource().forEach(source -> collection.from( toOutputPath(baseDirectory,source.toPath(),outputDirectory,".bmi") ));
-        return collection;
-    }
 
     @Inject
     public IxxCompileTask (ExecOperations exec, ObjectFactory objects, WorkerExecutor workers)
@@ -55,32 +41,30 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
         baseArgs.add("clang++");
         baseArgs.addAll(getCompileOptions().get());
         getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
-        getModuleDependencies().forEach(file -> baseArgs.add("-fmodule-file=%s".formatted(file)));
+        getModuleDependencies().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file)));
+        baseArgs.add("-fprebuilt-module-path=%s".formatted(getOutputDirectory().get()));
+        baseArgs.add("--language=c++-module");
+        baseArgs.add("--precompile");
 
         // remove old objects
         final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
         getProject().delete(outputDirectory);
 
         // compile objects from sources
-        final var outputList = new ArrayList<Path>();
+        Files.createDirectories(outputDirectory);
         for (var module : modules)
         {
-            final var outputPath = toOutputPath(baseDirectory, module.source().toPath(), outputDirectory, ".bmi");
-            Files.createDirectories(outputPath.getParent());
+            final var moduleName = module.provides().get(0);
+            final var outputPath = outputDirectory.resolve( moduleName.replace(":","-") + ".pcm" );
 
             // prepare compiler arguments
             final var compileArgs = new ArrayList<>(baseArgs);
-            outputList.forEach(file -> compileArgs.add("-fmodule-file=%s".formatted(file)));
-            compileArgs.add("--language=c++-module");
-            compileArgs.add("--precompile");
             compileArgs.add("--output=%s".formatted(outputPath));
             compileArgs.add(module.source().toString());
 
             exec.exec(it -> {
                 it.commandLine(compileArgs);
             });
-
-            outputList.add(outputPath);
         }
     }
 }

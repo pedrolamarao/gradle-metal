@@ -69,7 +69,7 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
             // parse P1689 dependency information
             final var sourceProvides = new ArrayList<String>();
             final var sourceRequires = new ArrayList<String>();
-            final IxxDependency dependencies;
+            final IxxModule dependencies;
             try
             {
                 final var json = (Map<?,?>) new groovy.json.JsonSlurper().parse( buffer.toByteArray() );
@@ -94,7 +94,7 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
                     }
                 }
 
-                dependencies = new IxxDependency(sourceFile,sourceProvides,sourceRequires);
+                dependencies = new IxxModule(sourceFile,sourceProvides,sourceRequires);
             }
             catch (RuntimeException e) { throw e; }
             catch (Exception e) { throw new RuntimeException(e); }
@@ -113,7 +113,7 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
         }
     }
 
-    List<IxxDependency> scan () throws IOException, ClassNotFoundException
+    List<IxxModule> scan () throws IOException, ClassNotFoundException
     {
         // prepare base arguments
         final var scanArgs = new ArrayList<String>();
@@ -137,16 +137,16 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
         scanWorkers.await();
 
         // discover dependencies from sources: parse dependency files
-        final var dependencies = new ArrayList<IxxDependency>();
+        final var modules = new ArrayList<IxxModule>();
         for (var dependencyFile : getObjectFactory().fileCollection().from(getTemporaryDir()).getAsFileTree()) {
-            try (var stream = new ObjectInputStream(Files.newInputStream(dependencyFile.toPath()))) {
-                final var dependency = (IxxDependency) stream.readObject();
-                dependencies.add(dependency);
+            try (var stream = Files.newInputStream(dependencyFile.toPath())) {
+                final var module = (IxxModule) new ObjectInputStream(stream).readObject();
+                modules.add(module);
             }
         }
 
         // sort sources in dependency order
-        dependencies.sort((x, y) -> {
+        modules.sort((x, y) -> {
             for (var requires : y.requires())
                 if (x.provides().contains(requires))
                     return -1;
@@ -156,6 +156,6 @@ public abstract class IxxCompileBaseTask extends CxxCompileBaseTask
             return 0;
         });
 
-        return dependencies;
+        return modules;
     }
 }

@@ -48,7 +48,7 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
         final var baseDirectory = getProject().getProjectDir().toPath();
 
         // discover dependencies from sources
-        final var dependencyGraph = scan();
+        final var modules = scan();
 
         // prepare base arguments
         final var baseArgs = new ArrayList<String>();
@@ -63,9 +63,9 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
 
         // compile objects from sources
         final var outputList = new ArrayList<Path>();
-        for (var sourceFile : dependencyGraph.stream().map(IxxDependency::file).toList())
+        for (var module : modules)
         {
-            final var outputPath = toOutputPath(baseDirectory, sourceFile.toPath(), outputDirectory, ".bmi");
+            final var outputPath = toOutputPath(baseDirectory, module.source().toPath(), outputDirectory, ".bmi");
             Files.createDirectories(outputPath.getParent());
 
             // prepare compiler arguments
@@ -74,7 +74,7 @@ public abstract class IxxCompileTask extends IxxCompileBaseTask
             compileArgs.add("--language=c++-module");
             compileArgs.add("--precompile");
             compileArgs.add("--output=%s".formatted(outputPath));
-            compileArgs.add(sourceFile.toString());
+            compileArgs.add(module.source().toString());
 
             exec.exec(it -> {
                 it.commandLine(compileArgs);

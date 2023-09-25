@@ -41,7 +41,7 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
         final var baseDirectory = getProject().getProjectDir().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
-        final var dependencies = scan();
+        final var modules = scan();
 
         // prepare arguments
         final var baseArgs = new ArrayList<String>();
@@ -54,10 +54,10 @@ public abstract class IxxCommandsTask extends IxxCompileBaseTask
 
         final var commandList = new ArrayList<String>();
         final var moduleList = new ArrayList<String>();
-        dependencies.stream().map(IxxDependency::file).forEach(source ->
+        modules.forEach(module ->
         {
-            final var file = source.toString().replace("\\","\\\\");
-            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".bmi").toString().replace("\\","\\\\");
+            final var file = module.toString().replace("\\","\\\\");
+            final var output = toOutputPath(baseDirectory,module.source().toPath(),objectDirectory,".bmi").toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
             moduleList.forEach(it -> compileArgs.add("-fmodule-file=%s".formatted(it).replace("\\","\\\\")));

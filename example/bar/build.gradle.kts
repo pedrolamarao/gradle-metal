@@ -64,7 +64,7 @@ tasks.register("precompile") {
 val link = tasks.register("link") {
     group = "metal"
     dependsOn(
-        tasks.named("link-main")
+        tasks.named("link-test")
     )
 }
 

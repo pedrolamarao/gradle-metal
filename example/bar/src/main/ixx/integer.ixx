@@ -8,7 +8,7 @@ using _size = decltype(sizeof(nullptr));
 
 export namespace br::dev::pedrolamarao::bar
 {
-    template <_size Bits>
+    template <_size Bits = sizeof(nullptr)*8>
     class integer
     {
         using storage_type = signed _BitInt(Bits);

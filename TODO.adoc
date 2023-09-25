@@ -2,8 +2,6 @@
 
 == to do
 
-* [ ] defect: can't compile example project googletest application
-
 * [ ] build cache
 * [ ] build incremental
 * [ ] dependencies from included build
@@ -20,6 +18,8 @@
 
 == done
 
+* [x] defect: can't compile example project googletest application
+* [x] use -fprebuild-module-path instead of -fmodule-file
 * [x] defect: in example project, module dependency from primary to partition ":byte" is missing
 * [x] generate compile_commands.json
 * [x] compile multiple module interfaces in order

@@ -12,14 +12,10 @@ import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
 import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
-import static br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin.CPP_INCLUDABLE_DEPENDENCIES;
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.INCLUDABLE_DEPENDENCIES;
 
 public class MetalCxxPlugin implements Plugin<Project>
 {
-    public static final String CXX_IMPORT_ELEMENTS = "cxxImportElements";
-
-    public static final String CXX_IMPORT_DEPENDENCIES = "cxxImportDependencies";
-
     @Override
     public void apply (Project project)
     {
@@ -36,14 +32,14 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 
-        project.getConfigurations().create(CXX_IMPORT_DEPENDENCIES, configuration -> {
+        project.getConfigurations().create(MetalBasePlugin.IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
             configuration.extendsFrom(nativeImplementation.get());
         });
 
-        project.getConfigurations().create(CXX_IMPORT_ELEMENTS, configuration -> {
+        project.getConfigurations().create(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
@@ -59,9 +55,9 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var compileOptions = objects.listProperty(String.class);
         final var headers = objects.fileCollection();
-        headers.from( configurations.named(CPP_INCLUDABLE_DEPENDENCIES) );
+        headers.from( configurations.named(INCLUDABLE_DEPENDENCIES) );
         final var modules = objects.fileCollection();
-        modules.from( configurations.named(CXX_IMPORT_DEPENDENCIES) );
+        modules.from( configurations.named(MetalBasePlugin.IMPORTABLE_DEPENDENCIES) );
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
@@ -99,9 +95,9 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var compileOptions = objects.listProperty(String.class);
         final var headers = objects.fileCollection();
-        headers.from( configurations.named(CPP_INCLUDABLE_DEPENDENCIES) );
+        headers.from( configurations.named(INCLUDABLE_DEPENDENCIES) );
         final var modules = objects.fileCollection();
-        modules.from( configurations.named(CXX_IMPORT_DEPENDENCIES) );
+        modules.from( configurations.named(MetalBasePlugin.IMPORTABLE_DEPENDENCIES) );
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("bmi/%s/ixx".formatted(name));
@@ -125,7 +121,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
-        configurations.named(CXX_IMPORT_ELEMENTS).configure(configuration -> {
+        configurations.named(MetalBasePlugin.IMPORTABLE_ELEMENTS).configure(configuration -> {
             configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getOutputDirectory), it -> it.builtBy(compileTask));
         });
 

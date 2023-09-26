@@ -6,9 +6,23 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class MetalBasePlugin implements Plugin<Project>
 {
-    public static final String COMMANDS_ELEMENTS = "commandsElements";
+    public static final String COMMANDS_ELEMENTS = "metalCommandsElements";
 
     public static final String COMMANDS_DEPENDENCIES = "commands";
+
+    public static final String EMPTY_ELEMENTS = "metalEmptyElements";
+
+    public static final String IMPORTABLE_ELEMENTS = "metalImportableElements";
+
+    public static final String IMPORTABLE_DEPENDENCIES = "metalImportableDependencies";
+
+    public static final String INCLUDABLE_ELEMENTS = "metalIncludableElements";
+
+    public static final String INCLUDABLE_DEPENDENCIES = "metalIncludableDependencies";
+
+    public static final String LINKABLE_DEPENDENCIES = "metalLinkableDependencies";
+
+    public static final String LINKABLE_ELEMENTS = "metalLinkableElements";
 
     @Override
     public void apply (Project project)
@@ -30,7 +44,7 @@ public class MetalBasePlugin implements Plugin<Project>
             configuration.setCanBeResolved(false);
         });
 
-        configurations.create("nativeNoElements",configuration -> {
+        configurations.create(EMPTY_ELEMENTS, configuration -> {
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.NONE));
             configuration.setCanBeConsumed(true);
             configuration.setCanBeDeclared(false);
@@ -38,14 +52,14 @@ public class MetalBasePlugin implements Plugin<Project>
             configuration.setVisible(false);
         });
 
-        configurations.create("nativeLinkDependencies", configuration -> {
+        configurations.create(LINKABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
             configuration.extendsFrom(nativeImplementation);
         });
 
-        configurations.create("nativeLinkElements",configuration -> {
+        configurations.create(LINKABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
@@ -93,7 +107,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var linkTask = tasks.register("link-%s".formatted(name), NativeLinkTask.class, it ->
         {
             final var output = project.getLayout().getBuildDirectory().file("exe/%s/%s.exe".formatted(name,project.getName()));
-            it.getLibraryDependencies().from(configurations.named("nativeLinkDependencies"));
+            it.getLibraryDependencies().from(configurations.named(LINKABLE_DEPENDENCIES));
             it.getOptions().convention(linkOptions);
             it.getOutput().set(output);
         });
@@ -116,7 +130,7 @@ public class MetalBasePlugin implements Plugin<Project>
             it.getOptions().convention(archiveOptions);
             it.getOutput().set(output);
         });
-        configurations.named("nativeLinkElements").configure(it -> it.getOutgoing().artifact(archiveTask));
+        configurations.named(LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));
 
         return new MetalArchive(archiveOptions, archiveTask, name);

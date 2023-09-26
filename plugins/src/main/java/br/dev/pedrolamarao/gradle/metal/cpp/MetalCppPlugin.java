@@ -8,10 +8,6 @@ import org.gradle.api.Project;
 
 public class MetalCppPlugin implements Plugin<Project>
 {
-    public static final String CPP_INCLUDABLE_ELEMENTS = "cppIncludableElements";
-
-    public static final String CPP_INCLUDABLE_DEPENDENCIES = "cppIncludableDependencies";
-
     @Override
     public void apply (Project project)
     {
@@ -24,14 +20,14 @@ public class MetalCppPlugin implements Plugin<Project>
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 
-        project.getConfigurations().create(CPP_INCLUDABLE_DEPENDENCIES, configuration -> {
+        project.getConfigurations().create(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.INCLUDABLE));
             configuration.extendsFrom(nativeImplementation.get());
         });
 
-        project.getConfigurations().create(CPP_INCLUDABLE_ELEMENTS, configuration -> {
+        project.getConfigurations().create(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
             configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.INCLUDABLE));
@@ -48,7 +44,7 @@ public class MetalCppPlugin implements Plugin<Project>
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir( layout.getProjectDirectory().dir("src/%s/cpp".formatted(name)) );
 
-        configurations.named(CPP_INCLUDABLE_ELEMENTS).configure(configuration ->
+        configurations.named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration ->
         {
             configuration.getOutgoing().artifacts(providers.provider(sources::getSourceDirectories));
         });

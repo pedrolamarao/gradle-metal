@@ -1,6 +1,5 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
-import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.Plugin;
@@ -9,6 +8,8 @@ import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.ConfigurationContainer;
 
 import javax.inject.Inject;
+
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.LINKABLE_ELEMENTS;
 
 public class MetalPrebuiltPlugin implements Plugin<Project>
 {
@@ -23,21 +24,21 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
 
         public void includable (Object notation)
         {
-            getConfigurations().named(MetalCppPlugin.CPP_INCLUDABLE_ELEMENTS).configure(configuration -> {
+            getConfigurations().named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration -> {
                 configuration.getOutgoing().artifact(notation);
             });
         }
 
         public void includable (Object notation, Action<? super ConfigurablePublishArtifact> configure)
         {
-            getConfigurations().named(MetalCppPlugin.CPP_INCLUDABLE_ELEMENTS).configure(configuration -> {
+            getConfigurations().named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration -> {
                 configuration.getOutgoing().artifact(notation, configure);
             });
         }
 
         public void linkable (Object notation)
         {
-            getConfigurations().named("nativeLinkElements").configure(configuration ->
+            getConfigurations().named(LINKABLE_ELEMENTS).configure(configuration ->
             {
                 configuration.getOutgoing().artifact(notation);
             });
@@ -45,7 +46,7 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
 
         public void linkable (Object notation, Action<? super ConfigurablePublishArtifact> configure)
         {
-            getConfigurations().named("nativeLinkElements").configure(configuration -> {
+            getConfigurations().named(LINKABLE_ELEMENTS).configure(configuration -> {
                 configuration.getOutgoing().artifact(notation, configure);
             });
         }

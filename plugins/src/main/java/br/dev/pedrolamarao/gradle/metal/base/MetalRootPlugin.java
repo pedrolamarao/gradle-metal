@@ -13,7 +13,9 @@ public class MetalRootPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        final var commandsDependencies = project.getConfigurations().create(MetalConfigurations.COMMANDS_DEPENDENCIES);
+        project.getPluginManager().apply(MetalBasePlugin.class);
+
+        final var commandsDependencies = project.getConfigurations().create(MetalBasePlugin.COMMANDS_DEPENDENCIES);
         commandsDependencies.setCanBeConsumed(false);
         commandsDependencies.setCanBeResolved(true);
         commandsDependencies.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.COMMANDS));

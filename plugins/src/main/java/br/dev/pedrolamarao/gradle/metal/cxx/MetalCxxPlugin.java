@@ -1,7 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
-import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxCommandsTask;
@@ -11,7 +11,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
-import static br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations.COMMANDS_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
 import static br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin.CPP_INCLUDABLE_DEPENDENCIES;
 
 public class MetalCxxPlugin implements Plugin<Project>
@@ -23,7 +23,7 @@ public class MetalCxxPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().apply(NativeBasePlugin.class);
+        project.getPluginManager().apply(MetalBasePlugin.class);
         project.getPluginManager().apply(MetalCppPlugin.class);
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);

@@ -1,20 +1,20 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
-import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
-import static br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations.COMMANDS_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
 
 public class MetalAsmPlugin implements Plugin<Project>
 {
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().apply(NativeBasePlugin.class);
+        project.getPluginManager().apply(MetalBasePlugin.class);
         project.getPluginManager().apply(MetalCppPlugin.class);
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);

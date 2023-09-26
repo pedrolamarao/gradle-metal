@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.annotation.Nonnull;
 
-public class MetalApplication implements Named
+public class MetalApplication extends MetalComponent implements Named
 {
     private final ListProperty<String> linkOptions;
 

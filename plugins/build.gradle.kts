@@ -7,13 +7,21 @@ plugins {
 
 gradlePlugin {
     plugins {
+        create("application") {
+            id = "br.dev.pedrolamarao.metal.application"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalApplicationPlugin"
+        }
+        create("archive") {
+            id = "br.dev.pedrolamarao.metal.archive"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalArchivePlugin"
+        }
         create("asm") {
             id = "br.dev.pedrolamarao.metal.asm"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.asm.MetalAsmPlugin"
         }
         create("base") {
             id = "br.dev.pedrolamarao.metal.base"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin"
         }
         create("c") {
             id = "br.dev.pedrolamarao.metal.c"
@@ -31,9 +39,9 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.cxx"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxPlugin"
         }
-        create("base2") {
-            id = "br.dev.pedrolamarao.metal.base2"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin"
+        create("prebuilt") {
+            id = "br.dev.pedrolamarao.metal.prebuilt"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalPrebuiltPlugin"
         }
     }
 }

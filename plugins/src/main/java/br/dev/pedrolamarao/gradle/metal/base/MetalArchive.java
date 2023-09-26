@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.annotation.Nonnull;
 
-public class MetalArchive implements Named
+public class MetalArchive extends MetalComponent implements Named
 {
     private final ListProperty<String> archiveOptions;
 

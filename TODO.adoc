@@ -2,23 +2,19 @@
 
 == to do
 
-* [ ] reduce extension paths
-- [ ] metal.asm.sources.named("main") -> metal.asm.named("main")
-- [ ] metal.c.sources.named("c") -> metal.asm.named("main")
-- [ ] metal.cxx.sources.named("main") -> metal.asm.named("main")
-- [ ] metal.ixx.sources.named("main") -> metal.asm.named("main")
 * [ ] reduce dependency notation
 - [ ] metal { c.named("main").header( cpp.named("main") ) }
 - [ ] metal { cxx.named("main").module( ixx.named("main") ) }
 - [ ] metal { archive.named("main").source( cxx.named("main") ) }
-* [ ] reduce plugin suite
-- [ ] br.dev.pedrolamarao.metal.asm
-- [ ] br.dev.pedrolamarao.metal.base
-- [ ] br.dev.pedrolamarao.metal.c
-- [ ] br.dev.pedrolamarao.metal.cxx
 * [ ] add conventional application plugin
-- [ ] br.dev.pedrolamarao.metal.application
+- [ ] plugins { id("br.dev.pedrolamarao.metal.application") }
 - [ ] adds metal.application.named("main")
+- [ ] if br.dev.pedrolamarao.metal.$\{lang} then adds metal.$\{lang}.named("main") and wires to application
+* [ ] add conventional archive plugin
+- [ ] plugins { id("br.dev.pedrolamarao.metal.archive") }
+- [ ] adds metal.archive.named("main")
+- [ ] if br.dev.pedrolamarao.metal.$\{lang} then adds metal.$\{lang}.named("main") and wires to archive
+* [ ] support shared libraries
 
 * [ ] build cache
 * [ ] build incremental
@@ -36,6 +32,7 @@
 
 == done
 
+* [x] reduce extension paths
 * [x] add domain object container for archives
 * [x] consolidate project structure to plugins and samples
 * [x] defect: can't compile example project googletest application

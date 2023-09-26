@@ -17,7 +17,7 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
         final var asm = project.getObjects().domainObjectContainer(MetalAsmSources.class, name -> createSources(project,name));
-        metal.getExtensions().create("asm", MetalAsmExtension.class, asm);
+        metal.getExtensions().add("asm", asm);
     }
 
     static MetalAsmSources createSources (Project project, String name)

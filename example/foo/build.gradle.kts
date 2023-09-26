@@ -13,24 +13,20 @@ dependencies {
 
 metal {
     ixx {
-        sources {
-            create("main") {
-                compileOptions = listOf("-g","--std=c++20")
-            }
+        create("main") {
+            compileOptions = listOf("-g","--std=c++20")
         }
     }
     cxx {
-        sources {
-            create("main") {
-                compileOptions = listOf("-g","--std=c++20")
-                module( ixx.sources.named("main").map { it.outputDirectory } )
-            }
+        create("main") {
+            compileOptions = listOf("-g","--std=c++20")
+            module( ixx.named("main").map { it.outputDirectory } )
         }
     }
     applications {
         create("main") {
             linkOptions = listOf("-g")
-            source( cxx.sources.named("main").map { it.outputs } )
+            source( cxx.named("main").map { it.outputs } )
         }
     }
 }

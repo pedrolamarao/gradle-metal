@@ -12,28 +12,22 @@ dependencies {
 
 metal {
     cpp {
-        sources {
-            create("main")
-        }
+        create("main")
     }
     ixx {
-        sources {
-            create("main") {
-                compileOptions = listOf("-g","--std=c++20")
-            }
+        create("main") {
+            compileOptions = listOf("-g","--std=c++20")
         }
     }
     cxx {
-        sources {
-            create("main") {
-                compileOptions = listOf("-g","--std=c++20")
-                module( ixx.sources.named("main").map { it.outputDirectory } )
-            }
+        create("main") {
+            compileOptions = listOf("-g","--std=c++20")
+            module( ixx.named("main").map { it.outputDirectory } )
         }
     }
     archives {
         create("main") {
-            source( cxx.sources.named("main").map { it.outputs } )
+            source( cxx.named("main").map { it.outputs } )
         }
     }
 }
@@ -42,22 +36,18 @@ metal {
 
 metal {
     cpp {
-        sources {
-            create("test")
-        }
+        create("test")
     }
     cxx {
-        sources {
-            create("test") {
-                compileOptions = listOf("-g","-std=c++20")
-                module( tasks.named("compile-main-ixx") )
-            }
+        create("test") {
+            compileOptions = listOf("-g","-std=c++20")
+            module( tasks.named("compile-main-ixx") )
         }
     }
     applications {
         create("test") {
-            source( cxx.sources.named("main").map { it.outputs } )
-            source( cxx.sources.named("test").map { it.outputs } )
+            source( cxx.named("main").map { it.outputs } )
+            source( cxx.named("test").map { it.outputs } )
         }
     }
 }

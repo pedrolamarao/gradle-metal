@@ -5,13 +5,11 @@ plugins {
 
 metal {
     asm {
-        sources {
-            create("main")
-        }
+        create("main")
     }
     applications {
         create("main") {
-            source( asm.sources.named("main").map { it.outputs } )
+            source( asm.named("main").map { it.outputs } )
         }
     }
 }

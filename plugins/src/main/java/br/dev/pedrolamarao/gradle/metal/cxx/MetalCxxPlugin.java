@@ -5,7 +5,6 @@ import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxCompileTask;
-import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxExtension;
 import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxSources;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -27,10 +26,10 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
         final var cxx = project.getObjects().domainObjectContainer(MetalCxxSources.class, name -> createCxxSources(project,name));
-        metal.getExtensions().create("cxx", MetalCxxExtension.class, cxx);
+        metal.getExtensions().add("cxx", cxx);
 
         final var ixx = project.getObjects().domainObjectContainer(MetalIxxSources.class, name -> createIxxSources(project,name));
-        metal.getExtensions().create("ixx", MetalIxxExtension.class, ixx);
+        metal.getExtensions().add("ixx", ixx);
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 

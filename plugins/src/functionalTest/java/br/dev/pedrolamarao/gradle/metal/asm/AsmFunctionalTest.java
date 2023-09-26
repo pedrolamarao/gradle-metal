@@ -49,15 +49,11 @@ public class AsmFunctionalTest
             
             metal {
                 cpp {
-                    sources {
-                        create("main")
-                    }
+                    create("main")
                 }
                 asm {
-                    sources {
-                        create("main") {
-                            header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-                        }
+                    create("main") {
+                        header( cpp.named("main").map { it.sources.sourceDirectories } )
                     }
                 }
             }

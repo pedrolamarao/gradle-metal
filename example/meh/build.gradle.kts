@@ -9,29 +9,23 @@ plugins {
 
 metal {
     cpp {
-        sources {
-            create("main")
-        }
+        create("main")
     }
     asm {
-        sources {
-            create("main") {
-                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-            }
+        create("main") {
+            header( cpp.named("main").map { it.sources.sourceDirectories } )
         }
     }
     c {
-        sources {
-            create("main") {
-                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-            }
+        create("main") {
+            header( cpp.named("main").map { it.sources.sourceDirectories } )
         }
     }
     archives {
         create("main") {
             source(
-                asm.sources.named("main").map { it.outputs },
-                c.sources.named("main").map { it.outputs }
+                asm.named("main").map { it.outputs },
+                c.named("main").map { it.outputs }
             )
         }
     }

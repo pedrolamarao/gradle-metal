@@ -9,22 +9,18 @@ plugins {
 
 metal {
     cpp {
-        sources {
-            create("main")
-        }
+        create("main")
     }
     cxx {
-        sources {
-            create("main") {
-                compileOptions = listOf("-g","--std=c++17")
-                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-                sources.exclude("**/*.h")
-            }
+        create("main") {
+            compileOptions = listOf("-g","--std=c++17")
+            header( cpp.named("main").map { it.sources.sourceDirectories } )
+            sources.exclude("**/*.h")
         }
     }
     archives {
         create("main") {
-            source( cxx.sources.named("main").map { it.outputs } )
+            source( cxx.named("main").map { it.outputs } )
         }
     }
 }

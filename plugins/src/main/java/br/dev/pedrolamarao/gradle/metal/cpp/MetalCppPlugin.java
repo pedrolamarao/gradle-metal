@@ -20,7 +20,7 @@ public class MetalCppPlugin implements Plugin<Project>
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
         final var cpp = project.getObjects().domainObjectContainer(MetalCppSources.class, name -> createCppSources(project,name));
-        metal.getExtensions().create("cpp", MetalCppExtension.class, cpp);
+        metal.getExtensions().add("cpp", cpp);
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 

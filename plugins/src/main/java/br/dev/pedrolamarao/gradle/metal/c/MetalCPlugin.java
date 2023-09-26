@@ -17,7 +17,7 @@ public class MetalCPlugin implements Plugin<Project>
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
         final var c = project.getObjects().domainObjectContainer(MetalCSources.class, name -> createSources(project,name));
-        metal.getExtensions().create("c", MetalCExtension.class, c);
+        metal.getExtensions().add("c", c);
     }
 
     static MetalCSources createSources (Project project, String name)

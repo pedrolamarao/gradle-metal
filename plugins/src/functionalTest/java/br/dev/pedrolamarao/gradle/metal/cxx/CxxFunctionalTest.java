@@ -52,15 +52,11 @@ public class CxxFunctionalTest
             
             metal {
                 cpp {
-                    sources {
-                        create("main")
-                    }
+                    create("main")
                 }
                 cxx {
-                    sources {
-                        create("main") {
-                            header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-                        }
+                    create("main") {
+                        header( cpp.named("main").map { it.sources.sourceDirectories } )
                     }
                 }
             }
@@ -108,10 +104,8 @@ public class CxxFunctionalTest
             
             metal {
                 ixx {
-                    sources {
-                        create("main") {
-                            compileOptions = listOf("-std=c++20")
-                        }
+                    create("main") {
+                        compileOptions = listOf("-std=c++20")
                     }
                 }
             }
@@ -172,18 +166,14 @@ public class CxxFunctionalTest
             
             metal {
                 ixx {
-                    sources {
-                        create("main") {
-                            compileOptions = listOf("-std=c++20")
-                        }
+                    create("main") {
+                        compileOptions = listOf("-std=c++20")
                     }
                 }
                 cxx {
-                    sources {
-                        create("main") {
-                            compileOptions = listOf("-std=c++20")
-                            module( ixx.sources.named("main").map { it.outputDirectory } )
-                        }
+                    create("main") {
+                        compileOptions = listOf("-std=c++20")
+                        module( ixx.named("main").map { it.outputDirectory } )
                     }
                 }
             }

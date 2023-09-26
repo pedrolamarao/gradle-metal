@@ -5,20 +5,16 @@ plugins {
 
 metal {
     cpp {
-        sources {
-            create("main")
-        }
+        create("main")
     }
     c {
-        sources {
-            create("main") {
-                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
-            }
+        create("main") {
+            header( cpp.named("main").map { it.sources.sourceDirectories } )
         }
     }
     applications {
         create("main") {
-            source( c.sources.named("main").map { it.outputs } )
+            source( c.named("main").map { it.outputs } )
         }
     }
 }

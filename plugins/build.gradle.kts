@@ -19,6 +19,10 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.c"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.c.MetalCPlugin"
         }
+        create("commands") {
+            id = "br.dev.pedrolamarao.metal.commands"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalRootPlugin"
+        }
         create("cpp") {
             id = "br.dev.pedrolamarao.metal.cpp"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin"
@@ -26,10 +30,6 @@ gradlePlugin {
         create("cxx") {
             id = "br.dev.pedrolamarao.metal.cxx"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxPlugin"
-        }
-        create("root") {
-            id = "br.dev.pedrolamarao.metal.root"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalRootPlugin"
         }
         create("base2") {
             id = "br.dev.pedrolamarao.metal.base2"

@@ -49,28 +49,25 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
         baseArgs.add("clang++");
         baseArgs.addAll(getCompileOptions().get());
         getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
-        getModuleDependencies().getAsFileTree().forEach(file -> baseArgs.add("-fmodule-file=%s".formatted(file).replace("\\","\\\\")));
+        getModuleDependencies().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
+        baseArgs.add("-fprebuilt-module-path=%s".formatted(getObjectDirectory().get()).replace("\\","\\\\"));
+        baseArgs.add("--language=c++-module");
+        baseArgs.add("--precompile");
 
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
 
         final var commandList = new ArrayList<String>();
-        final var moduleList = new ArrayList<String>();
         modules.forEach(module ->
         {
-            final var file = module.toString().replace("\\","\\\\");
+            final var file = module.source().toString().replace("\\","\\\\");
             final var output = MetalCxxCompileBaseTask.toOutputPath(baseDirectory,module.source().toPath(),objectDirectory,".bmi").toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
-            moduleList.forEach(it -> compileArgs.add("-fmodule-file=%s".formatted(it).replace("\\","\\\\")));
-            compileArgs.add("--language=c++-module");
-            compileArgs.add("--precompile");
             compileArgs.add("--output=%s".formatted(output));
             compileArgs.add(file);
             final var arguments = compileArgs.stream().collect(Collectors.joining("\", \"","\"","\""));
 
             commandList.add( template.formatted(directory, arguments, file, output) );
-
-            moduleList.add(output);
         });
 
         try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8)) {

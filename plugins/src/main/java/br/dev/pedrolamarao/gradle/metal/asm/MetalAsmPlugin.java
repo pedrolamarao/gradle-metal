@@ -5,6 +5,9 @@ import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
+
+import static br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations.COMMANDS_ELEMENTS;
 
 public class MetalAsmPlugin implements Plugin<Project>
 {
@@ -34,6 +37,19 @@ public class MetalAsmPlugin implements Plugin<Project>
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/asm".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
 
+        final var commandsTask = tasks.register("commands-%s-asm".formatted(name), MetalAsmCommandsTask.class, task ->
+        {
+            task.getCompileOptions().set(compileOptions);
+            task.getHeaderDependencies().from(headers);
+            task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
+            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/asm".formatted(name)));
+            task.setSource(sources);
+        });
+
+        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalAsmCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
+        });
+
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), MetalAsmCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
@@ -42,6 +58,6 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.setSource(sources);
         });
 
-        return new MetalAsmSources(compileOptions, compileTask, headers, name, sources);
+        return new MetalAsmSources(commandsTask, compileOptions, compileTask, headers, name, sources);
     }
 }

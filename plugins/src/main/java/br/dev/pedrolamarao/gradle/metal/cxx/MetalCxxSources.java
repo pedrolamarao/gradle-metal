@@ -15,6 +15,8 @@ import javax.inject.Inject;
 @NonNullApi
 public class MetalCxxSources implements Named
 {
+    private final TaskProvider<MetalCxxCommandsTask> commandsTask;
+
     private final ListProperty<String> compileOptions;
 
     private final TaskProvider<MetalCxxCompileTask> compileTask;
@@ -28,8 +30,9 @@ public class MetalCxxSources implements Named
     private final SourceDirectorySet sources;
 
     @Inject
-    public MetalCxxSources (ListProperty<String> compileOptions, TaskProvider<MetalCxxCompileTask> compileTask, ConfigurableFileCollection headers, ConfigurableFileCollection modules, String name, SourceDirectorySet sources)
+    public MetalCxxSources (TaskProvider<MetalCxxCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCxxCompileTask> compileTask, ConfigurableFileCollection headers, ConfigurableFileCollection modules, String name, SourceDirectorySet sources)
     {
+        this.commandsTask = commandsTask;
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.headers = headers;
@@ -71,11 +74,13 @@ public class MetalCxxSources implements Named
 
     public void header (Object... sources)
     {
+        commandsTask.configure(it -> it.getHeaderDependencies().from(sources));
         compileTask.configure(it -> it.getHeaderDependencies().from(sources));
     }
 
     public void module (Object... sources)
     {
+        commandsTask.configure(it -> it.getModuleDependencies().from(sources));
         compileTask.configure(it -> it.getModuleDependencies().from(sources));
     }
 }

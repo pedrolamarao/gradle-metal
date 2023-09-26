@@ -5,6 +5,9 @@ import br.dev.pedrolamarao.gradle.metal.base.NativeBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
+
+import static br.dev.pedrolamarao.gradle.metal.base.MetalConfigurations.COMMANDS_ELEMENTS;
 
 public class MetalCPlugin implements Plugin<Project>
 {
@@ -34,6 +37,19 @@ public class MetalCPlugin implements Plugin<Project>
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/c".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/c".formatted(name));
 
+        final var commandsTask = tasks.register("commands-%s-c".formatted(name), MetalCCommandsTask.class, task ->
+        {
+            task.getCompileOptions().set(compileOptions);
+            task.getHeaderDependencies().from(headers);
+            task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
+            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/c".formatted(name)));
+            task.setSource(sources);
+        });
+
+        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
+            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalCCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
+        });
+
         final var compileTask = tasks.register("compile-%s-c".formatted(name), MetalCCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
@@ -42,6 +58,6 @@ public class MetalCPlugin implements Plugin<Project>
             task.setSource(sources);
         });
 
-        return new MetalCSources(compileOptions, compileTask, headers, name, sources);
+        return new MetalCSources(commandsTask, compileOptions, compileTask, headers, name, sources);
     }
 }

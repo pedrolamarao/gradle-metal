@@ -6,7 +6,6 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.annotation.Nonnull;
@@ -26,37 +25,6 @@ public abstract class MetalExtension implements ExtensionAware
         this.configurations = configurations;
         this.objects = objects;
         this.tasks = tasks;
-    }
-
-    @Nonnull
-    public MetalApplication application (String name)
-    {
-        final var linkOptions = objects.listProperty(String.class);
-
-        final var linkTask = tasks.register("link-%s".formatted(name), NativeLinkTask.class, it ->
-        {
-            final var project = it.getProject();
-            final var nativeLinkDependencies = project.getConfigurations().named("nativeLinkDependencies");
-            final var output = project.getLayout().getBuildDirectory().file("exe/%s/%s.exe".formatted(name,project.getName()));
-            it.getLibraryDependencies().from(nativeLinkDependencies);
-            it.getOptions().convention(linkOptions);
-            it.getOutput().set(output);
-        });
-
-        final var runTask = tasks.register("run-%s".formatted(name), Exec.class, it ->
-        {
-            it.executable(linkTask.get().getOutputs().getFiles().getSingleFile());
-        });
-
-        return new MetalApplication(linkOptions, linkTask, name);
-    }
-
-    @Nonnull
-    public MetalApplication application (String name, Action<? super MetalApplication> configure)
-    {
-        final var sources = application(name);
-        configure.execute(sources);
-        return sources;
     }
 
     @Nonnull

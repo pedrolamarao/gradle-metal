@@ -3,11 +3,10 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
 import br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxCompileBaseTask;
-import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
@@ -21,13 +20,11 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
     @Input
     public abstract Property<File> getObjectDirectory ();
 
-    @Internal
-    public Provider<RegularFile> getOutputFile ()
-    {
-        return getOutputDirectory().file("compile_commands.json");
-    }
+    @OutputFile
+    public abstract RegularFileProperty getOutputFile ();
 
-    static final String template = """
+    static final String template =
+    """
       {
         "directory": "%s",
         "arguments": [ %s ],

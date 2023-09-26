@@ -28,7 +28,6 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
@@ -42,13 +41,11 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getCompileOptions().set(compileOptions);
             task.getHeaderDependencies().from(headers);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/asm".formatted(name)));
+            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/asm/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
 
-        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalAsmCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
-        });
+        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), MetalAsmCompileTask.class, task ->
         {

@@ -73,13 +73,11 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getHeaderDependencies().from(headers);
             task.getModuleDependencies().from(modules);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/cxx".formatted(name)));
+            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/cxx/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
 
-        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalCxxCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
-        });
+        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name), MetalCxxCompileTask.class, task ->
         {
@@ -116,13 +114,11 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getHeaderDependencies().from(headers);
             task.getModuleDependencies().from(modules);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/ixx".formatted(name)));
+            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/ixx/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
 
-        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalIxxCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
-        });
+        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class, task ->
         {

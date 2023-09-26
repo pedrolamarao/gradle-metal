@@ -28,7 +28,6 @@ public class MetalCPlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
@@ -42,13 +41,11 @@ public class MetalCPlugin implements Plugin<Project>
             task.getCompileOptions().set(compileOptions);
             task.getHeaderDependencies().from(headers);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputDirectory().set(layout.getBuildDirectory().dir("db/%s/c".formatted(name)));
+            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/c/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
 
-        configurations.named(COMMANDS_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifact(commandsTask.flatMap(MetalCCommandsTask::getOutputFile), it -> it.builtBy(commandsTask));
-        });
+        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-c".formatted(name), MetalCCompileTask.class, task ->
         {

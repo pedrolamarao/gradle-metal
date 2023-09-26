@@ -2,7 +2,9 @@
 
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkerExecutor;
@@ -19,6 +21,9 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
     final ObjectFactory objects;
 
     final WorkerExecutor workers;
+
+    @OutputDirectory
+    public abstract DirectoryProperty getOutputDirectory ();
 
     @Inject
     public MetalIxxCompileTask (ExecOperations exec, ObjectFactory objects, WorkerExecutor workers)

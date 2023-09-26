@@ -2,18 +2,16 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -22,13 +20,11 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
     @Input
     public abstract Property<File> getObjectDirectory ();
 
-    @Internal
-    public Provider<RegularFile> getOutputFile ()
-    {
-        return getOutputDirectory().file("compile_commands.json");
-    }
+    @OutputFile
+    public abstract RegularFileProperty getOutputFile ();
 
-    static final String template = """
+    static final String template =
+    """
       {
         "directory": "%s",
         "arguments": [ %s ],
@@ -40,6 +36,7 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
     @TaskAction
     public void generate () throws IOException
     {
+        final var baseDirectory = getProject().getProjectDir().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         // prepare arguments
@@ -56,7 +53,7 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
         getSource().forEach(source ->
         {
             final var file = source.toString().replace("\\","\\\\");
-            final var output = toOutputPath(objectDirectory,source.toPath()).toString().replace("\\","\\\\");
+            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory).toString().replace("\\","\\\\");
 
             final var compileArgs = new ArrayList<>(baseArgs);
             compileArgs.add("--output=%s".formatted(output));
@@ -71,10 +68,5 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
             writer.write( String.join(",\n",list) );
             writer.write("]");
         }
-    }
-
-    static Path toOutputPath (Path directory, Path source)
-    {
-        return directory.resolve( "%X/%s".formatted(source.hashCode(),source.getFileName() + ".o") );
     }
 }

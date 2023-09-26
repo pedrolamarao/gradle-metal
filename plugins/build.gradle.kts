@@ -59,3 +59,7 @@ testing {
 gradlePlugin {
     testSourceSets(sourceSets["functionalTest"])
 }
+
+tasks.named("check") {
+    dependsOn(testing.suites.named("functionalTest"))
+}

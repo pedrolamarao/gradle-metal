@@ -2,39 +2,14 @@
 
 == to do
 
-* [ ] restore compile database aggregation
-- [ ] add plugin br.dev.pedrolamarao.metal.commands
-
-* [ ] reduce dependency notation
-- [ ] metal { c.named("main").header( cpp.named("main") ) }
-- [ ] metal { cxx.named("main").module( ixx.named("main") ) }
-- [ ] metal { archive.named("main").source( cxx.named("main") ) }
-* [ ] add conventional application plugin
-- [ ] plugins { id("br.dev.pedrolamarao.metal.application") }
-- [ ] adds metal.application.named("main")
-- [ ] if br.dev.pedrolamarao.metal.$\{lang} then adds metal.$\{lang}.named("main") and wires to application
-* [ ] add conventional archive plugin
-- [ ] plugins { id("br.dev.pedrolamarao.metal.archive") }
-- [ ] adds metal.archive.named("main")
-- [ ] if br.dev.pedrolamarao.metal.$\{lang} then adds metal.$\{lang}.named("main") and wires to archive
 * [ ] support shared libraries
-
-* [ ] build cache
-* [ ] build incremental
-* [ ] dependencies from included build
-* [ ] dependencies from maven repositories
-* [ ] dependencies from prebuilt distribution
-* [ ] integration with google/test
-* [ ] integration with google/benchmark
-* [ ] integration with nanobenchmark
-* [ ] integration with CLion
-* [ ] toolset specification
-* [ ] toolset GCC
-* [ ] toolset MSVC
-* [ ] variant target machines
 
 == done
 
+* [x] add prebuilt component plugin
+* [x] add conventional application plugin
+* [x] add conventional archive plugin
+* [x] restore compile database aggregation
 * [x] reduce extension paths
 * [x] add domain object container for archives
 * [x] consolidate project structure to plugins and samples

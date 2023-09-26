@@ -7,15 +7,10 @@ import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import java.util.function.Function;
-
-import static br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin.CPP_INCLUDABLES;
 import static br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin.CPP_INCLUDABLE_DEPENDENCIES;
 
 public class MetalCxxPlugin implements Plugin<Project>
 {
-    public static final Function<String,String> CXX_IMPORTABLES = name -> "%s-importables".formatted(name);
-
     public static final String CXX_IMPORT_ELEMENTS = "cxxImportElements";
 
     public static final String CXX_IMPORT_DEPENDENCIES = "cxxImportDependencies";
@@ -61,10 +56,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var compileOptions = objects.listProperty(String.class);
         final var headers = objects.fileCollection();
         headers.from( configurations.named(CPP_INCLUDABLE_DEPENDENCIES) );
-        headers.from( providers.provider(() -> configurations.maybeCreate(CPP_INCLUDABLES.apply(name)).getArtifacts().getFiles() ) );
         final var modules = objects.fileCollection();
         modules.from( configurations.named(CXX_IMPORT_DEPENDENCIES) );
-        modules.from( providers.provider(() -> configurations.maybeCreate(CXX_IMPORTABLES.apply(name)).getArtifacts().getFiles() ) );
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
@@ -78,7 +71,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.setSource(sources);
         });
 
-        return new MetalCxxSources(compileOptions, headers, modules, name, sources);
+        return new MetalCxxSources(compileOptions, compileTask, headers, modules, name, sources);
     }
 
     static MetalIxxSources createIxxSources (Project project, String name)
@@ -92,7 +85,6 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var compileOptions = objects.listProperty(String.class);
         final var headers = objects.fileCollection();
         headers.from( configurations.named(CPP_INCLUDABLE_DEPENDENCIES) );
-        headers.from( providers.provider(() -> configurations.maybeCreate(CPP_INCLUDABLES.apply(name)).getArtifacts().getFiles() ) );
         final var modules = objects.fileCollection();
         modules.from( configurations.named(CXX_IMPORT_DEPENDENCIES) );
         final var sourceDirectorySet = objects.sourceDirectorySet(name,name);
@@ -112,14 +104,6 @@ public class MetalCxxPlugin implements Plugin<Project>
             configuration.getOutgoing().artifact(compileTask.map(IxxCompileTask::getOutputDirectory), it -> it.builtBy(compileTask));
         });
 
-        final var importables = configurations.create(CXX_IMPORTABLES.apply(name),configuration ->
-        {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
-            configuration.setVisible(false);
-            configuration.getOutgoing().artifact(compileTask.map(IxxCompileTask::getOutputDirectory),it -> it.builtBy(compileTask));
-        });
-
-        return new MetalIxxSources(compileOptions, name, sourceDirectorySet);
+        return new MetalIxxSources(compileOptions, compileTask, name, sourceDirectorySet);
     }
 }

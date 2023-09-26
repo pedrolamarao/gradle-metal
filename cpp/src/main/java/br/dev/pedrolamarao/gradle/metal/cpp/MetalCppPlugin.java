@@ -6,12 +6,8 @@ import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import java.util.function.Function;
-
 public class MetalCppPlugin implements Plugin<Project>
 {
-    public static final Function<String,String> CPP_INCLUDABLES = name -> "%s-includables".formatted(name);
-
     public static final String CPP_INCLUDABLE_ELEMENTS = "cppIncludableElements";
 
     public static final String CPP_INCLUDABLE_DEPENDENCIES = "cppIncludableDependencies";
@@ -54,14 +50,6 @@ public class MetalCppPlugin implements Plugin<Project>
 
         configurations.named(CPP_INCLUDABLE_ELEMENTS).configure(configuration ->
         {
-            configuration.getOutgoing().artifacts(providers.provider(sources::getSourceDirectories));
-        });
-
-        final var includables = configurations.create(CPP_INCLUDABLES.apply(name),configuration ->
-        {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
-            configuration.setVisible(false);
             configuration.getOutgoing().artifacts(providers.provider(sources::getSourceDirectories));
         });
 

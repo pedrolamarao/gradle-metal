@@ -15,7 +15,7 @@ public class PluginFunctionalTest
     @TempDir Path projectDir;
 
     @Test
-    public void compileCppCxx () throws IOException
+    public void compileCxx () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
 
@@ -58,71 +58,9 @@ public class PluginFunctionalTest
                 }
                 cxx {
                     sources {
-                        create("main")
-                    }
-                }
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        final var result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-cxx")
-            .withDebug(true)
-            .build();
-
-        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
-            assertEquals( 1, stream.count() );
-        }
-    }
-
-    @Test
-    public void compileCxxCpp () throws IOException
-    {
-        Files.createDirectories(projectDir.resolve("src/main/cpp"));
-
-        final var mainCpp =
-            """
-            inline
-            int greet (int argc, char * argv [])
-            {
-                return 0;
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),mainCpp);
-
-        Files.createDirectories(projectDir.resolve("src/main/cxx"));
-
-        final var mainCxx =
-            """
-            #include <greet.h>
-            
-            int main (int argc, char * argv [])
-            {
-                return greet(argc,argv);
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),mainCxx);
-
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.metal.cxx")
-            }
-            
-            metal {
-                cxx {
-                    sources {
-                        create("main")
-                    }
-                }
-                cpp {
-                    sources {
-                        create("main")
+                        create("main") {
+                            header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+                        }
                     }
                 }
             }
@@ -233,17 +171,18 @@ public class PluginFunctionalTest
             }
             
             metal {
-                cxx {
+                ixx {
                     sources {
                         create("main") {
                             compileOptions = listOf("-std=c++20")
                         }
                     }
                 }
-                ixx {
+                cxx {
                     sources {
                         create("main") {
                             compileOptions = listOf("-std=c++20")
+                            module( ixx.sources.named("main").map { it.outputDirectory } )
                         }
                     }
                 }

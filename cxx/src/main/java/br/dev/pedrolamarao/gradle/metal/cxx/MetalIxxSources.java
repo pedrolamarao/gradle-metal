@@ -1,23 +1,31 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import org.gradle.api.Named;
+import org.gradle.api.NonNullApi;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+@NonNullApi
 public class MetalIxxSources implements Named
 {
     private final ListProperty<String> compileOptions;
+
+    private final TaskProvider<IxxCompileTask> compileTask;
 
     private final String name;
 
     private final SourceDirectorySet sources;
 
     @Inject
-    public MetalIxxSources (ListProperty<String> compileOptions, String name, SourceDirectorySet sources)
+    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<IxxCompileTask> compileTask, String name, SourceDirectorySet sources)
     {
         this.compileOptions = compileOptions;
+        this.compileTask = compileTask;
         this.name = name;
         this.sources = sources;
     }
@@ -31,6 +39,11 @@ public class MetalIxxSources implements Named
     public String getName ()
     {
         return name;
+    }
+
+    public Provider<Directory> getOutputDirectory ()
+    {
+        return compileTask.flatMap(IxxCompileTask::getOutputDirectory);
     }
 
     public SourceDirectorySet getSources ()

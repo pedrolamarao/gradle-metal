@@ -6,8 +6,6 @@ import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin.CPP_INCLUDABLES;
-
 public class MetalAsmPlugin implements Plugin<Project>
 {
     @Override
@@ -36,8 +34,6 @@ public class MetalAsmPlugin implements Plugin<Project>
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/asm".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
 
-        headers.from( providers.provider(() -> configurations.maybeCreate(CPP_INCLUDABLES.apply(name)).getArtifacts().getFiles() ) );
-
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), AsmCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
@@ -46,6 +42,6 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.setSource(sources);
         });
 
-        return new MetalAsmSources(compileOptions, headers, name, sources);
+        return new MetalAsmSources(compileOptions, compileTask, headers, name, sources);
     }
 }

@@ -52,14 +52,16 @@ public class PluginFunctionalTest
             }
             
             metal {
-                c {
+                cpp {
                     sources {
                         create("main")
                     }
                 }
-                cpp {
+                c {
                     sources {
-                        create("main")
+                        create("main") {
+                            header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+                        }
                     }
                 }
             }

@@ -23,6 +23,10 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.root"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalRootPlugin"
         }
+        create("base2") {
+            id = "br.dev.pedrolamarao.metal.base2"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin"
+        }
     }
 }
 

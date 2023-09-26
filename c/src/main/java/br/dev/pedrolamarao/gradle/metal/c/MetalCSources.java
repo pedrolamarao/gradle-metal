@@ -1,15 +1,23 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import org.gradle.api.DefaultTask;
 import org.gradle.api.Named;
+import org.gradle.api.NonNullApi;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskOutputs;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+@NonNullApi
 public class MetalCSources implements Named
 {
     private final ListProperty<String> compileOptions;
+
+    private final TaskProvider<CCompileTask> compileTask;
 
     private final ConfigurableFileCollection headers;
 
@@ -18,9 +26,10 @@ public class MetalCSources implements Named
     private final SourceDirectorySet sources;
 
     @Inject
-    public MetalCSources (ListProperty<String> compileOptions, ConfigurableFileCollection headers, String name, SourceDirectorySet sources)
+    public MetalCSources (ListProperty<String> compileOptions, TaskProvider<CCompileTask> compileTask, ConfigurableFileCollection headers, String name, SourceDirectorySet sources)
     {
         this.compileOptions = compileOptions;
+        this.compileTask = compileTask;
         this.headers = headers;
         this.name = name;
         this.sources = sources;
@@ -45,5 +54,15 @@ public class MetalCSources implements Named
     public SourceDirectorySet getSources ()
     {
         return sources;
+    }
+
+    public Provider<TaskOutputs> getOutputs ()
+    {
+        return compileTask.map(DefaultTask::getOutputs);
+    }
+
+    public void header (Object... sources)
+    {
+        compileTask.configure(it -> it.getHeaderDependencies().from(sources));
     }
 }

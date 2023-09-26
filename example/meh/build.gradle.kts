@@ -7,16 +7,33 @@ plugins {
 
 // register "main" archive with asm and cpp sources
 
-val mainCpp = metal.cpp.sources.create("main")
-val mainAsm = metal.asm.sources.create("main")
-val mainC = metal.c.sources.create("main")
-
-val mainArchive = metal.archive("main") {
-    archiveTask.configure {
-        source(
-            tasks.named("compile-main-asm"),
-            tasks.named("compile-main-c")
-        )
+metal {
+    cpp {
+        sources {
+            create("main")
+        }
+    }
+    asm {
+        sources {
+            create("main") {
+                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+            }
+        }
+    }
+    c {
+        sources {
+            create("main") {
+                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+            }
+        }
+    }
+    archive("main") {
+        archiveTask.configure {
+            source(
+                asm.sources.named("main").map { it.outputs },
+                c.sources.named("main").map { it.outputs },
+            )
+        }
     }
 }
 

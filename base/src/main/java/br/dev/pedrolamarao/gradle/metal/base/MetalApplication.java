@@ -2,22 +2,25 @@
 
 package br.dev.pedrolamarao.gradle.metal.base;
 
-import org.gradle.api.NonNullApi;
+import org.gradle.api.Named;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.annotation.Nonnull;
 
-public class MetalApplication
+public class MetalApplication implements Named
 {
-    final ListProperty<String> linkOptions;
+    private final ListProperty<String> linkOptions;
 
-    final TaskProvider<NativeLinkTask> linKTask;
+    private final TaskProvider<NativeLinkTask> linkTask;
 
-    public MetalApplication (ListProperty<String> linkOptions, TaskProvider<NativeLinkTask> linKTask)
+    private final String name;
+
+    public MetalApplication (ListProperty<String> linkOptions, TaskProvider<NativeLinkTask> linkTask, String name)
     {
         this.linkOptions = linkOptions;
-        this.linKTask = linKTask;
+        this.linkTask = linkTask;
+        this.name = name;
     }
 
     @Nonnull
@@ -29,6 +32,16 @@ public class MetalApplication
     @Nonnull
     public TaskProvider<NativeLinkTask> getLinkTask ()
     {
-        return linKTask;
+        return linkTask;
+    }
+
+    public String getName ()
+    {
+        return name;
+    }
+
+    public void source (Object... sources)
+    {
+        linkTask.configure(it -> it.source(sources));
     }
 }

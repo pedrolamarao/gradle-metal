@@ -48,7 +48,7 @@ public abstract class MetalExtension implements ExtensionAware
             it.executable(linkTask.get().getOutputs().getFiles().getSingleFile());
         });
 
-        return new MetalApplication(linkOptions, linkTask);
+        return new MetalApplication(linkOptions, linkTask, name);
     }
 
     @Nonnull

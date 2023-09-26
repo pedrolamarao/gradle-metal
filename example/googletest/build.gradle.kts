@@ -2,23 +2,32 @@ plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.cpp")
     id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.base")
+    id("br.dev.pedrolamarao.metal.base2")
 }
 
 // register "main" archive with cxx sources
 
-val mainCpp = metal.cpp.sources.create("main")
-
-val mainCxx = metal.cxx.sources.create("main") {
-    compileOptions = listOf("-g","--std=c++17")
-    sources.exclude("**/*.h")
-}
-
-val mainArchive = metal.archive("main") {
-    archiveTask.configure {
-        source(
-            tasks.named("compile-main-cxx")
-        )
+metal {
+    cpp {
+        sources {
+            create("main")
+        }
+    }
+    cxx {
+        sources {
+            create("main") {
+                compileOptions = listOf("-g","--std=c++17")
+                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+                sources.exclude("**/*.h")
+            }
+        }
+    }
+    archive("main") {
+        archiveTask.configure {
+            source(
+                tasks.named("compile-main-cxx")
+            )
+        }
     }
 }
 

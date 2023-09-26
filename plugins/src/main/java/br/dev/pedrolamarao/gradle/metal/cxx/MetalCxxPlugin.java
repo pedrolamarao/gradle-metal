@@ -55,7 +55,6 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
@@ -76,7 +75,6 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/cxx/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
-
         configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name), MetalCxxCompileTask.class, task ->
@@ -87,6 +85,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
+        tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
         return new MetalCxxSources(commandsTask, compileOptions, compileTask, headers, modules, name, sources);
     }
@@ -96,7 +95,6 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
@@ -117,7 +115,6 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/ixx/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
-
         configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class, task ->
@@ -128,7 +125,6 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
-
         configurations.named(CXX_IMPORT_ELEMENTS).configure(configuration -> {
             configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getOutputDirectory), it -> it.builtBy(compileTask));
         });

@@ -44,7 +44,6 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/asm/compile_commands.json".formatted(name)));
             task.setSource(sources);
         });
-
         configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), MetalAsmCompileTask.class, task ->
@@ -54,6 +53,7 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
+        tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
         return new MetalAsmSources(commandsTask, compileOptions, compileTask, headers, name, sources);
     }

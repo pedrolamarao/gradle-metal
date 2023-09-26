@@ -1,46 +1,29 @@
 plugins {
-    id("base")
     id("br.dev.pedrolamarao.metal.cpp")
-    id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.base2")
+    id("br.dev.pedrolamarao.metal.prebuilt")
 }
 
-// register "main" archive with cxx sources
+val source = layout.buildDirectory.dir("src").get()
+val build = layout.buildDirectory.dir("obj").get()
+
+val clone = tasks.register<Exec>("clone") {
+    commandLine("git","clone","https://github.com/google/googletest",source)
+    doFirst { delete(source) }
+}
+
+val configure = tasks.register<Exec>("configure") {
+    dependsOn(clone)
+    commandLine("cmake","-B",build,"-DCMAKE_BUILD_TYPE=Release","-G","Ninja","-S",source)
+}
+
+val make = tasks.register<Exec>("make") {
+    dependsOn(configure)
+    commandLine("cmake","--build",build)
+}
 
 metal {
-    cpp {
-        create("main")
+    prebuilt {
+        includable(source.dir("googletest/include")) { builtBy(clone) }
+        linkable(build.file("lib/gtest.lib")) { builtBy(make) }
     }
-    cxx {
-        create("main") {
-            compileOptions = listOf("-g","--std=c++17")
-            header( cpp.named("main").map { it.sources.sourceDirectories } )
-            sources.exclude("**/*.h")
-        }
-    }
-    archives {
-        create("main") {
-            source( cxx.named("main").map { it.outputs } )
-        }
-    }
-}
-
-// wire to base tasks
-
-val archive = tasks.register("archive") {
-    group = "metal"
-    dependsOn(
-        tasks.named("archive-main")
-    )
-}
-
-val compile = tasks.register("compile") {
-    group = "metal"
-    dependsOn(
-        tasks.named("compile-main-cxx")
-    )
-}
-
-tasks.assemble.configure {
-    dependsOn(archive)
 }

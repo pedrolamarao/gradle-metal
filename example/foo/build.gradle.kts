@@ -1,7 +1,6 @@
 plugins {
-    id("base")
+    id("br.dev.pedrolamarao.metal.application")
     id("br.dev.pedrolamarao.metal.cxx")
-    id("br.dev.pedrolamarao.metal.base2")
 }
 
 dependencies {
@@ -9,24 +8,15 @@ dependencies {
     nativeImplementation(project(":meh"))
 }
 
-// register "main" application with cxx sources
-
 metal {
     ixx {
-        create("main") {
-            compileOptions = listOf("-g","--std=c++20")
+        named("main") {
+            compileOptions = listOf("-g","-std=c++20")
         }
     }
     cxx {
-        create("main") {
-            compileOptions = listOf("-g","--std=c++20")
-            module( ixx.named("main").map { it.outputDirectory } )
-        }
-    }
-    applications {
-        create("main") {
-            linkOptions = listOf("-g")
-            source( cxx.named("main").map { it.outputs } )
+        named("main") {
+            compileOptions = listOf("-g","-std=c++20")
         }
     }
 }
@@ -50,8 +40,4 @@ val link = tasks.register("link") {
     dependsOn(
         tasks.named("link-main")
     )
-}
-
-tasks.assemble.configure {
-    dependsOn(link)
 }

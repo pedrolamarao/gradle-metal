@@ -1,5 +1,5 @@
 plugins {
-    id("br.dev.pedrolamarao.metal.root")
+    id("br.dev.pedrolamarao.metal.commands")
 }
 
 dependencies {
@@ -7,6 +7,12 @@ dependencies {
     commands(project(":foo"))
     commands(project(":googletest"))
     commands(project(":meh"))
+}
+
+tasks.register("precompile")
+
+tasks.register("clion") {
+    dependsOn("precompile","commands")
 }
 
 tasks.wrapper.configure {

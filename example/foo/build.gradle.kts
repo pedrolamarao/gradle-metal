@@ -23,21 +23,8 @@ metal {
 
 // wire to base tasks
 
-tasks.register("compile") {
-    group = "metal"
-    dependsOn(
-        tasks.named("compile-main-cxx"))
-}
-
 tasks.register("precompile") {
     group = "metal"
     dependsOn(
         tasks.named("compile-main-ixx"))
-}
-
-val link = tasks.register("link") {
-    group = "metal"
-    dependsOn(
-        tasks.named("link-main")
-    )
 }

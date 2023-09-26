@@ -1,0 +1,7 @@
+= dependency on cmake/ninja project
+
+This sample demonstrates an application with dependency on external archive built by cmake and ninja.
+
+To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
+
+Look for the executable file in `application/build/exe`.

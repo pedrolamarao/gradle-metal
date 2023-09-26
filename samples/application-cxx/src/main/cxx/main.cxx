@@ -1,6 +1,7 @@
-#include <greet.h>
+#include <cstdio>
 
 int main (int argc, char * argv [])
 {
-    return greet(argc, argv);
+    printf("Hello World!");
+    return 0;
 }

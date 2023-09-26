@@ -1,0 +1,7 @@
+= archive with c sources
+
+This sample demonstrates an archive with C sources.
+
+To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
+
+Look for the linkable file in `build/lib`.

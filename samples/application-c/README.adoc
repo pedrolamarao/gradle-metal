@@ -1,0 +1,7 @@
+= application with c sources
+
+This sample demonstrates an application with C sources.
+
+To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
+
+Look for the executable file in `build/exe`.

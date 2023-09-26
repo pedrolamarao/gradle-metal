@@ -1,0 +1,14 @@
+= gradle-metal : samples
+
+* link:application-asm[]: application with assembler sources
+* link:application-c[]: application with C sources
+* link:application-cxx[]: application with C++ sources
+* link:application-mixed[]: application with mixed sources
+* link:archive-asm[]: archive with assembler sources
+* link:archive-c[]: archive with C sources
+* link:archive-cxx[]: archive with C++ sources
+* link:archive-mixed[]: archive with mixed sources
+* link:dependency-on-cmake-ninja[]: application with dependency on external archive built by cmake and ninja
+* link:dependency-on-prebuilt[]: application with dependency on prebuilt archive
+* link:dependency-on-subproject-headers[]: application with dependency on archive subproject with headers
+* link:dependency-on-subproject-modules[]: application with dependency on archive subproject C++ module interfaces

@@ -2,6 +2,25 @@
 
 == to do
 
+* [ ] add domain object container for archives
+* [ ] reduce extension paths
+- [ ] metal.asm.sources.named("main") -> metal.asm.named("main")
+- [ ] metal.c.sources.named("c") -> metal.asm.named("main")
+- [ ] metal.cxx.sources.named("main") -> metal.asm.named("main")
+- [ ] metal.ixx.sources.named("main") -> metal.asm.named("main")
+* [ ] reduce dependency notation
+- [ ] metal { c.named("main").header( cpp.named("main") ) }
+- [ ] metal { cxx.named("main").module( ixx.named("main") ) }
+- [ ] metal { archive.named("main").source( cxx.named("main") ) }
+* [ ] reduce plugin suite
+- [ ] br.dev.pedrolamarao.metal.asm
+- [ ] br.dev.pedrolamarao.metal.base
+- [ ] br.dev.pedrolamarao.metal.c
+- [ ] br.dev.pedrolamarao.metal.cxx
+* [ ] add conventional application plugin
+- [ ] br.dev.pedrolamarao.metal.application
+- [ ] adds metal.application.named("main")
+
 * [ ] build cache
 * [ ] build incremental
 * [ ] dependencies from included build
@@ -18,6 +37,7 @@
 
 == done
 
+* [x] consolidate project structure to plugins and samples
 * [x] defect: can't compile example project googletest application
 * [x] use -fprebuild-module-path instead of -fmodule-file
 * [x] defect: in example project, module dependency from primary to partition ":byte" is missing

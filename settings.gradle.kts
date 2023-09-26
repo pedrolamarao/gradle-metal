@@ -2,8 +2,4 @@
 
 rootProject.name = "gradle-metal"
 
-include("asm")
-include("base")
-include("c")
-include("cpp")
-include("cxx")
+include("plugins")

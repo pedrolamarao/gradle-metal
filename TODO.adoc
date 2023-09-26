@@ -2,6 +2,9 @@
 
 == to do
 
+* [ ] restore compile database aggregation
+- [ ] add plugin br.dev.pedrolamarao.metal.commands
+
 * [ ] reduce dependency notation
 - [ ] metal { c.named("main").header( cpp.named("main") ) }
 - [ ] metal { cxx.named("main").module( ixx.named("main") ) }

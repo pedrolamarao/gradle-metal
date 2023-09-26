@@ -13,7 +13,9 @@ public class MetalBasePlugin implements Plugin<Project>
         project.getPluginManager().apply(NativeBasePlugin.class);
 
         final var applications = project.getObjects().domainObjectContainer(MetalApplication.class, name -> createApplication(project,name));
+        final var archives = project.getObjects().domainObjectContainer(MetalArchive.class, name -> createArchive(project,name));
         project.getExtensions().getByType(MetalExtension.class).getExtensions().add("applications", applications);
+        project.getExtensions().getByType(MetalExtension.class).getExtensions().add("archives", archives);
     }
 
     static MetalApplication createApplication (Project project, String name)
@@ -33,5 +35,27 @@ public class MetalBasePlugin implements Plugin<Project>
         });
 
         return new MetalApplication(linkOptions, linkTask, name);
+    }
+
+    static MetalArchive createArchive (Project project, String name)
+    {
+        final var configurations = project.getConfigurations();
+        final var objects = project.getObjects();
+        final var tasks = project.getTasks();
+
+        final var archiveOptions = objects.listProperty(String.class);
+
+        final var archiveTask = tasks.register("archive-%s".formatted(name), NativeArchiveTask.class, it ->
+        {
+            final var output = project.getLayout().getBuildDirectory().file("lib/%s/%s.lib".formatted(name,project.getName()));
+            it.getOptions().convention(archiveOptions);
+            it.getOutput().set(output);
+        });
+
+        configurations.named("nativeLinkElements").configure(it -> {
+            it.getOutgoing().artifact(archiveTask);
+        });
+
+        return new MetalArchive(archiveOptions, archiveTask, name);
     }
 }

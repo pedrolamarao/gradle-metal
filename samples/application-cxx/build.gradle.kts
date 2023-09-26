@@ -11,7 +11,9 @@ metal {
     }
     cxx {
         sources {
-            create("main")
+            create("main") {
+                header( cpp.sources.named("main").map { it.sources.sourceDirectories } )
+            }
         }
     }
     applications {

@@ -2,7 +2,6 @@
 
 == to do
 
-* [ ] add domain object container for archives
 * [ ] reduce extension paths
 - [ ] metal.asm.sources.named("main") -> metal.asm.named("main")
 - [ ] metal.c.sources.named("c") -> metal.asm.named("main")
@@ -37,6 +36,7 @@
 
 == done
 
+* [x] add domain object container for archives
 * [x] consolidate project structure to plugins and samples
 * [x] defect: can't compile example project googletest application
 * [x] use -fprebuild-module-path instead of -fmodule-file

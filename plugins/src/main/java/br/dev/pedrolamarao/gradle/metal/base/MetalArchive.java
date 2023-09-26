@@ -2,21 +2,25 @@
 
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.Named;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.annotation.Nonnull;
 
-public class MetalArchive
+public class MetalArchive implements Named
 {
-    final ListProperty<String> archiveOptions;
+    private final ListProperty<String> archiveOptions;
 
-    final TaskProvider<NativeArchiveTask> archiveTask;
+    private final TaskProvider<NativeArchiveTask> archiveTask;
 
-    public MetalArchive (ListProperty<String> archiveOptions, TaskProvider<NativeArchiveTask> archiveTask)
+    private final String name;
+
+    public MetalArchive (ListProperty<String> archiveOptions, TaskProvider<NativeArchiveTask> archiveTask, String name)
     {
         this.archiveOptions = archiveOptions;
         this.archiveTask = archiveTask;
+        this.name = name;
     }
 
     @Nonnull
@@ -29,5 +33,16 @@ public class MetalArchive
     public TaskProvider<NativeArchiveTask> getArchiveTask ()
     {
         return archiveTask;
+    }
+
+    @Override
+    public String getName ()
+    {
+        return name;
+    }
+
+    public void source (Object... sources)
+    {
+        archiveTask.configure(it -> it.source(sources));
     }
 }

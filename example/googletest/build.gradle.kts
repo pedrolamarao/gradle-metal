@@ -22,11 +22,9 @@ metal {
             }
         }
     }
-    archive("main") {
-        archiveTask.configure {
-            source(
-                tasks.named("compile-main-cxx")
-            )
+    archives {
+        create("main") {
+            source( cxx.sources.named("main").map { it.outputs } )
         }
     }
 }

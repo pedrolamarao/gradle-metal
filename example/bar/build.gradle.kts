@@ -31,8 +31,8 @@ metal {
             }
         }
     }
-    archive("main") {
-        archiveTask.configure {
+    archives {
+        create("main") {
             source( cxx.sources.named("main").map { it.outputs } )
         }
     }

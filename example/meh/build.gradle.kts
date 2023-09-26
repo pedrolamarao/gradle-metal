@@ -2,7 +2,7 @@ plugins {
     id("base")
     id("br.dev.pedrolamarao.metal.asm")
     id("br.dev.pedrolamarao.metal.c")
-    id("br.dev.pedrolamarao.metal.base")
+    id("br.dev.pedrolamarao.metal.base2")
 }
 
 // register "main" archive with asm and cpp sources
@@ -27,11 +27,11 @@ metal {
             }
         }
     }
-    archive("main") {
-        archiveTask.configure {
+    archives {
+        create("main") {
             source(
                 asm.sources.named("main").map { it.outputs },
-                c.sources.named("main").map { it.outputs },
+                c.sources.named("main").map { it.outputs }
             )
         }
     }

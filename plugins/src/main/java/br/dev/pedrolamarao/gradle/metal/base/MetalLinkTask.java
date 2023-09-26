@@ -11,7 +11,7 @@ import org.gradle.process.ExecOperations;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
-public abstract class NativeLinkTask extends SourceTask
+public abstract class MetalLinkTask extends SourceTask
 {
     final ExecOperations execOperations;
 
@@ -25,7 +25,7 @@ public abstract class NativeLinkTask extends SourceTask
     public abstract RegularFileProperty getOutput ();
 
     @Inject
-    public NativeLinkTask (ExecOperations execOperations)
+    public MetalLinkTask (ExecOperations execOperations)
     {
         this.execOperations = execOperations;
     }

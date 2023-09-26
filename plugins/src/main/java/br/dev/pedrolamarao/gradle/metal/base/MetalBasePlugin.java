@@ -36,7 +36,7 @@ public class MetalBasePlugin implements Plugin<Project>
         {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.COMMANDS));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));
         });
 
         final var nativeImplementation = configurations.create("nativeImplementation",configuration -> {
@@ -45,7 +45,7 @@ public class MetalBasePlugin implements Plugin<Project>
         });
 
         configurations.create(EMPTY_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.NONE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE));
             configuration.setCanBeConsumed(true);
             configuration.setCanBeDeclared(false);
             configuration.setCanBeResolved(false);
@@ -55,18 +55,18 @@ public class MetalBasePlugin implements Plugin<Project>
         configurations.create(LINKABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
             configuration.extendsFrom(nativeImplementation);
         });
 
         configurations.create(LINKABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.LINKABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
         });
 
-        project.getDependencies().getAttributesSchema().attribute(NativeCapability.ATTRIBUTE, it -> {
-            it.getCompatibilityRules().add(NativeCapabilityCompatibilityRule.class);
+        project.getDependencies().getAttributesSchema().attribute(MetalCapability.ATTRIBUTE, it -> {
+            it.getCompatibilityRules().add(MetalCapabilityCompatibilityRule.class);
         });
 
         final var metal = project.getExtensions().create("metal", MetalExtension.class);
@@ -104,7 +104,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var linkOptions = objects.listProperty(String.class);
 
-        final var linkTask = tasks.register("link-%s".formatted(name), NativeLinkTask.class, it ->
+        final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
             final var output = project.getLayout().getBuildDirectory().file("exe/%s/%s.exe".formatted(name,project.getName()));
             it.getLibraryDependencies().from(configurations.named(LINKABLE_DEPENDENCIES));
@@ -124,7 +124,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var archiveOptions = objects.listProperty(String.class);
 
-        final var archiveTask = tasks.register("archive-%s".formatted(name), NativeArchiveTask.class, it ->
+        final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
         {
             final var output = project.getLayout().getBuildDirectory().file("lib/%s/%s.lib".formatted(name,project.getName()));
             it.getOptions().convention(archiveOptions);

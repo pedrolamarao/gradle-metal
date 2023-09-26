@@ -12,11 +12,11 @@ public class MetalArchive extends MetalComponent implements Named
 {
     private final ListProperty<String> archiveOptions;
 
-    private final TaskProvider<NativeArchiveTask> archiveTask;
+    private final TaskProvider<MetalArchiveTask> archiveTask;
 
     private final String name;
 
-    public MetalArchive (ListProperty<String> archiveOptions, TaskProvider<NativeArchiveTask> archiveTask, String name)
+    public MetalArchive (ListProperty<String> archiveOptions, TaskProvider<MetalArchiveTask> archiveTask, String name)
     {
         this.archiveOptions = archiveOptions;
         this.archiveTask = archiveTask;
@@ -30,7 +30,7 @@ public class MetalArchive extends MetalComponent implements Named
     }
 
     @Nonnull
-    public TaskProvider<NativeArchiveTask> getArchiveTask ()
+    public TaskProvider<MetalArchiveTask> getArchiveTask ()
     {
         return archiveTask;
     }

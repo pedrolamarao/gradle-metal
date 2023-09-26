@@ -5,12 +5,12 @@ package br.dev.pedrolamarao.gradle.metal.base;
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;
 
-public class NativeCapabilityCompatibilityRule implements AttributeCompatibilityRule<NativeCapability>
+public class MetalCapabilityCompatibilityRule implements AttributeCompatibilityRule<MetalCapability>
 {
     @Override
-    public void execute (CompatibilityCheckDetails<NativeCapability> it)
+    public void execute (CompatibilityCheckDetails<MetalCapability> it)
     {
-        if (it.getProducerValue() == NativeCapability.NONE) {
+        if (it.getProducerValue() == MetalCapability.NONE) {
             it.compatible();
         }
     }

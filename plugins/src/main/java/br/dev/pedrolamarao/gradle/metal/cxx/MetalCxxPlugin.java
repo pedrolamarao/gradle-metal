@@ -1,8 +1,8 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalCapability;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
-import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxCommandsTask;
 import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxCompileTask;
@@ -35,14 +35,14 @@ public class MetalCxxPlugin implements Plugin<Project>
         project.getConfigurations().create(MetalBasePlugin.IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
             configuration.extendsFrom(nativeImplementation.get());
         });
 
         project.getConfigurations().create(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.IMPORTABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
         });
     }
 

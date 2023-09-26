@@ -13,7 +13,7 @@ import org.gradle.process.ExecOperations;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
-public abstract class NativeArchiveTask extends SourceTask
+public abstract class MetalArchiveTask extends SourceTask
 {
     final ExecOperations execOperations;
 
@@ -24,7 +24,7 @@ public abstract class NativeArchiveTask extends SourceTask
     public abstract RegularFileProperty getOutput ();
 
     @Inject
-    public NativeArchiveTask (ExecOperations execOperations)
+    public MetalArchiveTask (ExecOperations execOperations)
     {
         this.execOperations = execOperations;
     }

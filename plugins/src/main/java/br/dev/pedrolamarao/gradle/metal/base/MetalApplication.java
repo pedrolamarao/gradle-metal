@@ -12,11 +12,11 @@ public class MetalApplication extends MetalComponent implements Named
 {
     private final ListProperty<String> linkOptions;
 
-    private final TaskProvider<NativeLinkTask> linkTask;
+    private final TaskProvider<MetalLinkTask> linkTask;
 
     private final String name;
 
-    public MetalApplication (ListProperty<String> linkOptions, TaskProvider<NativeLinkTask> linkTask, String name)
+    public MetalApplication (ListProperty<String> linkOptions, TaskProvider<MetalLinkTask> linkTask, String name)
     {
         this.linkOptions = linkOptions;
         this.linkTask = linkTask;
@@ -30,7 +30,7 @@ public class MetalApplication extends MetalComponent implements Named
     }
 
     @Nonnull
-    public TaskProvider<NativeLinkTask> getLinkTask ()
+    public TaskProvider<MetalLinkTask> getLinkTask ()
     {
         return linkTask;
     }

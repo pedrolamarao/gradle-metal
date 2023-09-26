@@ -18,7 +18,7 @@ public class MetalRootPlugin implements Plugin<Project>
         final var commandsDependencies = project.getConfigurations().create(MetalBasePlugin.COMMANDS_DEPENDENCIES);
         commandsDependencies.setCanBeConsumed(false);
         commandsDependencies.setCanBeResolved(true);
-        commandsDependencies.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.COMMANDS));
+        commandsDependencies.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));
 
         project.getTasks().register("commands").configure(task ->
         {

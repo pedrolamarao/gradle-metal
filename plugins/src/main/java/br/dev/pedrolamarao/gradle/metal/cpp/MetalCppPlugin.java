@@ -1,8 +1,8 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalCapability;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
-import br.dev.pedrolamarao.gradle.metal.base.NativeCapability;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -23,14 +23,14 @@ public class MetalCppPlugin implements Plugin<Project>
         project.getConfigurations().create(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.INCLUDABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
             configuration.extendsFrom(nativeImplementation.get());
         });
 
         project.getConfigurations().create(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {
             configuration.setCanBeConsumed(true);
             configuration.setCanBeResolved(false);
-            configuration.attributes(it -> it.attribute(NativeCapability.ATTRIBUTE,NativeCapability.INCLUDABLE));
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
         });
     }
 

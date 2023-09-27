@@ -3,26 +3,55 @@
 
 `gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
 
+Features:
+
+* multiple languages (assembler, c and c++)
+* multiple components (static archives, shared libraries and executables)
+* compile commands database (for clang-check, CLion etc.)
+* dependency on subproject and external prebuilt components
+* LLVM tools
+
 [WARNING]
 This project is under early development; compatibility *will be broken* without prior notice.
 
-JDK 17 and LLVM 16 (clang, llvm-ar, lld etc.) are required in the environment PATH.
+Requirements:
+
+* Gradle 8.3 or newer
+* JDK 17 or newer
+* LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
+
+To install from source: `./gradlew publishToMavenLocal`
+
+After installing, configure your Gradle project's settings like so:
+
+[source,kotlin]
+----
+pluginManagement {
+    plugins {
+        id("br.dev.pedrolamarao.metal.base") version("1.0-SNAPSHOT")
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+----
 
 Check the link:samples[] for a variety of use-cases.
 
-Current capabilities are:
+Plugins:
 
-* compiling multiple languages (assembler, c and c++)
-* assembling multiple components (static archives, shared libraries and executables)
-* generating compile commands database (for clang-check, CLion etc.)
-* dependencies from subproject, prebuilt project
-* LLVM toolset
+* `br.dev.pedrolamarao.metal.base`: adds the `metal` extension
+* `br.dev.pedrolamarao.metal.application`: creates a conventional "main" application with tasks
+* `br.dev.pedrolamarao.metal.archive`: creates a conventional "main" archive with tasks
+* `br.dev.pedrolamarao.metal.asm`:  adds assembler sources to "main" component (at `src/main/asm`) with tasks
+* `br.dev.pedrolamarao.metal.c`: adds C sources to "main" component (at `src/main/c`) with tasks
+* `br.dev.pedrolamarao.metal.cxx`: adds C++ sources to "main" component  (at `src/main/cxx`) with tasks
 
 Under construction:
 
-* dependencies from cmake project, included build, maven repository
-* GCC and MSVC toolsets
+* dependencies on external cmake project, included build, maven repository
+* GCC and MSVC tools
 * variant flavours (release, debug)
 * variant target machines (any "triple")
 
-For development status, see Github issues.
+For development status, see Github issues at link:https://github.com/pedrolamarao/gradle-metal/issues[].

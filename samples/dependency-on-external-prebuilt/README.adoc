@@ -1,6 +1,6 @@
-= dependency on prebuilt
+= dependency on external archive
 
-This sample demonstrates an application with dependency on a prebuilt archive.
+This sample demonstrates an application with dependency on an external prebuilt archive.
 
 The prebuilt archive is link:https://github.com/google/googletest[googletest].
 It is assumed that the "release" configuration is prebuilt in `googletest/src` as if:

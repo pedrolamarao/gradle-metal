@@ -1,4 +1,4 @@
-= dependency on cmake/ninja project
+= dependency on external archive
 
 This sample demonstrates an application with dependency on external archive built by cmake and ninja.
 

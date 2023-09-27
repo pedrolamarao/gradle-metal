@@ -8,7 +8,9 @@
 * link:archive-c[]: archive with C sources
 * link:archive-cxx[]: archive with C++ sources
 * link:archive-mixed[]: archive with mixed sources
-* link:dependency-on-cmake-ninja[]: application with dependency on external archive built by cmake and ninja
-* link:dependency-on-prebuilt[]: application with dependency on prebuilt archive
+* link:bare-metal-multiboot2[]: bare metal application with multiboot2
+* link:dependency-on-external-cmake-ninja[]: application with dependency on external archive built by cmake and ninja
+* link:dependency-on-external-prebuilt[]: application with dependency on external prebuilt archive
 * link:dependency-on-subproject-headers[]: application with dependency on archive subproject with headers
 * link:dependency-on-subproject-modules[]: application with dependency on archive subproject C++ module interfaces
+* link:unconventional-project[]: project with source directories in a style different from gradle-metal convention

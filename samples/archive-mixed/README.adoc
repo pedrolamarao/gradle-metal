@@ -1,6 +1,8 @@
 = archive with mixed sources
 
 This sample demonstrates an archive with assembler, C and C++ sources.
+The project follows gradle-metal conventions with no additional configuration.
+Look for sources in `src/main` and outputs in `build`.
 
 To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
 

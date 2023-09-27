@@ -174,6 +174,7 @@ public class CxxFunctionalTest
                     create("main") {
                         compileOptions = listOf("-std=c++20")
                         importable( ixx.named("main").map { it.outputDirectory } )
+                        source( ixx.named("main").map { it.outputs } )
                     }
                 }
             }
@@ -193,7 +194,7 @@ public class CxxFunctionalTest
         }
 
         try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
-            assertEquals( 1, stream.count() );
+            assertEquals( 2, stream.count() );
         }
     }
 }

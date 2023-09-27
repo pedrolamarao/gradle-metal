@@ -2,13 +2,9 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -24,15 +20,6 @@ import java.util.ArrayList;
 public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
-
-    @Internal
-    Provider<Directory> getOutputTargetDirectory ()
-    {
-        return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
-    }
 
     @Inject
     public MetalAsmCompileTask (WorkerExecutor workerExecutor)
@@ -90,7 +77,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
     public void compile ()
     {
         final var baseDirectory = getProject().getProjectDir();
-        final var outputDirectory = getOutputTargetDirectory();
+        final var outputDirectory = getTargetDirectory();
         final var workers = workerExecutor.noIsolation();
 
         // prepare arguments

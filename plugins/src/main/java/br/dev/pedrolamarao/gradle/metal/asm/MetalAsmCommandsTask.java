@@ -2,26 +2,22 @@
 
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
 {
     @Input
     public abstract Property<File> getObjectDirectory ();
-
-    @OutputFile
-    public abstract RegularFileProperty getOutputFile ();
 
     static final String template =
     """
@@ -64,7 +60,8 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
         });
 
         // aggregate fields
-        try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8)) {
+        final var output = getTargetDirectory().map(it -> it.file("compile_commands.json")).get();
+        try (var writer = Files.newBufferedWriter(output.getAsFile().toPath(),UTF_8)) {
             writer.write("[\n");
             writer.write( String.join(",\n",list) );
             writer.write("]");

@@ -2,12 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import org.gradle.api.file.Directory;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkerExecutor;
@@ -24,15 +19,6 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
     final ObjectFactory objects;
 
     final WorkerExecutor workers;
-
-    @Internal
-    public abstract DirectoryProperty getOutputDirectory ();
-
-    @OutputDirectory
-    public Provider<Directory> getOutputTargetDirectory ()
-    {
-        return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
-    }
 
     @Inject
     public MetalIxxCompileTask (ExecOperations exec, ObjectFactory objects, WorkerExecutor workers)
@@ -60,7 +46,7 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
         baseArgs.add("--language=c++-module");
 
         // remove old objects
-        final var outputDirectory = getOutputTargetDirectory().get().getAsFile().toPath();
+        final var outputDirectory = getTargetDirectory().get().getAsFile().toPath();
         getProject().delete(outputDirectory);
 
         // compile objects from sources

@@ -1,7 +1,12 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
 
 import java.nio.file.Path;
 
@@ -9,6 +14,15 @@ public abstract class MetalCompileTask extends MetalSourceTask
 {
     @Input
     public abstract ListProperty<String> getCompileOptions ();
+
+    @Internal
+    public abstract DirectoryProperty getOutputDirectory ();
+
+    @OutputDirectory
+    public Provider<Directory> getTargetDirectory ()
+    {
+        return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
+    }
 
     protected static Path toOutputPath (Path base, Path source, Path output, String extension)
     {

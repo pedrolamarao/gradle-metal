@@ -40,7 +40,7 @@ public class MetalIxxSources implements Named
 
     public Provider<Directory> getOutputDirectory ()
     {
-        return compileTask.flatMap(MetalIxxCompileTask::getOutputTargetDirectory);
+        return compileTask.flatMap(MetalIxxCompileTask::getTargetDirectory);
     }
 
     public Provider<TaskOutputs> getOutputs ()

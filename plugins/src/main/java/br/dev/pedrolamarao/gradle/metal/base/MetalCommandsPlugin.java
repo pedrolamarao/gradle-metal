@@ -32,8 +32,7 @@ public class MetalCommandsPlugin implements Plugin<Project>
                 }
 
                 final var list = new ArrayList<>();
-                commandsDependencies.forEach(file -> {
-                    if (! file.exists()) return;
+                commandsDependencies.getAsFileTree().forEach(file -> {
                     final var parsed = (List<?>) new groovy.json.JsonSlurper().parse(file);
                     list.addAll(parsed);
                 });

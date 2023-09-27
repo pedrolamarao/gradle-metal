@@ -2,13 +2,9 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -24,15 +20,6 @@ import java.util.ArrayList;
 public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
 {
     final WorkerExecutor workerExecutor;
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
-
-    @Internal
-    Provider<Directory> getOutputTargetDirectory ()
-    {
-        return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
-    }
 
     @Inject
     public MetalCxxCompileTask (WorkerExecutor workerExecutor)
@@ -90,7 +77,7 @@ public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
     public void compile ()
     {
         final var baseDirectory = getProject().getProjectDir();
-        final var outputDirectory = getOutputTargetDirectory();
+        final var outputDirectory = getTargetDirectory();
         final var queue = workerExecutor.noIsolation();
 
         // prepare arguments

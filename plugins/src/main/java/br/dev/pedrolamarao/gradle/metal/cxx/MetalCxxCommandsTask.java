@@ -43,8 +43,8 @@ public abstract class MetalCxxCommandsTask extends MetalCxxCompileBaseTask
         final var baseArgs = new ArrayList<String>();
         baseArgs.add("clang++");
         baseArgs.addAll(getCompileOptions().get());
-        getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
-        getModuleDependencies().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
+        getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
+        getImportables().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
         baseArgs.add("--compile");
 
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");

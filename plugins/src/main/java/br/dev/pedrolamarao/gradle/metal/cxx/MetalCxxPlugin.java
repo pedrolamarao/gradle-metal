@@ -11,8 +11,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.INCLUDABLE_DEPENDENCIES;
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.*;
 
 public class MetalCxxPlugin implements Plugin<Project>
 {
@@ -32,7 +31,7 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var nativeImplementation = project.getConfigurations().named("nativeImplementation");
 
-        project.getConfigurations().create(MetalBasePlugin.IMPORTABLE_DEPENDENCIES, configuration -> {
+        project.getConfigurations().create(IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.setCanBeConsumed(false);
             configuration.setCanBeResolved(true);
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
@@ -54,10 +53,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
-        final var headers = objects.fileCollection();
-        headers.from( configurations.named(INCLUDABLE_DEPENDENCIES) );
-        final var modules = objects.fileCollection();
-        modules.from( configurations.named(MetalBasePlugin.IMPORTABLE_DEPENDENCIES) );
+        final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
+        final var importables = configurations.named(IMPORTABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
@@ -65,8 +62,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("commands-%s-cxx".formatted(name), MetalCxxCommandsTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
-            task.getModuleDependencies().from(modules);
+            task.getImportables().from(importables);
+            task.getIncludables().from(includables);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/cxx/compile_commands.json".formatted(name)));
             task.setSource(sources);
@@ -76,14 +73,14 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name), MetalCxxCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
-            task.getModuleDependencies().from(modules);
+            task.getImportables().from(importables);
+            task.getIncludables().from(includables);
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
         tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
-        return new MetalCxxSources(commandsTask, compileOptions, compileTask, headers, modules, name, sources);
+        return new MetalCxxSources(commandsTask, compileOptions, compileTask, name, sources);
     }
 
     static MetalIxxSources createIxxSources (Project project, String name)
@@ -94,10 +91,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
-        final var headers = objects.fileCollection();
-        headers.from( configurations.named(INCLUDABLE_DEPENDENCIES) );
-        final var modules = objects.fileCollection();
-        modules.from( configurations.named(MetalBasePlugin.IMPORTABLE_DEPENDENCIES) );
+        final var importables = configurations.named(IMPORTABLE_DEPENDENCIES);
+        final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("bmi/%s/ixx".formatted(name));
@@ -105,8 +100,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("commands-%s-ixx".formatted(name), MetalIxxCommandsTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
-            task.getModuleDependencies().from(modules);
+            task.getIncludables().from(includables);
+            task.getImportables().from(importables);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/ixx/compile_commands.json".formatted(name)));
             task.setSource(sources);
@@ -116,8 +111,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
-            task.getModuleDependencies().from(modules);
+            task.getIncludables().from(includables);
+            task.getImportables().from(importables);
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });

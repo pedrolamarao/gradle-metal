@@ -45,8 +45,8 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
         final var baseArgs = new ArrayList<String>();
         baseArgs.add("clang++");
         baseArgs.addAll(getCompileOptions().get());
-        getHeaderDependencies().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
-        getModuleDependencies().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file)));
+        getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
+        getImportables().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file)));
         baseArgs.add("-fprebuilt-module-path=%s".formatted(getOutputDirectory().get()));
         baseArgs.add("--language=c++-module");
         baseArgs.add("--precompile");

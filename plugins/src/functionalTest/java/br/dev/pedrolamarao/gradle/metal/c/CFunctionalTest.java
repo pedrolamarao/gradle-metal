@@ -57,7 +57,7 @@ public class CFunctionalTest
                 }
                 c {
                     create("main") {
-                        header( cpp.named("main").map { it.sources.sourceDirectories } )
+                        includable( cpp.named("main").map { it.sources.sourceDirectories } )
                     }
                 }
             }

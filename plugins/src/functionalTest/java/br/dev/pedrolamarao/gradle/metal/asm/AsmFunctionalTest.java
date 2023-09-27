@@ -53,7 +53,7 @@ public class AsmFunctionalTest
                 }
                 asm {
                     create("main") {
-                        header( cpp.named("main").map { it.sources.sourceDirectories } )
+                        includable( cpp.named("main").map { it.sources.sourceDirectories } )
                     }
                 }
             }

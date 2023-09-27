@@ -3,7 +3,6 @@ package br.dev.pedrolamarao.gradle.metal.c;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
@@ -15,26 +14,22 @@ import javax.inject.Inject;
 @NonNullApi
 public class MetalCSources implements Named
 {
-
     private final TaskProvider<MetalCCommandsTask> commandsTask;
 
     private final ListProperty<String> compileOptions;
 
     private final TaskProvider<MetalCCompileTask> compileTask;
 
-    private final ConfigurableFileCollection headers;
-
     private final String name;
 
     private final SourceDirectorySet sources;
 
     @Inject
-    public MetalCSources (TaskProvider<MetalCCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCCompileTask> compileTask, ConfigurableFileCollection headers, String name, SourceDirectorySet sources)
+    public MetalCSources (TaskProvider<MetalCCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCCompileTask> compileTask, String name, SourceDirectorySet sources)
     {
         this.commandsTask = commandsTask;
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
-        this.headers = headers;
         this.name = name;
         this.sources = sources;
     }
@@ -42,11 +37,6 @@ public class MetalCSources implements Named
     public ListProperty<String> getCompileOptions ()
     {
         return compileOptions;
-    }
-
-    public ConfigurableFileCollection getHeaders ()
-    {
-        return headers;
     }
 
     @Override
@@ -65,9 +55,9 @@ public class MetalCSources implements Named
         return compileTask.map(DefaultTask::getOutputs);
     }
 
-    public void header (Object... sources)
+    public void includable (Object... sources)
     {
-        commandsTask.configure(it -> it.getHeaderDependencies().from(sources));
-        compileTask.configure(it -> it.getHeaderDependencies().from(sources));
+        commandsTask.configure(it -> it.getIncludables().from(sources));
+        compileTask.configure(it -> it.getIncludables().from(sources));
     }
 }

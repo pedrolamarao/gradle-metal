@@ -32,7 +32,7 @@ metal {
     cxx {
         create("test") {
             compileOptions = listOf("-g","-std=c++20")
-            module( tasks.named("compile-main-ixx") )
+            importable( tasks.named("compile-main-ixx") )
         }
     }
     applications {

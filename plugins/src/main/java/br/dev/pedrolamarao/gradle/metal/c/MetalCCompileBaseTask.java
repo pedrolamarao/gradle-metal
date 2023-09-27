@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public abstract class MetalCCompileBaseTask extends SourceTask
 {
     @InputFiles
-    public abstract ConfigurableFileCollection getHeaderDependencies ();
+    public abstract ConfigurableFileCollection getIncludables ();
 
     @Input
     public abstract ListProperty<String> getCompileOptions ();

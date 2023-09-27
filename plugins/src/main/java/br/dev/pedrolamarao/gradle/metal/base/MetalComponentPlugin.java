@@ -49,7 +49,7 @@ abstract class MetalComponentPlugin
             final var interfaces = (MetalIxxSources) ixx.create("main");
             final var cxx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
             final var sources = (MetalCxxSources) cxx.create("main");
-            sources.module(interfaces.getOutputDirectory());
+            sources.importable(interfaces.getOutputDirectory());
             component.source(sources.getOutputs());
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
@@ -65,21 +65,21 @@ abstract class MetalComponentPlugin
             final var asmContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("asm");
             if (asmContainer != null) {
                 final var asm = (MetalAsmSources) asmContainer.getByName("main");
-                asm.header( cpp.getSources().getSourceDirectories() );
+                asm.includable( cpp.getSources().getSourceDirectories() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,asm);
             }
 
             final var cContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("c");
             if (cContainer != null) {
                 final var c = (MetalCSources) cContainer.getByName("main");
-                c.header( cpp.getSources().getSourceDirectories() );
+                c.includable( cpp.getSources().getSourceDirectories() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,c);
             }
 
             final var cxxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("cxx");
             if (cxxContainer != null) {
                 final var cxx = (MetalCxxSources) cxxContainer.getByName("main");
-                cxx.header( cpp.getSources().getSourceDirectories() );
+                cxx.includable( cpp.getSources().getSourceDirectories() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,cxx);
             }
         });

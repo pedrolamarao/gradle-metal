@@ -88,7 +88,7 @@ public abstract class MetalCCompileTask extends MetalCCompileBaseTask
         final var compileArgs = new ArrayList<String>();
         compileArgs.add("clang");
         compileArgs.addAll(getCompileOptions().get());
-        getHeaderDependencies().forEach(it -> compileArgs.add("--include-directory=%s".formatted(it)));
+        getIncludables().forEach(it -> compileArgs.add("--include-directory=%s".formatted(it)));
         compileArgs.add("--language=c");
         compileArgs.add("--compile");
 

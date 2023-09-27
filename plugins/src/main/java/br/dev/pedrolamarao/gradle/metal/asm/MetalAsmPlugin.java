@@ -8,6 +8,7 @@ import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
 import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.INCLUDABLE_DEPENDENCIES;
 
 public class MetalAsmPlugin implements Plugin<Project>
 {
@@ -31,7 +32,7 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var compileOptions = objects.listProperty(String.class);
-        final var headers = objects.fileCollection();
+        final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/asm".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
@@ -39,7 +40,7 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("commands-%s-asm".formatted(name), MetalAsmCommandsTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
+            task.getIncludables().from(includables);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/asm/compile_commands.json".formatted(name)));
             task.setSource(sources);
@@ -49,12 +50,12 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), MetalAsmCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
-            task.getHeaderDependencies().from(headers);
+            task.getIncludables().from(includables);
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
         tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
-        return new MetalAsmSources(commandsTask, compileOptions, compileTask, headers, name, sources);
+        return new MetalAsmSources(commandsTask, compileOptions, compileTask, name, sources);
     }
 }

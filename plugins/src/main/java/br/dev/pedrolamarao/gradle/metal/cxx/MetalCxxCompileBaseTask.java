@@ -14,10 +14,10 @@ import java.nio.file.Path;
 public abstract class MetalCxxCompileBaseTask extends SourceTask
 {
     @InputFiles
-    public abstract ConfigurableFileCollection getHeaderDependencies ();
+    public abstract ConfigurableFileCollection getIncludables ();
 
     @InputFiles
-    public abstract ConfigurableFileCollection getModuleDependencies ();
+    public abstract ConfigurableFileCollection getImportables ();
 
     @Input
     public abstract ListProperty<String> getCompileOptions ();

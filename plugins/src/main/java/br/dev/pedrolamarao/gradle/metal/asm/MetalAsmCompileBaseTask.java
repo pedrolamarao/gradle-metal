@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public abstract class MetalAsmCompileBaseTask extends SourceTask
 {
     @InputFiles
-    public abstract ConfigurableFileCollection getHeaderDependencies ();
+    public abstract ConfigurableFileCollection getIncludables ();
 
     @Input
     public abstract ListProperty<String> getCompileOptions ();

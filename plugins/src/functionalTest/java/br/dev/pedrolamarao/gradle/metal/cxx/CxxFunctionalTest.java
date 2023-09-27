@@ -56,7 +56,7 @@ public class CxxFunctionalTest
                 }
                 cxx {
                     create("main") {
-                        header( cpp.named("main").map { it.sources.sourceDirectories } )
+                        includable( cpp.named("main").map { it.sources.sourceDirectories } )
                     }
                 }
             }
@@ -173,7 +173,7 @@ public class CxxFunctionalTest
                 cxx {
                     create("main") {
                         compileOptions = listOf("-std=c++20")
-                        module( ixx.named("main").map { it.outputDirectory } )
+                        importable( ixx.named("main").map { it.outputDirectory } )
                     }
                 }
             }

@@ -88,7 +88,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
         final var compileArgs = new ArrayList<String>();
         compileArgs.add("clang");
         compileArgs.addAll(getCompileOptions().get());
-        getHeaderDependencies().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
+        getIncludables().forEach(file -> compileArgs.add("--include-directory=%s".formatted(file)));
         compileArgs.add("--language=assembler");
         compileArgs.add("--compile");
 

@@ -50,4 +50,9 @@ public class MetalIxxSources implements Named
     {
         return sources;
     }
+
+    public void importable (Object... sources)
+    {
+        compileTask.configure(it -> it.getImportables().from(sources));
+    }
 }

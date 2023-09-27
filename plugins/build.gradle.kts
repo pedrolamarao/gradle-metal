@@ -30,7 +30,7 @@ gradlePlugin {
         }
         create("commands") {
             id = "br.dev.pedrolamarao.metal.commands"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalRootPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalCommandsPlugin"
         }
         create("cpp") {
             id = "br.dev.pedrolamarao.metal.cpp"

@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetalRootPlugin implements Plugin<Project>
+public class MetalCommandsPlugin implements Plugin<Project>
 {
     @Override
     public void apply (Project project)
@@ -33,6 +33,7 @@ public class MetalRootPlugin implements Plugin<Project>
 
                 final var list = new ArrayList<>();
                 commandsDependencies.forEach(file -> {
+                    if (! file.exists()) return;
                     final var parsed = (List<?>) new groovy.json.JsonSlurper().parse(file);
                     list.addAll(parsed);
                 });

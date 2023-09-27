@@ -7,7 +7,9 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.workers.WorkerExecutor;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
 
 public abstract class MetalCompileTask extends MetalSourceTask
@@ -23,6 +25,9 @@ public abstract class MetalCompileTask extends MetalSourceTask
     {
         return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
     }
+
+    @Inject
+    public abstract WorkerExecutor getWorkers ();
 
     protected static Path toOutputPath (Path base, Path source, Path output, String extension)
     {

@@ -9,7 +9,6 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
-import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -19,14 +18,6 @@ import java.util.ArrayList;
 
 public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
 {
-    final WorkerExecutor workerExecutor;
-
-    @Inject
-    public MetalAsmCompileTask (WorkerExecutor workerExecutor)
-    {
-        this.workerExecutor = workerExecutor;
-    }
-
     public interface CompileParameters extends WorkParameters
     {
         DirectoryProperty getBaseDirectory ();
@@ -40,13 +31,8 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
 
     public static abstract class CompileAction implements WorkAction<CompileParameters>
     {
-        final ExecOperations execOperations;
-
         @Inject
-        public CompileAction (ExecOperations execOperations)
-        {
-            this.execOperations = execOperations;
-        }
+        public abstract ExecOperations getExec ();
 
         @Override
         public void execute ()
@@ -67,7 +53,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
             try
             {
                 Files.createDirectories(outputPath.getParent());
-                execOperations.exec(it -> it.commandLine(compileArgs));
+                getExec().exec(it -> it.commandLine(compileArgs));
             }
             catch (IOException e) { throw new RuntimeException(e); }
         }
@@ -78,7 +64,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
     {
         final var baseDirectory = getProject().getProjectDir();
         final var outputDirectory = getTargetDirectory();
-        final var workers = workerExecutor.noIsolation();
+        final var workers = getWorkers().noIsolation();
 
         // prepare arguments
         final var compileArgs = toCompileArguments(File::toString);

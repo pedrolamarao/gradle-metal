@@ -2,32 +2,14 @@
 
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
-import org.gradle.workers.WorkerExecutor;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
 public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 {
-    final ExecOperations exec;
-
-    final ObjectFactory objects;
-
-    final WorkerExecutor workers;
-
-    @Inject
-    public MetalIxxCompileTask (ExecOperations exec, ObjectFactory objects, WorkerExecutor workers)
-    {
-        this.exec = exec;
-        this.objects = objects;
-        this.workers = workers;
-    }
-
     @TaskAction
     public void compile () throws ClassNotFoundException, IOException
     {
@@ -61,7 +43,7 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
             compileArgs.add("--output=%s".formatted(outputPath));
             compileArgs.add(module.source().toString());
 
-            exec.exec(it -> {
+            getProject().exec(it -> {
                 it.commandLine(compileArgs);
             });
         }

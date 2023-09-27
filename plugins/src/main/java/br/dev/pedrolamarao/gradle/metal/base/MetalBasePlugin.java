@@ -103,13 +103,13 @@ public class MetalBasePlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var linkOptions = objects.listProperty(String.class);
+        final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
-            final var output = project.getLayout().getBuildDirectory().file("exe/%s/%s.exe".formatted(name,project.getName()));
-            it.getLibraryDependencies().from(configurations.named(LINKABLE_DEPENDENCIES));
-            it.getOptions().convention(linkOptions);
-            it.getOutput().set(output);
+            it.getLinkables().from(configurations.named(LINKABLE_DEPENDENCIES));
+            it.getLinkOptions().convention(linkOptions);
+            it.getOutputDirectory().set(outputDirectory);
         });
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
 
@@ -123,12 +123,12 @@ public class MetalBasePlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var archiveOptions = objects.listProperty(String.class);
+        final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
 
         final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
         {
-            final var output = project.getLayout().getBuildDirectory().file("lib/%s/%s.lib".formatted(name,project.getName()));
-            it.getOptions().convention(archiveOptions);
-            it.getOutput().set(output);
+            it.getArchiveOptions().convention(archiveOptions);
+            it.getOutputDirectory().set(outputDirectory);
         });
         configurations.named(LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));

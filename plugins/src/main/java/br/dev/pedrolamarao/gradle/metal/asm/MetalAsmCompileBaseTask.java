@@ -1,26 +1,28 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import br.dev.pedrolamarao.gradle.metal.base.MetalHash;
+import br.dev.pedrolamarao.gradle.metal.base.MetalCompileTask;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.SourceTask;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
-public abstract class MetalAsmCompileBaseTask extends SourceTask
+public abstract class MetalAsmCompileBaseTask extends MetalCompileTask
 {
     @InputFiles
     public abstract ConfigurableFileCollection getIncludables ();
 
-    @Input
-    public abstract ListProperty<String> getCompileOptions ();
-
-    static Path toOutputPath (Path base, Path source, Path output)
+    protected List<String> toCompileArguments (Function<File,String> formatter)
     {
-        final var p0 = base.relativize(source);
-        final var p1 = output.resolve("%X".formatted(MetalHash.hash(p0)));
-        return p1.resolve(source.getFileName() + ".o");
+        final var arguments = new ArrayList<String>();
+        arguments.add("clang");
+        if (getTarget().isPresent()) arguments.add("--target=%s".formatted(getTarget().get()));
+        arguments.addAll(getCompileOptions().get());
+        getIncludables().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
+        arguments.add("--compile");
+        arguments.add("--language=assembler");
+        return arguments;
     }
 }

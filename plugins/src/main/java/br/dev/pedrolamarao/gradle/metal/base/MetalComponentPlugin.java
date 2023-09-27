@@ -46,12 +46,13 @@ abstract class MetalComponentPlugin
         {
             final var metal = project.getExtensions().getByType(MetalExtension.class);
             final var ixx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("ixx");
-            final var interfaces = (MetalIxxSources) ixx.create("main");
+            final var ixxSources = (MetalIxxSources) ixx.create("main");
             final var cxx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
-            final var sources = (MetalCxxSources) cxx.create("main");
-            sources.importable(interfaces.getOutputDirectory());
-            component.source(sources.getOutputs());
-            project.getLogger().info("gradle-metal: creating main sources: {}",sources);
+            final var cxxSources = (MetalCxxSources) cxx.create("main");
+            cxxSources.importable(ixxSources.getOutputDirectory());
+            cxxSources.source(ixxSources.getOutputs());
+            component.source(cxxSources.getOutputs());
+            project.getLogger().info("gradle-metal: creating main sources: {}",cxxSources);
         });
 
         project.afterEvaluate(it ->

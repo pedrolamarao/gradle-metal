@@ -3,9 +3,9 @@ package br.dev.pedrolamarao.gradle.metal.ixx;
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.file.Directory;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
@@ -19,15 +19,12 @@ public class MetalIxxSources implements Named
 
     private final String name;
 
-    private final SourceDirectorySet sources;
-
     @Inject
-    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<MetalIxxCompileTask> compileTask, String name, SourceDirectorySet sources)
+    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<MetalIxxCompileTask> compileTask, String name)
     {
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
-        this.sources = sources;
     }
 
     public ListProperty<String> getCompileOptions ()
@@ -43,12 +40,12 @@ public class MetalIxxSources implements Named
 
     public Provider<Directory> getOutputDirectory ()
     {
-        return compileTask.flatMap(MetalIxxCompileTask::getOutputDirectory);
+        return compileTask.flatMap(MetalIxxCompileTask::getOutputTargetDirectory);
     }
 
-    public SourceDirectorySet getSources ()
+    public Provider<TaskOutputs> getOutputs ()
     {
-        return sources;
+        return compileTask.map(MetalIxxCompileTask::getOutputs);
     }
 
     public void importable (Object... sources)

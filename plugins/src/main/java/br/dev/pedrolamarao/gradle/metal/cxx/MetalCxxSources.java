@@ -1,9 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskOutputs;
@@ -22,16 +20,13 @@ public class MetalCxxSources implements Named
 
     private final String name;
 
-    private final SourceDirectorySet sources;
-
     @Inject
-    public MetalCxxSources (TaskProvider<MetalCxxCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCxxCompileTask> compileTask, String name, SourceDirectorySet sources)
+    public MetalCxxSources (TaskProvider<MetalCxxCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCxxCompileTask> compileTask, String name)
     {
         this.commandsTask = commandsTask;
         this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
-        this.sources = sources;
     }
 
     public ListProperty<String> getCompileOptions ()
@@ -45,14 +40,9 @@ public class MetalCxxSources implements Named
         return name;
     }
 
-    public SourceDirectorySet getSources ()
-    {
-        return sources;
-    }
-
     public Provider<TaskOutputs> getOutputs ()
     {
-        return compileTask.map(DefaultTask::getOutputs);
+        return compileTask.map(MetalCxxCompileTask::getOutputs);
     }
 
     public void importable (Object... sources)
@@ -65,5 +55,11 @@ public class MetalCxxSources implements Named
     {
         commandsTask.configure(it -> it.getIncludables().from(sources));
         compileTask.configure(it -> it.getIncludables().from(sources));
+    }
+
+    public void source (Object... sources)
+    {
+        commandsTask.configure(it -> it.source(sources));
+        compileTask.configure(it -> it.source(sources));
     }
 }

@@ -39,30 +39,31 @@ public abstract class MetalCxxCommandsTask extends MetalCxxCompileBaseTask
         final var baseDirectory = getProject().getProjectDir().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
-        // prepare arguments
-        final var baseArgs = new ArrayList<String>();
-        baseArgs.add("clang++");
-        baseArgs.addAll(getCompileOptions().get());
-        getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
-        getImportables().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
-        baseArgs.add("--compile");
+        // prepare compile arguments list
+        final var baseArgs = toCompileArguments(file -> file.toString().replace("\\","\\\\"));
 
+        // prepare directory field
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
 
         final var list = new ArrayList<String>();
         getSource().forEach(source ->
         {
+            // prepare file and output fields
             final var file = source.toString().replace("\\","\\\\");
-            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".o").toString().replace("\\","\\\\");
+            final var output = toOutputPath(baseDirectory,source.toPath(),objectDirectory,".o")
+                .toString().replace("\\","\\\\");
 
+            // prepare compile arguments fiels
             final var compileArgs = new ArrayList<>(baseArgs);
             compileArgs.add("--output=%s".formatted(output));
             compileArgs.add(file);
             final var arguments = compileArgs.stream().collect(Collectors.joining("\", \"","\"","\""));
 
+            // format fields
             list.add( template.formatted(directory, arguments, file, output) );
         });
 
+        // aggregate fields
         try (var writer = Files.newBufferedWriter(getOutputFile().get().getAsFile().toPath(),StandardCharsets.UTF_8)) {
             writer.write("[\n");
             writer.write( String.join(",\n",list) );

@@ -80,7 +80,7 @@ public class MetalCxxPlugin implements Plugin<Project>
         });
         tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
-        return new MetalCxxSources(commandsTask, compileOptions, compileTask, name, sources);
+        return new MetalCxxSources(commandsTask, compileOptions, compileTask, name);
     }
 
     static MetalIxxSources createIxxSources (Project project, String name)
@@ -120,6 +120,6 @@ public class MetalCxxPlugin implements Plugin<Project>
             configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getOutputDirectory), it -> it.builtBy(compileTask));
         });
 
-        return new MetalIxxSources(compileOptions, compileTask, name, sources);
+        return new MetalIxxSources(compileOptions, compileTask, name);
     }
 }

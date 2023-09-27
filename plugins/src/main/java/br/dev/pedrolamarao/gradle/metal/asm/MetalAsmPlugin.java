@@ -56,6 +56,6 @@ public class MetalAsmPlugin implements Plugin<Project>
         });
         tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
-        return new MetalAsmSources(commandsTask, compileOptions, compileTask, name, sources);
+        return new MetalAsmSources(commandsTask, compileOptions, compileTask, name);
     }
 }

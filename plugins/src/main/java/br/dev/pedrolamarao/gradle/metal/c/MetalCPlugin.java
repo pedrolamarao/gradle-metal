@@ -56,6 +56,6 @@ public class MetalCPlugin implements Plugin<Project>
         });
         tasks.named("compile").configure(it -> it.dependsOn(compileTask));
 
-        return new MetalCSources(commandsTask, compileOptions, compileTask, name, sources);
+        return new MetalCSources(commandsTask, compileOptions, compileTask, name);
     }
 }

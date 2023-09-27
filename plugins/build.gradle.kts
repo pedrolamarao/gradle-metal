@@ -3,6 +3,7 @@
 plugins {
     id("java-gradle-plugin")
     id("jvm-test-suite")
+    id("maven-publish")
 }
 
 gradlePlugin {

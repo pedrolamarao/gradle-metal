@@ -43,6 +43,24 @@ public class MetalBasePlugin implements Plugin<Project>
             configuration.setVisible(false);
         });
 
+        project.getConfigurations().resolvable(IMPORTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
+            configuration.extendsFrom(nativeImplementation);
+        });
+
+        project.getConfigurations().consumable(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
+        });
+
+        project.getConfigurations().resolvable(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
+            configuration.extendsFrom(nativeImplementation);
+        });
+
+        project.getConfigurations().consumable(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
+        });
+
         configurations.resolvable(LINKABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
             configuration.extendsFrom(nativeImplementation.get());

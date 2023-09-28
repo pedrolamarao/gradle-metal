@@ -1,11 +1,9 @@
 = unconventional project
 
 This sample demonstrates a project with source directories in a style different from gradle-metal convention.
-An archive is generated from C sources in `lib`.
-An application is generated from C++ sources in `tool`, with an include dependency on CPP headers in `lib` and a link dependency on the archive.
-Object files are expected in `obj`, archives and executables in `bin`.
-The various tasks are registered explicitly.
+There is a limit to how flexible we can be: we accept the user's source layout, but partially impose our build layout.
+The users configures object output to `obj` and assembled outputs to `bin`, but the inner layout is ours.
 
 To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
 
-Look for the executable file in `application/build/exe`.
+Look for the executable file in `bin`.

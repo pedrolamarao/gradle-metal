@@ -46,7 +46,9 @@ Plugins:
 * `br.dev.pedrolamarao.metal.archive`: creates a conventional "main" archive with tasks
 * `br.dev.pedrolamarao.metal.asm`:  adds assembler sources to "main" component (at `src/main/asm`) with tasks
 * `br.dev.pedrolamarao.metal.c`: adds C sources to "main" component (at `src/main/c`) with tasks
-* `br.dev.pedrolamarao.metal.cxx`: adds C++ sources to "main" component  (at `src/main/cxx`) with tasks
+* `br.dev.pedrolamarao.metal.cpp`: adds CPP sources to "main" component  (at `src/main/cxx`) with tasks
+* `br.dev.pedrolamarao.metal.cxx`: adds C++ module implementation sources to "main" component  (at `src/main/cxx`) with tasks
+* `br.dev.pedrolamarao.metal.ixx`: adds C++ module interface sources to "main" component  (at `src/main/cxx`) with tasks
 
 Under construction:
 

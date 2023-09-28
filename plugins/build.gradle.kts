@@ -44,6 +44,10 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.prebuilt"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalPrebuiltPlugin"
         }
+        create("ixx") {
+            id = "br.dev.pedrolamarao.metal.ixx"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxPlugin"
+        }
     }
 }
 

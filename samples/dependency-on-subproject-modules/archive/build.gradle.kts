@@ -1,6 +1,7 @@
 plugins {
     id("br.dev.pedrolamarao.metal.archive")
     id("br.dev.pedrolamarao.metal.cxx")
+    id("br.dev.pedrolamarao.metal.ixx")
 }
 
 metal {

@@ -16,6 +16,8 @@ abstract class MetalComponentPlugin
 
         project.getLogger().info("gradle-metal: creating main component: {}",component);
 
+        // if cpp plugin then create cpp sources
+
         plugins.withPlugin("br.dev.pedrolamarao.metal.cpp",plugin ->
         {
             final var metal = project.getExtensions().getByType(MetalExtension.class);
@@ -23,6 +25,8 @@ abstract class MetalComponentPlugin
             final var sources = (MetalCppSources) cpp.create("main");
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
+
+        // if asm plugin then create asm sources
 
         plugins.withPlugin("br.dev.pedrolamarao.metal.asm",plugin ->
         {
@@ -33,6 +37,8 @@ abstract class MetalComponentPlugin
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
 
+        // if c plugin then create c sources
+
         plugins.withPlugin("br.dev.pedrolamarao.metal.c",plugin ->
         {
             final var metal = project.getExtensions().getByType(MetalExtension.class);
@@ -42,18 +48,28 @@ abstract class MetalComponentPlugin
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
 
+        // if cxx plugin then create cxx sources
+
         plugins.withPlugin("br.dev.pedrolamarao.metal.cxx",plugin ->
         {
             final var metal = project.getExtensions().getByType(MetalExtension.class);
-            final var ixx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("ixx");
-            final var ixxSources = (MetalIxxSources) ixx.create("main");
             final var cxx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
-            final var cxxSources = (MetalCxxSources) cxx.create("main");
-            cxxSources.importable(ixxSources.getOutputDirectory());
-            cxxSources.source(ixxSources.getOutputs());
-            component.source(cxxSources.getOutputs());
-            project.getLogger().info("gradle-metal: creating main sources: {}",cxxSources);
+            final var sources = (MetalCxxSources) cxx.create("main");
+            component.source(sources.getOutputs());
+            project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
+
+        // if ixx plugin then create ixx sources
+
+        plugins.withPlugin("br.dev.pedrolamarao.metal.ixx",plugin ->
+        {
+            final var metal = project.getExtensions().getByType(MetalExtension.class);
+            final var ixx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("ixx");
+            final var sources = (MetalIxxSources) ixx.create("main");
+            project.getLogger().info("gradle-metal: creating main sources: {}",sources);
+        });
+
+        // if cpp sources then wire to other sources' includables
 
         project.afterEvaluate(it ->
         {
@@ -82,6 +98,32 @@ abstract class MetalComponentPlugin
                 final var cxx = (MetalCxxSources) cxxContainer.getByName("main");
                 cxx.includable( cpp.getSources().getSourceDirectories() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,cxx);
+            }
+
+            final var ixxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("ixx");
+            if (ixxContainer != null) {
+                final var ixx = (MetalIxxSources) ixxContainer.getByName("main");
+                ixx.includable( cpp.getSources().getSourceDirectories() );
+                project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,ixx);
+            }
+        });
+
+        // if ixx sources then wire to other sources' importables
+
+        project.afterEvaluate(it ->
+        {
+            final var metal = it.getExtensions().getByType(MetalExtension.class);
+
+            final var ixxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("ixx");
+            if (ixxContainer == null) return;
+            final var ixx = (MetalIxxSources) ixxContainer.getByName("main");
+
+            final var cxxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("cxx");
+            if (cxxContainer != null) {
+                final var cxx = (MetalCxxSources) cxxContainer.getByName("main");
+                cxx.importable( ixx.getOutputDirectory() );
+                cxx.source( ixx.getOutputs() );
+                project.getLogger().info("gradle-metal: wiring sources: {} -> {}",ixx,cxx);
             }
         });
     }

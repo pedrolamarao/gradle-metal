@@ -48,6 +48,11 @@ public class MetalIxxSources implements Named
         return compileTask.map(MetalIxxCompileTask::getOutputs);
     }
 
+    public void includable (Object... sources)
+    {
+        compileTask.configure(it -> it.getIncludables().from(sources));
+    }
+
     public void importable (Object... sources)
     {
         compileTask.configure(it -> it.getImportables().from(sources));

@@ -40,12 +40,17 @@ public class MetalIxxSources implements Named
 
     public Provider<Directory> getOutputDirectory ()
     {
-        return compileTask.flatMap(MetalIxxCompileTask::getOutputTargetDirectory);
+        return compileTask.flatMap(MetalIxxCompileTask::getTargetDirectory);
     }
 
     public Provider<TaskOutputs> getOutputs ()
     {
         return compileTask.map(MetalIxxCompileTask::getOutputs);
+    }
+
+    public void includable (Object... sources)
+    {
+        compileTask.configure(it -> it.getIncludables().from(sources));
     }
 
     public void importable (Object... sources)

@@ -22,13 +22,13 @@ val compileTool = tasks.register<MetalCxxCompileTask>("compile-tool") {
 
 // register archive task for lib
 val archiveLib = tasks.register<MetalArchiveTask>("archive-lib") {
-    output = layout.projectDirectory.file("bin/greet.lib")
+    outputDirectory = layout.projectDirectory.dir("bin")
     source( compileLib )
 }
 
 // register link task for lib
 val linkTool = tasks.register<MetalLinkTask>("link-tool") {
-    output = layout.projectDirectory.file("bin/greet.exe")
+    outputDirectory = layout.projectDirectory.dir("bin")
     source( compileTool, archiveLib )
 }
 

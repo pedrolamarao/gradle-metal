@@ -31,22 +31,26 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        // prepare configuration
+        final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/asm".formatted(name));
         final var compileOptions = objects.listProperty(String.class);
         final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/asm".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/asm".formatted(name));
 
+        // register commands database task
         final var commandsTask = tasks.register("commands-%s-asm".formatted(name), MetalAsmCommandsTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);
             task.getIncludables().from(includables);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/asm/compile_commands.json".formatted(name)));
+            task.getOutputDirectory().set(commandsDirectory);
             task.setSource(sources);
         });
         configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
+        // register compile task
         final var compileTask = tasks.register("compile-%s-asm".formatted(name), MetalAsmCompileTask.class, task ->
         {
             task.getCompileOptions().set(compileOptions);

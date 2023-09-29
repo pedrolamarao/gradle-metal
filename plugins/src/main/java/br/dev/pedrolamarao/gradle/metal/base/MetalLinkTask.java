@@ -26,7 +26,7 @@ public abstract class MetalLinkTask extends MetalSourceTask
     {
         final var target = getTarget().orElse("default").get();
         final var name = getProject().getName();
-        return getOutputDirectory().map(it -> it.file("%s/%s.lib".formatted(target,name)));
+        return getOutputDirectory().map(it -> it.file("%s/%s.exe".formatted(target,name)));
     }
 
     @Internal

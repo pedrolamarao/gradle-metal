@@ -31,6 +31,7 @@ public class MetalCPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/c".formatted(name));
         final var compileOptions = objects.listProperty(String.class);
         final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
@@ -42,7 +43,7 @@ public class MetalCPlugin implements Plugin<Project>
             task.getCompileOptions().set(compileOptions);
             task.getIncludables().from(includables);
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputFile().set(layout.getBuildDirectory().file("db/%s/c/compile_commands.json".formatted(name)));
+            task.getOutputDirectory().set(commandsDirectory);
             task.setSource(sources);
         });
         configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));

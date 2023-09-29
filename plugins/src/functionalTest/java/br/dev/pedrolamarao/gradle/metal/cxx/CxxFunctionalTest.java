@@ -99,7 +99,7 @@ public class CxxFunctionalTest
         final var buildGradleKts =
             """
             plugins {
-                id("br.dev.pedrolamarao.metal.cxx")
+                id("br.dev.pedrolamarao.metal.ixx")
             }
             
             metal {
@@ -162,6 +162,7 @@ public class CxxFunctionalTest
             """
             plugins {
                 id("br.dev.pedrolamarao.metal.cxx")
+                id("br.dev.pedrolamarao.metal.ixx")
             }
             
             metal {

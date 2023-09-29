@@ -13,6 +13,7 @@ Features:
 
 [WARNING]
 This project is under early development; compatibility *will be broken* without prior notice.
+In particular, we aim to stabilize our Gradle dependency on future version 9.
 
 Requirements:
 

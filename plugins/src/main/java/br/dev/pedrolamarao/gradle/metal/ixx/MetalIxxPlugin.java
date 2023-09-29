@@ -1,13 +1,12 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
-
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.*;
 
 public class MetalIxxPlugin implements Plugin<Project>
 {
@@ -32,8 +31,8 @@ public class MetalIxxPlugin implements Plugin<Project>
 
         final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/ixx".formatted(name));
         final var compileOptions = objects.listProperty(String.class);
-        final var importables = configurations.named(IMPORTABLE_DEPENDENCIES);
-        final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
+        final var importables = configurations.named(Metal.IMPORTABLE_DEPENDENCIES);
+        final var includables = configurations.named(Metal.INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("bmi/%s/ixx".formatted(name));
@@ -47,7 +46,7 @@ public class MetalIxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(commandsDirectory);
             task.setSource(sources);
         });
-        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
+        configurations.named(Metal.COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class, task ->
         {
@@ -57,7 +56,7 @@ public class MetalIxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sources);
         });
-        configurations.named(MetalBasePlugin.IMPORTABLE_ELEMENTS).configure(configuration -> {
+        configurations.named(Metal.IMPORTABLE_ELEMENTS).configure(configuration -> {
             configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getTargetDirectory), it -> it.builtBy(compileTask));
         });
 

@@ -1,13 +1,12 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
-
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.*;
 
 public class MetalCxxPlugin implements Plugin<Project>
 {
@@ -32,8 +31,8 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/cxx".formatted(name));
         final var compileOptions = objects.listProperty(String.class);
-        final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
-        final var importables = configurations.named(IMPORTABLE_DEPENDENCIES);
+        final var includables = configurations.named(Metal.INCLUDABLE_DEPENDENCIES);
+        final var importables = configurations.named(Metal.IMPORTABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("obj/%s/cxx".formatted(name));
@@ -47,7 +46,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getOutputDirectory().set(commandsDirectory);
             task.setSource(sources);
         });
-        configurations.named(COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
+        configurations.named(Metal.COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name), MetalCxxCompileTask.class, task ->
         {

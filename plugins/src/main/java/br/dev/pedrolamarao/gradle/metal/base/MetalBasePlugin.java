@@ -6,24 +6,6 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class MetalBasePlugin implements Plugin<Project>
 {
-    public static final String COMMANDS_ELEMENTS = "metalCommandsElements";
-
-    public static final String COMMANDS_DEPENDENCIES = "commands";
-
-    public static final String EMPTY_ELEMENTS = "metalEmptyElements";
-
-    public static final String IMPORTABLE_ELEMENTS = "metalImportableElements";
-
-    public static final String IMPORTABLE_DEPENDENCIES = "metalImportableDependencies";
-
-    public static final String INCLUDABLE_ELEMENTS = "metalIncludableElements";
-
-    public static final String INCLUDABLE_DEPENDENCIES = "metalIncludableDependencies";
-
-    public static final String LINKABLE_DEPENDENCIES = "metalLinkableDependencies";
-
-    public static final String LINKABLE_ELEMENTS = "metalLinkableElements";
-
     @Override
     public void apply (Project project)
     {
@@ -32,44 +14,105 @@ public class MetalBasePlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
 
-        configurations.consumable(COMMANDS_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));
+        // dependency scopes
+
+        final var api = configurations.dependencyScope("metalApi", configuration -> {
+            configuration.setDescription("metal api dependencies");
         });
 
-        final var implementation = configurations.findByName("implementation") == null ?
-            configurations.dependencyScope("implementation") :
-            configurations.named("implementation");
-
-        configurations.consumable(EMPTY_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE));
-            configuration.setVisible(false);
+        final var implementation = configurations.dependencyScope("metalImplementation", configuration -> {
+            configuration.setDescription("metal implementation dependencies");
+            configuration.extendsFrom(api.get());
         });
 
-        project.getConfigurations().resolvable(IMPORTABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
+        // outgoing configurations
+
+        configurations.consumable(Metal.COMMANDS_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
+            });
+            configuration.setDescription("metal commands database elements");
+        });
+
+        configurations.consumable(Metal.EMPTY_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE);
+            });
+            configuration.setDescription("metal empty elements (can we remove this?)");
+        });
+
+        project.getConfigurations().consumable(Metal.EXECUTABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.RUN);
+            });
             configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal executable elements");
         });
 
-        project.getConfigurations().consumable(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
+        project.getConfigurations().consumable(Metal.IMPORTABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("metal importable elements");
         });
 
-        project.getConfigurations().resolvable(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
+        project.getConfigurations().consumable(Metal.INCLUDABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("metal includable elements");
+        });
+
+        configurations.consumable(Metal.LINKABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("metal linkable elements");
+        });
+
+        // incoming configurations
+
+        configurations.resolvable(Metal.EXECUTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.RUN);
+            });
             configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal executable dependencies");
         });
 
-        project.getConfigurations().consumable(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
-        });
-
-        configurations.resolvable(LINKABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
+        project.getConfigurations().resolvable(Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
             configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal importable dependencies");
         });
 
-        configurations.consumable(LINKABLE_ELEMENTS, configuration -> {
-            configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
+        project.getConfigurations().resolvable(Metal.INCLUDABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal includable dependencies");
+        });
+
+        configurations.resolvable(Metal.LINKABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal linkable dependencies");
         });
 
         project.getDependencies().getAttributesSchema().attribute(MetalCapability.ATTRIBUTE, it -> {
@@ -114,7 +157,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
-            it.getLinkables().from(configurations.named(LINKABLE_DEPENDENCIES));
+            it.getLinkables().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
             it.getLinkOptions().convention(linkOptions);
             it.getOutputDirectory().set(outputDirectory);
         });
@@ -137,7 +180,7 @@ public class MetalBasePlugin implements Plugin<Project>
             it.getArchiveOptions().convention(archiveOptions);
             it.getOutputDirectory().set(outputDirectory);
         });
-        configurations.named(LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
+        configurations.named(Metal.LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));
 
         return new MetalArchive(archiveOptions, archiveTask, name);

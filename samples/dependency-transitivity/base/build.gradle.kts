@@ -5,5 +5,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":internal"))
+    metalImplementation(project(":internal"))
 }

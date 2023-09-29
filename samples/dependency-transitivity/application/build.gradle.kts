@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":intermediate"))
+    metalImplementation(project(":intermediate"))
 }

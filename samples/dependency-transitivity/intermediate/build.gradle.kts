@@ -5,6 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base"))
-    implementation(project(":internal"))
+    metalApi(project(":base"))
+    metalImplementation(project(":internal"))
 }

@@ -36,7 +36,9 @@ public class MetalBasePlugin implements Plugin<Project>
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));
         });
 
-        final var nativeImplementation = configurations.dependencyScope("nativeImplementation");
+        final var implementation = configurations.findByName("implementation") == null ?
+            configurations.dependencyScope("implementation") :
+            configurations.named("implementation");
 
         configurations.consumable(EMPTY_ELEMENTS, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE));
@@ -45,7 +47,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         project.getConfigurations().resolvable(IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
-            configuration.extendsFrom(nativeImplementation.get());
+            configuration.extendsFrom(implementation.get());
         });
 
         project.getConfigurations().consumable(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
@@ -54,7 +56,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         project.getConfigurations().resolvable(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
-            configuration.extendsFrom(nativeImplementation.get());
+            configuration.extendsFrom(implementation.get());
         });
 
         project.getConfigurations().consumable(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {
@@ -63,7 +65,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         configurations.resolvable(LINKABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
-            configuration.extendsFrom(nativeImplementation.get());
+            configuration.extendsFrom(implementation.get());
         });
 
         configurations.consumable(LINKABLE_ELEMENTS, configuration -> {

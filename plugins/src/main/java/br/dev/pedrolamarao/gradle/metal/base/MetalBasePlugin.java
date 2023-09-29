@@ -32,36 +32,23 @@ public class MetalBasePlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
 
-        configurations.create(COMMANDS_ELEMENTS, configuration ->
-        {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
+        configurations.consumable(COMMANDS_ELEMENTS, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));
         });
 
-        final var nativeImplementation = configurations.create("nativeImplementation",configuration -> {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
-        });
+        final var nativeImplementation = configurations.dependencyScope("nativeImplementation");
 
-        configurations.create(EMPTY_ELEMENTS, configuration -> {
+        configurations.consumable(EMPTY_ELEMENTS, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE));
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeDeclared(false);
-            configuration.setCanBeResolved(false);
             configuration.setVisible(false);
         });
 
-        configurations.create(LINKABLE_DEPENDENCIES, configuration -> {
-            configuration.setCanBeConsumed(false);
-            configuration.setCanBeResolved(true);
+        configurations.resolvable(LINKABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
-            configuration.extendsFrom(nativeImplementation);
+            configuration.extendsFrom(nativeImplementation.get());
         });
 
-        configurations.create(LINKABLE_ELEMENTS, configuration -> {
-            configuration.setCanBeConsumed(true);
-            configuration.setCanBeResolved(false);
+        configurations.consumable(LINKABLE_ELEMENTS, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE));
         });
 

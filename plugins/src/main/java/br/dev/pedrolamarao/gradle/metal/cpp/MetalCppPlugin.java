@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
@@ -28,7 +29,7 @@ public class MetalCppPlugin implements Plugin<Project>
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir( layout.getProjectDirectory().dir("src/%s/cpp".formatted(name)) );
 
-        configurations.named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration -> {
+        configurations.named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
             configuration.getOutgoing().artifacts(providers.provider(sources::getSourceDirectories));
         });
 

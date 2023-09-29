@@ -12,10 +12,12 @@ Features:
 * LLVM tools
 
 [WARNING]
-This project is under early development; compatibility *will be broken* without prior notice.
+This project is under early development.
+Compatibility *will be broken* without prior notice.
+In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
 In particular, we aim to stabilize our Gradle dependency on future version 9.
 
-Requirements:
+Current requirements:
 
 * Gradle 8.4 or newer
 * JDK 17 or newer

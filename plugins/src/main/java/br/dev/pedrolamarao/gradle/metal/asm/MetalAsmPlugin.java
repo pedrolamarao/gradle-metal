@@ -7,8 +7,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.COMMANDS_ELEMENTS;
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.INCLUDABLE_DEPENDENCIES;
+import static br.dev.pedrolamarao.gradle.metal.base.Metal.COMMANDS_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.base.Metal.INCLUDABLE_DEPENDENCIES;
 
 public class MetalAsmPlugin implements Plugin<Project>
 {

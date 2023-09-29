@@ -15,7 +15,7 @@ public class MetalCommandsPlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(MetalBasePlugin.class);
 
-        final var commandsDependencies = project.getConfigurations().create(MetalBasePlugin.COMMANDS_DEPENDENCIES);
+        final var commandsDependencies = project.getConfigurations().create(Metal.COMMANDS_DEPENDENCIES);
         commandsDependencies.setCanBeConsumed(false);
         commandsDependencies.setCanBeResolved(true);
         commandsDependencies.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS));

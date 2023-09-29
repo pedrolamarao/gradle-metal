@@ -9,7 +9,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 
 import javax.inject.Inject;
 
-import static br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin.LINKABLE_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.base.Metal.LINKABLE_ELEMENTS;
 
 public class MetalPrebuiltPlugin implements Plugin<Project>
 {
@@ -24,14 +24,14 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
 
         public void includable (Object notation)
         {
-            getConfigurations().named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration -> {
+            getConfigurations().named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
                 configuration.getOutgoing().artifact(notation);
             });
         }
 
         public void includable (Object notation, Action<? super ConfigurablePublishArtifact> configure)
         {
-            getConfigurations().named(MetalBasePlugin.INCLUDABLE_ELEMENTS).configure(configuration -> {
+            getConfigurations().named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
                 configuration.getOutgoing().artifact(notation, configure);
             });
         }

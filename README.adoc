@@ -16,7 +16,7 @@ This project is under early development; compatibility *will be broken* without 
 
 Requirements:
 
-* Gradle 8.3 or newer
+* Gradle 8.4 or newer
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 

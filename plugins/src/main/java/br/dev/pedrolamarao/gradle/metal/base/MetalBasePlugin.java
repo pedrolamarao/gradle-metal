@@ -45,7 +45,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         project.getConfigurations().resolvable(IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE));
-            configuration.extendsFrom(nativeImplementation);
+            configuration.extendsFrom(nativeImplementation.get());
         });
 
         project.getConfigurations().consumable(MetalBasePlugin.IMPORTABLE_ELEMENTS, configuration -> {
@@ -54,7 +54,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         project.getConfigurations().resolvable(MetalBasePlugin.INCLUDABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE));
-            configuration.extendsFrom(nativeImplementation);
+            configuration.extendsFrom(nativeImplementation.get());
         });
 
         project.getConfigurations().consumable(MetalBasePlugin.INCLUDABLE_ELEMENTS, configuration -> {

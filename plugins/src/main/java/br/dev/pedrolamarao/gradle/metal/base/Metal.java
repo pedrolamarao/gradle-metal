@@ -2,6 +2,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.GradleException;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -21,7 +22,7 @@ public class Metal
 
     public static String toExecutablePath (String list, String name)
     {
-        for (var item : list.split(":;"))
+        for (var item : list.split(File.pathSeparator))
         {
             final var directory = Paths.get(item);
             if (! Files.isDirectory(directory)) continue;

@@ -18,7 +18,6 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 
         // prepare compile arguments
         final var baseArgs = new ArrayList<String>();
-        baseArgs.add("clang++");
         if (getTarget().isPresent()) baseArgs.add("--target=%s".formatted(getTarget().get()));
         baseArgs.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
@@ -44,7 +43,8 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
             compileArgs.add(module.source().toString());
 
             getProject().exec(it -> {
-                it.commandLine(compileArgs);
+                it.executable(getCompiler().get());
+                it.args(compileArgs);
             });
         }
     }

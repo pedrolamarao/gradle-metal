@@ -18,6 +18,14 @@ import java.util.ArrayList;
 public abstract class MetalArchiveTask extends MetalSourceTask
 {
     @Input
+    public Provider<String> getArchiver ()
+    {
+        return getProviders().gradleProperty("metal.path")
+            .map(it -> Metal.toExecutablePath(it,"llvm-ar"))
+            .orElse("llvm-ar");
+    }
+
+    @Input
     public abstract ListProperty<String> getArchiveOptions ();
 
     @OutputFile
@@ -40,7 +48,6 @@ public abstract class MetalArchiveTask extends MetalSourceTask
         final var output = getOutput().get().getAsFile().toPath();
 
         final var command = new ArrayList<String>();
-        command.add("llvm-ar");
         command.add("rcs");
         command.addAll(getArchiveOptions().get());
         command.add(output.toString());
@@ -48,7 +55,8 @@ public abstract class MetalArchiveTask extends MetalSourceTask
 
         getExec().exec(it ->
         {
-            it.commandLine(command);
+            it.executable(getArchiver().get());
+            it.args(command);
         });
     }
 }

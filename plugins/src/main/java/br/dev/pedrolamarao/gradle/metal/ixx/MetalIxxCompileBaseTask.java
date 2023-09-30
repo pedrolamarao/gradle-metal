@@ -1,13 +1,16 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxCompileBaseTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.Input;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
-import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -22,10 +25,7 @@ import java.util.Map;
 public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
 {
     @Inject
-    protected abstract ObjectFactory getObjectFactory ();
-
-    @Inject
-    protected abstract WorkerExecutor getWorkerExecutor ();
+    protected abstract ObjectFactory getObjects ();
 
     public interface ScanParameter extends WorkParameters
     {
@@ -39,7 +39,18 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
     public static abstract class ScanAction implements WorkAction<ScanParameter>
     {
         @Inject
-        public abstract ExecOperations getExecOperations ();
+        public abstract ExecOperations getExec ();
+
+        @Inject
+        public abstract ProviderFactory getProviders ();
+
+        @Input
+        public Provider<String> getScanner ()
+        {
+            return getProviders().gradleProperty("metal.path")
+                .map(it -> Metal.toExecutablePath(it,"clang-scan-deps"))
+                .orElse("clang-scan-deps");
+        }
 
         @Override
         public void execute ()
@@ -53,14 +64,14 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
             try
             {
                 final var scanArgs = new ArrayList<String>();
-                scanArgs.add("clang-scan-deps");
                 scanArgs.add("--format=p1689");
                 scanArgs.add("--");
                 scanArgs.addAll(parameters.getCompileArgs().get());
                 scanArgs.add(sourceFile.toString());
 
-                getExecOperations().exec(it -> {
-                    it.setCommandLine(scanArgs);
+                getExec().exec(it -> {
+                    it.executable(getScanner().get());
+                    it.args(scanArgs);
                     it.setStandardOutput(buffer);
                 });
             }
@@ -118,14 +129,14 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
     {
         // prepare base arguments
         final var scanArgs = new ArrayList<String>();
-        scanArgs.add("clang++");
+        scanArgs.add(getCompiler().get());
         scanArgs.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
         scanArgs.add("--language=c++-module");
         scanArgs.add("--precompile");
 
         // discover dependencies from sources: assemble dependency files
-        final var scanWorkers = getWorkerExecutor().noIsolation();
+        final var scanWorkers = getWorkers().noIsolation();
         getProject().delete(getTemporaryDir());
         for (var sourceFile : getSource()) {
             final var outputPath = getTemporaryDir().toPath().resolve( "%X/%s.deps".formatted(sourceFile.hashCode(),sourceFile.getName() ));
@@ -139,7 +150,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
 
         // discover dependencies from sources: parse dependency files
         final var modules = new ArrayList<MetalIxxModule>();
-        for (var dependencyFile : getObjectFactory().fileCollection().from(getTemporaryDir()).getAsFileTree()) {
+        for (var dependencyFile : getObjects().fileCollection().from(getTemporaryDir()).getAsFileTree()) {
             try (var stream = Files.newInputStream(dependencyFile.toPath())) {
                 final var module = (MetalIxxModule) new ObjectInputStream(stream).readObject();
                 modules.add(module);

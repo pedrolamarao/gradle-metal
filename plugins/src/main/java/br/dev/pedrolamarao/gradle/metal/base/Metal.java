@@ -1,5 +1,10 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.GradleException;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class Metal
 {
     public static final String COMMANDS_ELEMENTS = "commandsElements";

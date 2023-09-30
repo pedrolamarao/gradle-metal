@@ -161,6 +161,7 @@ public class MetalBasePlugin implements Plugin<Project>
             it.getLinkOptions().convention(linkOptions);
             it.getOutputDirectory().set(outputDirectory);
         });
+        configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
 
         return new MetalApplication(linkOptions, linkTask, name);

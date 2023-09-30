@@ -22,8 +22,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
     public Provider<String> getLinker ()
     {
         return getProviders().gradleProperty("metal.path")
-            .map(it -> Metal.toExecutablePath(it,"clang"))
-            .orElse("clang");
+            .orElse(getProviders().environmentVariable("PATH"))
+            .map(it -> Metal.toExecutablePath(it,"clang"));
     }
 
     @Input

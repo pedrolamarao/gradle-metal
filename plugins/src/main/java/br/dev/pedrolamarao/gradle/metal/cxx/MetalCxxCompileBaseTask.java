@@ -20,8 +20,8 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
     public Provider<String> getCompiler ()
     {
         return getProviders().gradleProperty("metal.path")
-            .map(it -> Metal.toExecutablePath(it,"clang++"))
-            .orElse("clang++");
+            .orElse(getProviders().environmentVariable("PATH"))
+            .map(it -> Metal.toExecutablePath(it,"clang++"));
     }
 
     @InputFiles

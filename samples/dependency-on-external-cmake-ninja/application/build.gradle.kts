@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    nativeImplementation(project(":googletest"))
+    implementation(project(":googletest"))
 }

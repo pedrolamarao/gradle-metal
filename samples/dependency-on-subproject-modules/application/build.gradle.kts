@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    nativeImplementation(project(":archive"))
+    implementation(project(":archive"))
 }
 
 metal {

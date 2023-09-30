@@ -23,6 +23,7 @@ public class MetalCommandsPlugin implements Plugin<Project>
         project.getTasks().register("commands").configure(task ->
         {
             task.dependsOn(commandsDependencies.getBuildDependencies());
+            task.setGroup("metal");
 
             task.doLast(__ ->
             {

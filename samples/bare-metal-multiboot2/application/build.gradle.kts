@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    nativeImplementation(project(":multiboot2"))
+    implementation(project(":multiboot2"))
 }
 
 metal {

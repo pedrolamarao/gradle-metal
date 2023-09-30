@@ -16,11 +16,11 @@ public class MetalBasePlugin implements Plugin<Project>
 
         // dependency scopes
 
-        final var api = configurations.dependencyScope("metalApi", configuration -> {
+        final var api = configurations.dependencyScope("api", configuration -> {
             configuration.setDescription("metal api dependencies");
         });
 
-        final var implementation = configurations.dependencyScope("metalImplementation", configuration -> {
+        final var implementation = configurations.dependencyScope("implementation", configuration -> {
             configuration.setDescription("metal implementation dependencies");
             configuration.extendsFrom(api.get());
         });

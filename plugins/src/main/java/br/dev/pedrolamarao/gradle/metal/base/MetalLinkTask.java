@@ -19,6 +19,14 @@ public abstract class MetalLinkTask extends MetalSourceTask
     public abstract ConfigurableFileCollection getLinkables ();
 
     @Input
+    public Provider<String> getLinker ()
+    {
+        return getProviders().gradleProperty("metal.path")
+            .orElse(getProviders().environmentVariable("PATH"))
+            .map(it -> Metal.toExecutablePath(it,"clang"));
+    }
+
+    @Input
     public abstract ListProperty<String> getLinkOptions ();
 
     @OutputFile
@@ -41,7 +49,6 @@ public abstract class MetalLinkTask extends MetalSourceTask
         final var output = getOutput().get().getAsFile().toPath();
 
         final var linkArgs = new ArrayList<String>();
-        linkArgs.add("clang");
         if (getTarget().isPresent()) {
             var linkTarget = getTarget().get();
             // workaround to clang incorrectly attempting to link with gcc
@@ -60,7 +67,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
 
         getExec().exec(it ->
         {
-            it.commandLine(linkArgs);
+            it.executable(getLinker().get());
+            it.args(linkArgs);
         });
     }
 }

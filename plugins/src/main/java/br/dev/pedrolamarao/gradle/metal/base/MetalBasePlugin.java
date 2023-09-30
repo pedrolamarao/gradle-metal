@@ -79,6 +79,13 @@ public class MetalBasePlugin implements Plugin<Project>
 
         // incoming configurations
 
+        configurations.resolvable(Metal.COMMANDS_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
+            });
+            configuration.setDescription("metal commands database dependencies");
+        });
+
         configurations.resolvable(Metal.EXECUTABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> {
                 it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);

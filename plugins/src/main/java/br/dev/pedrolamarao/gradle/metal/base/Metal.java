@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 public class Metal
 {
     public static final String COMMANDS_ELEMENTS = "commandsElements";
-    public static final String COMMANDS_DEPENDENCIES = "commands";
+    public static final String COMMANDS_DEPENDENCIES = "commandsDependencies";
     public static final String EMPTY_ELEMENTS = "emptyElements";
     public static final String EXECUTABLE_DEPENDENCIES = "executableDependencies";
     public static final String EXECUTABLE_ELEMENTS = "executableElements";

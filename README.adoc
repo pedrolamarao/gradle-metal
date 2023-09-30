@@ -1,14 +1,15 @@
 = gradle-metal
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
-`gradle-metal` is a suite of Gradle plugins supporting development for the bare metal.
+`gradle-metal` is a suite of Gradle plugins supporting development for the bare metal,
+primarily design to support project link:https://github.com/pedrolamarao/metal[Metal].
 
 Features:
 
 * multiple languages (assembler, c and c++)
 * multiple components (static archives, shared libraries and executables)
 * compile commands database (for clang-check, CLion etc.)
-* dependency on subproject and external prebuilt components
+* dependency on included (sub)project, included build and external prebuilt components
 * LLVM tools
 
 [WARNING]
@@ -54,7 +55,7 @@ Plugins:
 
 Under construction:
 
-* dependencies on external cmake project, included build, maven repository
+* dependencies on external cmake project, maven repository
 * GCC and MSVC tools
 * variant flavours (release, debug)
 * variant target machines (any "triple")

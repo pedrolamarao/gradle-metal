@@ -28,12 +28,13 @@ public class MetalAsmPlugin implements Plugin<Project>
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
+        final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
         // prepare configuration
         final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/asm".formatted(name));
-        final var compileOptions = objects.listProperty(String.class);
+        final var compileOptions = objects.listProperty(String.class).convention(metal.getCompileOptions());
         final var includables = configurations.named(INCLUDABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);
         sources.srcDir(layout.getProjectDirectory().dir("src/%s/asm".formatted(name)));

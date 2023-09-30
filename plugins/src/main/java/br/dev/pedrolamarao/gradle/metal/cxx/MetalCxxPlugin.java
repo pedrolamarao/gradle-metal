@@ -26,11 +26,12 @@ public class MetalCxxPlugin implements Plugin<Project>
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
+        final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
         final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/cxx".formatted(name));
-        final var compileOptions = objects.listProperty(String.class);
+        final var compileOptions = objects.listProperty(String.class).convention(metal.getCompileOptions());
         final var includables = configurations.named(Metal.INCLUDABLE_DEPENDENCIES);
         final var importables = configurations.named(Metal.IMPORTABLE_DEPENDENCIES);
         final var sources = objects.sourceDirectorySet(name,name);

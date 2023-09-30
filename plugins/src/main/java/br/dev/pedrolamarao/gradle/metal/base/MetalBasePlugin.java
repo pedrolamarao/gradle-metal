@@ -156,10 +156,11 @@ public class MetalBasePlugin implements Plugin<Project>
     static MetalApplication createApplication (Project project, String name)
     {
         final var configurations = project.getConfigurations();
+        final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
-        final var linkOptions = objects.listProperty(String.class);
+        final var linkOptions = objects.listProperty(String.class).convention(metal.getLinkOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
@@ -177,10 +178,11 @@ public class MetalBasePlugin implements Plugin<Project>
     static MetalArchive createArchive (Project project, String name)
     {
         final var configurations = project.getConfigurations();
+        final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
-        final var archiveOptions = objects.listProperty(String.class);
+        final var archiveOptions = objects.listProperty(String.class).convention(metal.getArchiveOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
 
         final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->

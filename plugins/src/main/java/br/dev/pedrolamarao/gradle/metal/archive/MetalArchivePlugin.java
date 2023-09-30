@@ -1,5 +1,9 @@
-package br.dev.pedrolamarao.gradle.metal.base;
+package br.dev.pedrolamarao.gradle.metal.archive;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalArchive;
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalComponentPlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

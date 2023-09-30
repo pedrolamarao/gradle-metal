@@ -10,11 +10,11 @@ gradlePlugin {
     plugins {
         create("application") {
             id = "br.dev.pedrolamarao.metal.application"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalApplicationPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.application.MetalApplicationPlugin"
         }
         create("archive") {
             id = "br.dev.pedrolamarao.metal.archive"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalArchivePlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.archive.MetalArchivePlugin"
         }
         create("asm") {
             id = "br.dev.pedrolamarao.metal.asm"
@@ -30,7 +30,7 @@ gradlePlugin {
         }
         create("commands") {
             id = "br.dev.pedrolamarao.metal.commands"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalCommandsPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.commands.MetalCommandsPlugin"
         }
         create("cpp") {
             id = "br.dev.pedrolamarao.metal.cpp"
@@ -42,7 +42,7 @@ gradlePlugin {
         }
         create("prebuilt") {
             id = "br.dev.pedrolamarao.metal.prebuilt"
-            implementationClass = "br.dev.pedrolamarao.gradle.metal.base.MetalPrebuiltPlugin"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.prebuilt.MetalPrebuiltPlugin"
         }
         create("ixx") {
             id = "br.dev.pedrolamarao.metal.ixx"

@@ -8,7 +8,7 @@ import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxSources;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 
-abstract class MetalComponentPlugin
+public abstract class MetalComponentPlugin
 {
     protected void configure (Project project, MetalComponent component)
     {

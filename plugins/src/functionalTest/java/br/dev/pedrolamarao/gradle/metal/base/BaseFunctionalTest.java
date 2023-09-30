@@ -13,7 +13,7 @@ public class BaseFunctionalTest
     @TempDir Path projectDir;
 
     @Test
-    public void applications () throws IOException
+    public void apply () throws IOException
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
         """
@@ -22,33 +22,9 @@ public class BaseFunctionalTest
         }
          
         metal {
-            applications {
-                create("main")
-            }
-        }
-        """
-        );
-
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .build();
-    }
-
-    @Test
-    public void archives () throws IOException
-    {
-        Files.writeString(projectDir.resolve("build.gradle.kts"),
-        """
-        plugins {
-             id("br.dev.pedrolamarao.metal.base")
-        }
-         
-        metal {
-            archives {
-                create("main")
-            }
+            archiveOptions = listOf()
+            compileOptions = listOf()
+            linkOptions = listOf()
         }
         """
         );

@@ -1,5 +1,6 @@
-package br.dev.pedrolamarao.gradle.metal.base;
+package br.dev.pedrolamarao.gradle.metal.commands;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

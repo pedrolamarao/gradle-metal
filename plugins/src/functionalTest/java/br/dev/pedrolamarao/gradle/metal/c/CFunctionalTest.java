@@ -20,52 +20,47 @@ public class CFunctionalTest
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.createDirectories(projectDir.resolve("src/main/c"));
 
-        final var greetH =
-            """
-            inline
-            int greet (int argc, char * argv [])
-            {
-                return 0;
+        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),
+        """
+        inline
+        int greet (int argc, char * argv [])
+        {
+            return 0;
+        }
+        """
+        );
+
+        Files.writeString(projectDir.resolve("src/main/c/main.c"),
+        """
+        #include <greet.h>
+        
+        int main (int argc, char * argv [])
+        {
+            return greet(argc,argv);
+        }
+        """
+        );
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.c")
+        }
+        
+        metal {
+            cpp {
+                create("main")
             }
-            """;
-
-        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),greetH);
-
-        Files.createDirectories(projectDir.resolve("src/main/c"));
-
-        final var mainC =
-            """
-            #include <greet.h>
-            
-            int main (int argc, char * argv [])
-            {
-                return greet(argc,argv);
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("src/main/c/main.c"),mainC);
-
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.metal.c")
-            }
-            
-            metal {
-                cpp {
-                    create("main")
-                }
-                c {
-                    create("main") {
-                        includable( cpp.named("main").map { it.sources.sourceDirectories } )
-                    }
+            c {
+                create("main") {
+                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
                 }
             }
-            """;
+        }
+        """
+        );
 
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        final var result = GradleRunner.create()
+        GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .withArguments("compile-main-c")

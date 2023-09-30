@@ -17,14 +17,13 @@ public class CppFunctionalTest
     {
         Files.createDirectories(projectDir);
 
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.metal.cpp")
-            }
-            """;
-
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cpp")
+        }
+        """
+        );
 
         GradleRunner.create()
             .withPluginClasspath()

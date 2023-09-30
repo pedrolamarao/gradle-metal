@@ -20,48 +20,43 @@ public class AsmFunctionalTest
         Files.createDirectories(projectDir.resolve("src/main/asm"));
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
 
-        final var fooH =
-            """
-            extern "C" void foo ();
-            """;
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
+        """
+        extern "C" void foo ();
+        """
+        );
 
-        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),fooH);
+        Files.writeString(projectDir.resolve("src/main/asm/bar.s"),
+        """
+        #include <foo.h>
+        
+        .global bar
+        bar:
+            call foo
+            ret
+        """
+        );
 
-        Files.createDirectories(projectDir.resolve("src/main/asm"));
-
-        final var barS =
-            """
-            #include <foo.h>
-            
-            .global bar
-            bar:
-                call foo
-                ret
-            """;
-
-        Files.writeString(projectDir.resolve("src/main/asm/bar.s"),barS);
-
-        final var buildGradleKts =
-            """
-            plugins {
-                id("br.dev.pedrolamarao.metal.asm")
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.asm")
+        }
+        
+        metal {
+            cpp {
+                create("main")
             }
-            
-            metal {
-                cpp {
-                    create("main")
-                }
-                asm {
-                    create("main") {
-                        includable( cpp.named("main").map { it.sources.sourceDirectories } )
-                    }
+            asm {
+                create("main") {
+                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
                 }
             }
-            """;
+        }
+        """
+        );
 
-        Files.writeString(projectDir.resolve("build.gradle.kts"), buildGradleKts);
-
-        final var result = GradleRunner.create()
+        GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .withArguments("compile-main-asm")

@@ -2,7 +2,7 @@
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
 `gradle-metal` is a suite of Gradle plugins supporting development for the bare metal,
-primarily design to support project link:https://github.com/pedrolamarao/metal[Metal].
+primarily design to support project link:https://github.com/pedrolamarao/psys[Metal].
 
 Features:
 

@@ -8,8 +8,14 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
+/**
+ * C++ language support plugin.
+ */
 public class MetalCxxPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

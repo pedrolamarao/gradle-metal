@@ -8,14 +8,23 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Aggregate C++ module interface compile commands database task.
+ */
 public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
 {
+    /**
+     * Objects base directory.
+     *
+     * @return provider
+     */
     @Input
     public abstract Property<File> getObjectDirectory ();
 
@@ -29,6 +38,11 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
       }
     """;
 
+    /**
+     * Aggregate compile commands.
+     *
+     * @throws IOException if IO failure
+     */
     @TaskAction
     public void generate () throws Exception
     {

@@ -8,8 +8,14 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+/**
+ * Application project plugin.
+ */
 public class MetalApplicationPlugin extends MetalComponentPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

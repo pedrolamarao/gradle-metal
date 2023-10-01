@@ -9,6 +9,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Commands database plugin.
+ */
 public class MetalCommandsPlugin implements Plugin<Project>
 {
     @Override

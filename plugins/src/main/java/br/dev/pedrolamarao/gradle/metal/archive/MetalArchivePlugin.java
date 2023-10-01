@@ -8,8 +8,15 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+/**
+ * Archive project plugin.
+ */
 public class MetalArchivePlugin extends MetalComponentPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     * @param project The target object
+     */
     @Override
     public void apply (Project project)
     {

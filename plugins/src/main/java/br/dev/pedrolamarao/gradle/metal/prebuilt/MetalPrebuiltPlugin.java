@@ -14,17 +14,36 @@ import javax.inject.Inject;
 
 import static br.dev.pedrolamarao.gradle.metal.base.Metal.LINKABLE_ELEMENTS;
 
+/**
+ * Prebuilt component plugin.
+ */
 public class MetalPrebuiltPlugin implements Plugin<Project>
 {
+    /**
+     * Prebuilt component extension.
+     */
     @NonNullApi
     public abstract static class Extension
     {
+        /**
+         * Configuration container.
+         *
+         * @return container
+         */
         @Inject
         protected abstract ConfigurationContainer getConfigurations ();
 
+        /**
+         * Constructor.
+         */
         @Inject
         public Extension () { }
 
+        /**
+         * Publishes component include source.
+         *
+         * @param notation  source notation
+         */
         public void includable (Object notation)
         {
             getConfigurations().named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
@@ -32,6 +51,12 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
             });
         }
 
+        /**
+         * Publishes component include source.
+         *
+         * @param notation   source notation
+         * @param configure  configuration action
+         */
         public void includable (Object notation, Action<? super ConfigurablePublishArtifact> configure)
         {
             getConfigurations().named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
@@ -39,6 +64,11 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
             });
         }
 
+        /**
+         * Publishes component link source.
+         *
+         * @param notation  source notation
+         */
         public void linkable (Object notation)
         {
             getConfigurations().named(LINKABLE_ELEMENTS).configure(configuration ->
@@ -47,6 +77,12 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
             });
         }
 
+        /**
+         * Publishes component link source.
+         *
+         * @param notation   source notation
+         * @param configure  configuration action
+         */
         public void linkable (Object notation, Action<? super ConfigurablePublishArtifact> configure)
         {
             getConfigurations().named(LINKABLE_ELEMENTS).configure(configuration -> {
@@ -55,6 +91,9 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

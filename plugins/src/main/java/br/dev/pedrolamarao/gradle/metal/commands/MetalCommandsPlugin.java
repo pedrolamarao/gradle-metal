@@ -1,5 +1,6 @@
-package br.dev.pedrolamarao.gradle.metal.base;
+package br.dev.pedrolamarao.gradle.metal.commands;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -8,6 +9,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Commands database plugin.
+ */
 public class MetalCommandsPlugin implements Plugin<Project>
 {
     @Override

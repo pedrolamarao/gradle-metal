@@ -22,28 +22,72 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Compile C++ module interface sources base task.
+ */
 public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
 {
+    /**
+     * Object factory service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ObjectFactory getObjects ();
 
+    /**
+     * Scan worker parameters.
+     */
     public interface ScanParameter extends WorkParameters
     {
+        /**
+         * Compiler arguments.
+         *
+         * @return property
+         */
         ListProperty<String> getCompileArgs ();
 
+        /**
+         * Output file.
+         *
+         * @return property
+         */
         RegularFileProperty getOutputFile ();
 
+        /**
+         * Source file.
+         *
+         * @return property
+         */
         RegularFileProperty getSourceFile ();
     }
 
+    /**
+     * Scan worker action.
+     */
     public static abstract class ScanAction implements WorkAction<ScanParameter>
     {
+        /**
+         * Exec operations service.
+         *
+         * @return service
+         */
         @Inject
         public abstract ExecOperations getExec ();
 
+        /**
+         * Provider factory service.
+         *
+         * @return service
+         */
         @Inject
         public abstract ProviderFactory getProviders ();
 
+        /**
+         * Scanner executable path.
+         *
+         * @return provider
+         */
         @Input
         public Provider<String> getScanner ()
         {
@@ -52,6 +96,9 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
                 .orElse("clang-scan-deps");
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void execute ()
         {

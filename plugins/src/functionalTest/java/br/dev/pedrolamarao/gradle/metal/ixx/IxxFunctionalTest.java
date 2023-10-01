@@ -110,7 +110,7 @@ public class IxxFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-ixx","--info")
+            .withArguments("compile-main-ixx")
             .withDebug(true)
             .build();
 

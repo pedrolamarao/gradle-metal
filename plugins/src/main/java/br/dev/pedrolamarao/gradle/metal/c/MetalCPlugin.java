@@ -10,8 +10,14 @@ import org.gradle.api.file.Directory;
 import static br.dev.pedrolamarao.gradle.metal.base.Metal.COMMANDS_ELEMENTS;
 import static br.dev.pedrolamarao.gradle.metal.base.Metal.INCLUDABLE_DEPENDENCIES;
 
+/**
+ * C language support plugin.
+ */
 public class MetalCPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

@@ -12,23 +12,55 @@ import org.gradle.workers.WorkerExecutor;
 import javax.inject.Inject;
 import java.nio.file.Path;
 
+/**
+ * Compile sources task.
+ */
 public abstract class MetalCompileTask extends MetalSourceTask
 {
+    /**
+     * Compile options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getCompileOptions ();
 
+    /**
+     * Outputs base directory.
+     *
+     * @return property
+     */
     @Internal
     public abstract DirectoryProperty getOutputDirectory ();
 
+    /**
+     * Outputs target directory.
+     *
+     * @return provider
+     */
     @OutputDirectory
     public Provider<Directory> getTargetDirectory ()
     {
         return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
     }
 
+    /**
+     * Worker executor service.
+     *
+     * @return service
+     */
     @Inject
     public abstract WorkerExecutor getWorkers ();
 
+    /**
+     * Generate output path.
+     *
+     * @param base       source base directory
+     * @param source     source file
+     * @param output     output base directory
+     * @param extension  output file extension
+     * @return output path
+     */
     protected static Path toOutputPath (Path base, Path source, Path output, String extension)
     {
         final var hash = hash(base.relativize(source));

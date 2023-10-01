@@ -4,8 +4,14 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
+/**
+ * Metal projects and tasks.
+ */
 public class MetalBasePlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {
@@ -126,6 +132,8 @@ public class MetalBasePlugin implements Plugin<Project>
             it.getCompatibilityRules().add(MetalCapabilityCompatibilityRule.class);
         });
 
+        // extensions
+
         final var metal = project.getExtensions().create("metal", MetalExtension.class);
 
         final var applications = project.getObjects().domainObjectContainer(MetalApplication.class, name -> createApplication(project,name));
@@ -133,6 +141,8 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var archives = project.getObjects().domainObjectContainer(MetalArchive.class, name -> createArchive(project,name));
         metal.getExtensions().add("archives", archives);
+
+        // tasks
 
         tasks.register("compile").configure(task ->
         {

@@ -8,8 +8,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+/**
+ * Compile C++ module interface sources task.
+ */
 public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 {
+    /**
+     * Compile sources.
+     *
+     * @throws ClassNotFoundException if reflection failure
+     * @throws IOException if I/O failure
+     */
     @TaskAction
     public void compile () throws ClassNotFoundException, IOException
     {

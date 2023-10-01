@@ -12,8 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Compile C sources base task.
+ */
 public abstract class MetalCCompileBaseTask extends MetalCompileTask
 {
+    /**
+     * Compiler executable path.
+     *
+     * @return provider
+     */
     @Input
     public Provider<String> getCompiler ()
     {
@@ -22,9 +30,20 @@ public abstract class MetalCCompileBaseTask extends MetalCompileTask
             .map(it -> Metal.toExecutablePath(it,"clang"));
     }
 
+    /**
+     * Include path.
+     *
+     * @return collection
+     */
     @InputFiles
     public abstract ConfigurableFileCollection getIncludables ();
 
+    /**
+     * Generate compiler arguments.
+     *
+     * @param formatter  file path formatter
+     * @return arguments
+     */
     protected List<String> toCompileArguments (Function<File,String> formatter)
     {
         final var arguments = new ArrayList<String>();

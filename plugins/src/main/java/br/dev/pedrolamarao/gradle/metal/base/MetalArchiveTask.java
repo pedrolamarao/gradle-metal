@@ -15,8 +15,16 @@ import org.gradle.process.ExecOperations;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
+/**
+ * Archive native objects.
+ */
 public abstract class MetalArchiveTask extends MetalSourceTask
 {
+    /**
+     * Archiver executable path.
+     *
+     * @return provider
+     */
     @Input
     public Provider<String> getArchiver ()
     {
@@ -25,9 +33,19 @@ public abstract class MetalArchiveTask extends MetalSourceTask
             .map(it -> Metal.toExecutablePath(it,"llvm-ar"));
     }
 
+    /**
+     * Archive options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getArchiveOptions ();
 
+    /**
+     * Output file.
+     *
+     * @return provider
+     */
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
@@ -36,12 +54,25 @@ public abstract class MetalArchiveTask extends MetalSourceTask
         return getOutputDirectory().map(it -> it.file("%s/%s.lib".formatted(target,name)));
     }
 
+    /**
+     * Output base directory.
+     *
+     * @return property
+     */
     @Internal
     public abstract DirectoryProperty getOutputDirectory ();
 
+    /**
+     * Exec operations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Archive objects.
+     */
     @TaskAction
     public void archive ()
     {

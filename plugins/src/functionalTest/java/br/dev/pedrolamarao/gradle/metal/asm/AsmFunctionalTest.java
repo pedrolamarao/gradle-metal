@@ -18,21 +18,11 @@ public class AsmFunctionalTest
     public void compile () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/asm"));
-        Files.createDirectories(projectDir.resolve("src/main/cpp"));
-
-        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
-        """
-        extern "C" void foo ();
-        """
-        );
 
         Files.writeString(projectDir.resolve("src/main/asm/bar.s"),
         """
-        #include <foo.h>
-        
-        .global bar
-        bar:
-            call foo
+        .global foo
+        foo:
             ret
         """
         );
@@ -44,13 +34,8 @@ public class AsmFunctionalTest
         }
         
         metal {
-            cpp {
-                create("main")
-            }
             asm {
-                create("main") {
-                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
-                }
+                create("main")
             }
         }
         """

@@ -6,8 +6,14 @@ import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+/**
+ * C preprocessor support plugin.
+ */
 public class MetalCppPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

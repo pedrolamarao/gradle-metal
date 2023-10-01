@@ -16,24 +16,61 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+/**
+ * Compile C sources task.
+ */
 public abstract class MetalCCompileTask extends MetalCCompileBaseTask
 {
+    /**
+     * Compile worker parameters.
+     */
     public interface CompileParameters extends WorkParameters
     {
+        /**
+         * Sources base directory.
+         *
+         * @return property
+         */
         DirectoryProperty getBaseDirectory ();
 
+        /**
+         * Compiler arguments.
+         *
+         * @return property
+         */
         ListProperty<String> getCompileArgs ();
 
+        /**
+         * Outputs base directory.
+         *
+         * @return property
+         */
         DirectoryProperty getOutputDirectory ();
 
+        /**
+         * Source files.
+         *
+         * @return property
+         */
         RegularFileProperty getSourceFile ();
     }
 
+    /**
+     * Compile worker action.
+     */
     public static abstract class CompileAction implements WorkAction<CompileParameters>
     {
+        /**
+         * Exec operations service.
+         *
+         * @return service
+         */
         @Inject
         public abstract ExecOperations getExec ();
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void execute ()
         {
@@ -59,6 +96,9 @@ public abstract class MetalCCompileTask extends MetalCCompileBaseTask
         }
     }
 
+    /**
+     * Compile sources.
+     */
     @TaskAction
     public void compile ()
     {

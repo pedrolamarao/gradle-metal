@@ -1,11 +1,21 @@
-package br.dev.pedrolamarao.gradle.metal.base;
+package br.dev.pedrolamarao.gradle.metal.application;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalApplication;
+import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalComponentPlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+/**
+ * Application project plugin.
+ */
 public class MetalApplicationPlugin extends MetalComponentPlugin implements Plugin<Project>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply (Project project)
     {

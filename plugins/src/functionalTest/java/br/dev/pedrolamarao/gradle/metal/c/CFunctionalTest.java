@@ -17,26 +17,13 @@ public class CFunctionalTest
     @Test
     public void compile () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.createDirectories(projectDir.resolve("src/main/c"));
-
-        Files.writeString(projectDir.resolve("src/main/cpp/greet.h"),
-        """
-        inline
-        int greet (int argc, char * argv [])
-        {
-            return 0;
-        }
-        """
-        );
 
         Files.writeString(projectDir.resolve("src/main/c/main.c"),
         """
-        #include <greet.h>
-        
         int main (int argc, char * argv [])
         {
-            return greet(argc,argv);
+            return 0;
         }
         """
         );
@@ -48,13 +35,8 @@ public class CFunctionalTest
         }
         
         metal {
-            cpp {
-                create("main")
-            }
             c {
-                create("main") {
-                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
-                }
+                create("main")
             }
         }
         """

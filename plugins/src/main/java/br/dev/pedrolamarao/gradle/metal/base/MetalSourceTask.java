@@ -8,15 +8,31 @@ import org.gradle.api.tasks.SourceTask;
 
 import javax.inject.Inject;
 
+/**
+ * Metal source task.
+ */
 public abstract class MetalSourceTask extends SourceTask
 {
+    /**
+     * Metal target.
+     *
+     * @return property
+     */
     @Input
     @Optional
     public abstract Property<String> getTarget ();
 
+    /**
+     * Provider factory service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ProviderFactory getProviders ();
 
+    /**
+     * Constructor.
+     */
     @Inject
     public MetalSourceTask ()
     {

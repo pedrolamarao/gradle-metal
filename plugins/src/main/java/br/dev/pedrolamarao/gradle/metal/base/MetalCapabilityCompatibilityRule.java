@@ -5,6 +5,9 @@ package br.dev.pedrolamarao.gradle.metal.base;
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;
 
+/**
+ * Compatibility rule for MetalCapability attributes.
+ */
 public class MetalCapabilityCompatibilityRule implements AttributeCompatibilityRule<MetalCapability>
 {
     @Override

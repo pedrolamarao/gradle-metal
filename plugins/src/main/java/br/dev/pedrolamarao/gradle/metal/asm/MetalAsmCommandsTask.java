@@ -14,8 +14,16 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Aggregate Assembler compile commands task.
+ */
 public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
 {
+    /**
+     * Objects base directory.
+     *
+     * @return provider
+     */
     @Input
     public abstract Property<File> getObjectDirectory ();
 
@@ -29,6 +37,11 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
       }
     """;
 
+    /**
+     * Aggregate compile commands.
+     *
+     * @throws IOException if IO failure
+     */
     @TaskAction
     public void generate () throws IOException
     {

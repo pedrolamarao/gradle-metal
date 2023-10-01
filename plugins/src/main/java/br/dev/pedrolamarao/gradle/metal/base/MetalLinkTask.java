@@ -13,11 +13,24 @@ import org.gradle.process.ExecOperations;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
+/**
+ * Link native objects.
+ */
 public abstract class MetalLinkTask extends MetalSourceTask
 {
+    /**
+     * Additional linkable sources. (Probably obsolete.)
+     *
+     * @return collection
+     */
     @InputFiles
     public abstract ConfigurableFileCollection getLinkables ();
 
+    /**
+     * Linker executable path.
+     *
+     * @return provider
+     */
     @Input
     public Provider<String> getLinker ()
     {
@@ -26,9 +39,19 @@ public abstract class MetalLinkTask extends MetalSourceTask
             .map(it -> Metal.toExecutablePath(it,"clang"));
     }
 
+    /**
+     * Link options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getLinkOptions ();
 
+    /**
+     * Output file.
+     *
+     * @return provider
+     */
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
@@ -37,12 +60,25 @@ public abstract class MetalLinkTask extends MetalSourceTask
         return getOutputDirectory().map(it -> it.file("%s/%s.exe".formatted(target,name)));
     }
 
+    /**
+     * Output base directory.
+     *
+     * @return property
+     */
     @Internal
     public abstract DirectoryProperty getOutputDirectory ();
 
+    /**
+     * Exec operations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Link objects.
+     */
     @TaskAction
     public void link ()
     {

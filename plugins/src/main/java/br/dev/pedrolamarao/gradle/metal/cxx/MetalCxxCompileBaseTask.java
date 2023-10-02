@@ -25,11 +25,11 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
      * @return provider
      */
     @Input
-    public Provider<String> getCompiler ()
+    public Provider<File> getCompiler ()
     {
         return getProviders().gradleProperty("metal.path")
             .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutablePath(it,"clang++"));
+            .map(it -> Metal.toExecutableFile(it,"clang++"));
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
     protected List<String> toCompileArguments (Function<File,String> formatter)
     {
         final var arguments = new ArrayList<String>();
-        arguments.add(getCompiler().get());
+        arguments.add(getCompiler().map(formatter::apply).get());
         if (getTarget().isPresent()) arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
         getImportables().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));

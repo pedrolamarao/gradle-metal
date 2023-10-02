@@ -13,6 +13,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -26,11 +27,11 @@ public abstract class MetalArchiveTask extends MetalSourceTask
      * @return provider
      */
     @Input
-    public Provider<String> getArchiver ()
+    public Provider<File> getArchiver ()
     {
         return getProviders().gradleProperty("metal.path")
             .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutablePath(it,"llvm-ar"));
+            .map(it -> Metal.toExecutableFile(it,"llvm-ar"));
     }
 
     /**

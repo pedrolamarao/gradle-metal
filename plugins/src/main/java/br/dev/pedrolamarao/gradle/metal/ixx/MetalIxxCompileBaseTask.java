@@ -13,10 +13,7 @@ import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,11 +86,11 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
          * @return provider
          */
         @Input
-        public Provider<String> getScanner ()
+        public Provider<File> getScanner ()
         {
             return getProviders().gradleProperty("metal.path")
-                .map(it -> Metal.toExecutablePath(it,"clang-scan-deps"))
-                .orElse("clang-scan-deps");
+                .orElse(getProviders().environmentVariable("PATH"))
+                .map(it -> Metal.toExecutableFile(it,"clang-scan-deps"));
         }
 
         /**
@@ -176,7 +173,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
     {
         // prepare base arguments
         final var scanArgs = new ArrayList<String>();
-        scanArgs.add(getCompiler().get());
+        scanArgs.add(getCompiler().get().toString());
         scanArgs.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
         scanArgs.add("--language=c++-module");

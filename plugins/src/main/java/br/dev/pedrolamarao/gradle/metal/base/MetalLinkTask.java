@@ -11,6 +11,7 @@ import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -32,11 +33,11 @@ public abstract class MetalLinkTask extends MetalSourceTask
      * @return provider
      */
     @Input
-    public Provider<String> getLinker ()
+    public Provider<File> getLinker ()
     {
         return getProviders().gradleProperty("metal.path")
             .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutablePath(it,"clang"));
+            .map(it -> Metal.toExecutableFile(it,"clang"));
     }
 
     /**

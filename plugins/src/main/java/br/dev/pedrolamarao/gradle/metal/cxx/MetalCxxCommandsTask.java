@@ -49,7 +49,9 @@ public abstract class MetalCxxCommandsTask extends MetalCxxCompileBaseTask
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         // prepare compile arguments list
-        final var baseArgs = toCompileArguments(file -> file.toString().replace("\\","\\\\"));
+        final var baseArgs = new ArrayList<String>();
+        baseArgs.add( getCompiler().get().toString().replace("\\","\\\\") );
+        baseArgs.addAll( toCompileArguments(file -> file.toString().replace("\\","\\\\")) );
 
         // prepare directory field
         final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");

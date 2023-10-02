@@ -5,6 +5,7 @@ package br.dev.pedrolamarao.gradle.metal.c;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -32,6 +33,13 @@ public abstract class MetalCCompileTask extends MetalCCompileBaseTask
          * @return property
          */
         DirectoryProperty getBaseDirectory ();
+
+        /**
+         * Compiler executable.
+         *
+         * @return property
+         */
+        Property<File> getCompiler ();
 
         /**
          * Compiler arguments.
@@ -90,7 +98,10 @@ public abstract class MetalCCompileTask extends MetalCCompileBaseTask
             try
             {
                 Files.createDirectories(outputPath.getParent());
-                getExec().exec(it -> it.commandLine(compileArgs));
+                getExec().exec(it -> {
+                    it.executable(parameters.getCompiler().get());
+                    it.args(compileArgs);
+                });
             }
             catch (IOException e) { throw new RuntimeException(e); }
         }
@@ -118,6 +129,7 @@ public abstract class MetalCCompileTask extends MetalCCompileBaseTask
             workers.submit(CompileAction.class, parameters ->
             {
                 parameters.getBaseDirectory().set(baseDirectory);
+                parameters.getCompiler().set(getCompiler());
                 parameters.getCompileArgs().set(compileArgs);
                 parameters.getOutputDirectory().set(outputDirectory);
                 parameters.getSourceFile().set(source);

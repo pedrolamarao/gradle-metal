@@ -47,7 +47,6 @@ public abstract class MetalAsmCompileBaseTask extends MetalCompileTask
     protected List<String> toCompileArguments (Function<File,String> formatter)
     {
         final var arguments = new ArrayList<String>();
-        arguments.add(getCompiler().map(formatter::apply).get());
         if (getTarget().isPresent()) arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));

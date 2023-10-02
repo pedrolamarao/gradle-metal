@@ -57,7 +57,6 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
     protected List<String> toCompileArguments (Function<File,String> formatter)
     {
         final var arguments = new ArrayList<String>();
-        arguments.add(getCompiler().map(formatter::apply).get());
         if (getTarget().isPresent()) arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
         getImportables().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));

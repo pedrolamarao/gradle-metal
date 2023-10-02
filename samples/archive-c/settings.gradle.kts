@@ -1,7 +1,8 @@
 pluginManagement {
     plugins {
-        id("br.dev.pedrolamarao.metal.archive") version("1.0-SNAPSHOT")
-        id("br.dev.pedrolamarao.metal.c") version("1.0-SNAPSHOT")
+        val metalVersion = "0.1+"
+        id("br.dev.pedrolamarao.metal.archive") version(metalVersion)
+        id("br.dev.pedrolamarao.metal.c") version(metalVersion)
     }
     repositories {
         mavenLocal()

@@ -1,3 +1,4 @@
 gradle/
+compile_commands.json
 gradlew
 gradlew.bat

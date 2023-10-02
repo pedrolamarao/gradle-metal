@@ -74,16 +74,16 @@ public class Metal
      * @return      executable file path
      * @throws GradleException if file not found
      */
-    public static String toExecutablePath (String list, String name)
+    public static File toExecutableFile (String list, String name)
     {
         for (var item : list.split(File.pathSeparator))
         {
             final var directory = Paths.get(item);
             if (! Files.isDirectory(directory)) continue;
             final var file = directory.resolve(name);
-            if (Files.isExecutable(file)) return file.toString();
+            if (Files.isExecutable(file)) return file.toFile();
             final var file_exe = file.resolveSibling(name + ".exe");
-            if (Files.isExecutable(file_exe)) return file_exe.toString();
+            if (Files.isExecutable(file_exe)) return file_exe.toFile();
         }
 
         throw new GradleException("executable file not found: " + name);

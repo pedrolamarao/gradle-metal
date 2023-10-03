@@ -1,7 +1,7 @@
 = gradle-metal
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
-`gradle-metal` is a suite of Gradle plugins supporting development for the bare metal,
+Gradle Metal is a suite of Gradle plugins supporting development for the bare metal,
 primarily design to support project link:https://github.com/pedrolamarao/psys[Metal].
 
 Features:
@@ -16,7 +16,6 @@ Features:
 This project is under early development.
 Compatibility *will be broken* without prior notice.
 In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
-In particular, we aim to stabilize our Gradle dependency on future version 9.
 
 Current requirements:
 
@@ -24,19 +23,12 @@ Current requirements:
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 
-To install from source: `./gradlew publishToMavenLocal`
-
-After installing, configure your Gradle project's settings like so:
+Plugins are published to Gradle's Plugin Portal. To apply using the plugins DSL:
 
 [source,kotlin]
 ----
-pluginManagement {
-    plugins {
-        id("br.dev.pedrolamarao.metal.base") version("1.0-SNAPSHOT")
-    }
-    repositories {
-        mavenLocal()
-    }
+plugins {
+    id("br.dev.pedrolamarao.metal.base") version("0.1-rc-0")
 }
 ----
 

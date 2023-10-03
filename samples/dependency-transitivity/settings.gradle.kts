@@ -12,8 +12,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "sample"
-
 include("application")
 include("base")
 include("intermediate")

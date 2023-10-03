@@ -1,8 +1,4 @@
 pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {

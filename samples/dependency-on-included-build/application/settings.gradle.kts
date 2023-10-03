@@ -1,12 +1,10 @@
 pluginManagement {
-    plugins {
-        val metalVersion = "0.1+"
-        id("br.dev.pedrolamarao.metal.application") version(metalVersion)
-        id("br.dev.pedrolamarao.metal.archive") version(metalVersion)
-        id("br.dev.pedrolamarao.metal.cxx") version(metalVersion)
-    }
-    repositories {
-        mavenLocal()
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {
+                useModule("br.dev.pedrolamarao.gradle.metal:plugins:0.1-rc-0")
+            }
+        }
     }
 }
 

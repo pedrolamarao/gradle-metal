@@ -1,8 +1,4 @@
 pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {
@@ -11,8 +7,6 @@ pluginManagement {
         }
     }
 }
-
-rootProject.name = "sample"
 
 include("application")
 include("multiboot2")

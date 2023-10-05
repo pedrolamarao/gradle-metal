@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "br.dev.pedrolamarao.gradle.metal"
-version = "0.1-rc-1"
+version = "0.1"
 
 subprojects {
     group = rootProject.group
@@ -13,5 +13,5 @@ subprojects {
 }
 
 tasks.wrapper.configure {
-    gradleVersion = "8.4-rc-3"
+    gradleVersion = "8.4"
 }

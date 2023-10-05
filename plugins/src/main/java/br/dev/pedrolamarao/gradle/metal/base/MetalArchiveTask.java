@@ -50,9 +50,11 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        final var target = getTarget().orElse("default").get();
-        final var name = getProject().getName();
-        return getOutputDirectory().map(it -> it.file("%s/%s.lib".formatted(target,name)));
+        return getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var name = getProject().getName();
+            return out.file("%s/%s.lib".formatted(target,name));
+        });
     }
 
     /**

@@ -56,9 +56,11 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        final var target = getTarget().orElse("default").get();
-        final var name = getProject().getName();
-        return getOutputDirectory().map(it -> it.file("%s/%s.exe".formatted(target,name)));
+        return getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var name = getProject().getName();
+            return out.file("%s/%s.exe".formatted(target,name));
+        });
     }
 
     /**
@@ -85,18 +87,17 @@ public abstract class MetalLinkTask extends MetalSourceTask
     {
         final var output = getOutput().get().getAsFile().toPath();
 
+        // TODO: workaround to clang incorrectly attempting to link with gcc
+        var linkTarget = getTarget().get();
+        linkTarget = switch (linkTarget) {
+            case "i686-elf" -> "i686-linux-elf";
+            case "x86_64-elf" -> "x86_64-linux-elf";
+            default -> linkTarget;
+        };
+
         final var linkArgs = new ArrayList<String>();
-        if (getTarget().isPresent()) {
-            var linkTarget = getTarget().get();
-            // workaround to clang incorrectly attempting to link with gcc
-            linkTarget = switch (linkTarget) {
-                case "i686-elf" -> "i686-linux-elf";
-                case "x86_64-elf" -> "x86_64-linux-elf";
-                default -> linkTarget;
-            };
-            linkArgs.add("--target=%s".formatted(linkTarget));
-            linkArgs.add("-fuse-ld=lld");
-        }
+        linkArgs.add("--target=%s".formatted(linkTarget));
+        linkArgs.add("-fuse-ld=lld");
         linkArgs.addAll(getLinkOptions().get());
         linkArgs.add("--output=%s".formatted(output));
         getLinkables().forEach(file -> linkArgs.add(file.toString()));

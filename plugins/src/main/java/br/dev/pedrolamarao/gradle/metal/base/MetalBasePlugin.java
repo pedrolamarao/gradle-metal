@@ -17,6 +17,8 @@ public class MetalBasePlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(LifecycleBasePlugin.class);
 
+        project.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class, it -> {});
+
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
 
@@ -168,16 +170,20 @@ public class MetalBasePlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
+        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var linkOptions = objects.listProperty(String.class).convention(metal.getLinkOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
+        final var target = objects.property(String.class)
+            .convention( providers.gradleProperty("metal.target").orElse(metal.getHostTarget()) );
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
             it.getLinkables().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
             it.getLinkOptions().convention(linkOptions);
             it.getOutputDirectory().set(outputDirectory);
+            it.getTarget().set(target);
         });
         configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
@@ -190,15 +196,19 @@ public class MetalBasePlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var metal = project.getExtensions().findByType(MetalExtension.class);
         final var objects = project.getObjects();
+        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
         final var archiveOptions = objects.listProperty(String.class).convention(metal.getArchiveOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
+        final var target = objects.property(String.class)
+            .convention( providers.gradleProperty("metal.target").orElse(metal.getHostTarget()) );
 
         final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
         {
             it.getArchiveOptions().convention(archiveOptions);
             it.getOutputDirectory().set(outputDirectory);
+            it.getTarget().set(target);
         });
         configurations.named(Metal.LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));

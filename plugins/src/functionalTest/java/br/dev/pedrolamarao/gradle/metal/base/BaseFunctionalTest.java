@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class BaseFunctionalTest
 {
     @TempDir Path projectDir;
@@ -34,5 +36,31 @@ public class BaseFunctionalTest
             .withProjectDir(projectDir.toFile())
             .withDebug(true)
             .build();
+    }
+
+    @Test
+    public void hostTarget () throws Exception
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+            """
+            plugins {
+                 id("br.dev.pedrolamarao.metal.base")
+            }
+            
+            tasks.register("hostTarget") {
+                doLast {
+                    System.out.printf("%s",metal.hostTarget.get())
+                }
+            }
+            """
+        );
+
+        final var result = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withDebug(true)
+            .withArguments("--quiet","hostTarget")
+            .build();
+        assertFalse( result.getOutput().isEmpty() );
     }
 }

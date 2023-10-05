@@ -1,18 +1,31 @@
+import org.ajoberstar.grgit.Grgit
+
 plugins {
     id("br.dev.pedrolamarao.metal.cpp")
     id("br.dev.pedrolamarao.metal.prebuilt")
+    id("org.ajoberstar.grgit") version("5.2.0") apply(false)
 }
 
-val source = layout.buildDirectory.dir("src").get()
-val build = layout.buildDirectory.dir("obj").get()
+val source = layout.projectDirectory.dir("src")
+val build = layout.buildDirectory.dir("release").get()
 
-val clone = tasks.register<Exec>("clone") {
-    commandLine("git","clone","https://github.com/google/googletest",source)
-    doFirst { delete(source) }
+val clone = tasks.register("clone") {
+    outputs.dir(source)
+    doLast {
+        if (! source.dir(".git").asFile.exists()) {
+            Grgit.clone {
+                depth = 1
+                dir = source
+                uri = "https://github.com/google/googletest"
+            }
+        }
+    }
 }
 
 val configure = tasks.register<Exec>("configure") {
     dependsOn(clone)
+    inputs.dir(source)
+    outputs.file(build.file("CMakeCache.txt"))
     commandLine("cmake","-B",build,"-DCMAKE_BUILD_TYPE=Release","-G","Ninja","-S",source)
 }
 

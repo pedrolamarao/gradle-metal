@@ -55,6 +55,37 @@ public class CxxFunctionalTest
     }
 
     @Test
+    public void compileOptions () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        metal {
+            compileOptions = listOf("--foo")
+            
+            cxx { create("main") }
+        }
+        
+        tasks.register("compileOptions") {
+            doLast {
+                System.out.printf("%s",metal.cxx.named("main").flatMap{it.compileOptions}.get())
+            }
+        }
+        """
+        );
+
+        final var compileOptions = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("--quiet","compileOptions")
+            .build();
+        assertEquals("[--foo]",compileOptions.getOutput());
+    }
+
+    @Test
     public void includes () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));

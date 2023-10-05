@@ -62,6 +62,37 @@ public class IxxFunctionalTest
     }
 
     @Test
+    public void compileOptions () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.ixx")
+        }
+        
+        metal {
+            compileOptions = listOf("--foo")
+            
+            ixx { create("main") }
+        }
+        
+        tasks.register("compileOptions") {
+            doLast {
+                System.out.printf("%s",metal.ixx.named("main").flatMap{it.compileOptions}.get())
+            }
+        }
+        """
+        );
+
+        final var compileOptions = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("--quiet","compileOptions")
+            .build();
+        assertEquals("[--foo]",compileOptions.getOutput());
+    }
+
+    @Test
     public void imports () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/ixx"));

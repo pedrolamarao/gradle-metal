@@ -1,9 +1,11 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.Named;
+
 /**
  * Metal component.
  */
-public abstract class MetalComponent
+public abstract class MetalComponent implements Named
 {
     /**
      * Adds sources to component assembly.

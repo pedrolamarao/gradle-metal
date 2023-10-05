@@ -18,6 +18,8 @@ public class MetalIxxSources implements Named
 {
     private final ListProperty<String> compileOptions;
 
+    private final TaskProvider<MetalIxxCommandsTask> commandsTask;
+
     private final TaskProvider<MetalIxxCompileTask> compileTask;
 
     private final String name;
@@ -25,14 +27,16 @@ public class MetalIxxSources implements Named
     /**
      * Constructor.
      *
-     * @param compileOptions  compile options
-     * @param compileTask     compile task
-     * @param name            name
+     * @param compileOptions compile options
+     * @param commandsTask
+     * @param compileTask    compile task
+     * @param name           name
      */
     @Inject
-    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<MetalIxxCompileTask> compileTask, String name)
+    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<MetalIxxCommandsTask> commandsTask, TaskProvider<MetalIxxCompileTask> compileTask, String name)
     {
         this.compileOptions = compileOptions;
+        this.commandsTask = commandsTask;
         this.compileTask = compileTask;
         this.name = name;
     }
@@ -83,6 +87,7 @@ public class MetalIxxSources implements Named
      */
     public void includable (Object... sources)
     {
+        commandsTask.configure(it -> it.getIncludables().from(sources));
         compileTask.configure(it -> it.getIncludables().from(sources));
     }
 
@@ -93,6 +98,7 @@ public class MetalIxxSources implements Named
      */
     public void importable (Object... sources)
     {
+        commandsTask.configure(it -> it.getImportables().from(sources));
         compileTask.configure(it -> it.getImportables().from(sources));
     }
 }

@@ -67,6 +67,6 @@ public class MetalIxxPlugin implements Plugin<Project>
             configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getTargetDirectory), it -> it.builtBy(compileTask));
         });
 
-        return new MetalIxxSources(compileOptions, compileTask, name);
+        return new MetalIxxSources(compileOptions, commandsTask, compileTask, name);
     }
 }

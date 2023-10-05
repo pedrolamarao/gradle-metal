@@ -5,6 +5,12 @@ plugins {
     id("jvm-test-suite")
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 gradlePlugin {
     website = "https://github.com/pedrolamarao/gradle-metal"
     vcsUrl = "https://github.com/pedrolamarao/gradle-metal.git"

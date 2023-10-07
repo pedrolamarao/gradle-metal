@@ -29,9 +29,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Input
     public Provider<File> getArchiver ()
     {
-        return getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutableFile(it,"llvm-ar"));
+        return getMetal().flatMap(it -> it.locateTool("llvm-ar"));
     }
 
     /**

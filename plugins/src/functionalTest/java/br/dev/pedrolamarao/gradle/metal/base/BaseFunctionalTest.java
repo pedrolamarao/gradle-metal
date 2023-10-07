@@ -63,4 +63,31 @@ public class BaseFunctionalTest
             .build();
         assertFalse( result.getOutput().isEmpty() );
     }
+
+    @Test
+    public void locateTool () throws Exception
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+             id("br.dev.pedrolamarao.metal.base")
+        }
+        
+        tasks.register("locateTool") {
+            doLast {
+                val clang = metal.locateTool("clang")
+                System.out.printf("%s",clang)
+            }
+        }
+        """
+        );
+
+        final var result = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withDebug(true)
+            .withArguments("--quiet","locateTool")
+            .build();
+        assertFalse( result.getOutput().isEmpty() );
+    }
 }

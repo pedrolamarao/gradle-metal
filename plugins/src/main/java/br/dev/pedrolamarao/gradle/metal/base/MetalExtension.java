@@ -9,6 +9,8 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.services.ServiceReference;
 
+import java.io.File;
+
 /**
  * Metal extension.
  */
@@ -53,4 +55,15 @@ public abstract class MetalExtension implements ExtensionAware
      * @return property
      */
     public abstract ListProperty<String> getLinkOptions ();
+
+    /**
+     * Locate tool.
+     *
+     * @param name  tool name
+     * @return      tool executable file provider
+     */
+    public Provider<File> locateTool (String name)
+    {
+        return getMetalService().flatMap(it -> it.locateTool(name));
+    }
 }

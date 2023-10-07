@@ -2,7 +2,6 @@
 
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalCompileTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Provider;
@@ -27,9 +26,7 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
     @Input
     public Provider<File> getCompiler ()
     {
-        return getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutableFile(it,"clang++"));
+        return getMetal().flatMap(it -> it.locateTool("clang++"));
     }
 
     /**

@@ -31,13 +31,15 @@ public class MetalArchivePlugin extends MetalComponentPlugin implements Plugin<P
         final var tasks = project.getTasks();
 
         final var archives = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("archives");
-        final var archive = (MetalArchive) archives.create("main");
-        configure(project,archive);
+        final var main = (MetalArchive) archives.create("main");
+        configure(project, main);
 
         final var applications = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("applications");
-        final var application = (MetalApplication) applications.create("test");
-        configure(project,application);
+        final var test = (MetalApplication) applications.create("test");
+        configure(project, test);
 
-        tasks.named("assemble").configure(it -> it.dependsOn(archive.getArchiveTask()));
+        wire(project, test, main);
+
+        tasks.named("assemble").configure(it -> it.dependsOn(main.getArchiveTask()));
     }
 }

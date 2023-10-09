@@ -2,6 +2,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Exec;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 /**
@@ -187,6 +188,12 @@ public class MetalBasePlugin implements Plugin<Project>
         });
         configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
+
+        final var runTask = tasks.register("run-%s".formatted(name), Exec.class, task ->
+        {
+            task.dependsOn(linkTask);
+            task.executable( linkTask.flatMap(MetalLinkTask::getOutput).get() );
+        });
 
         return new MetalApplication(linkOptions, linkTask, name);
     }

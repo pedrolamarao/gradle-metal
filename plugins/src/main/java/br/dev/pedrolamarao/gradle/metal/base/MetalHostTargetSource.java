@@ -1,6 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.process.ExecOperations;
@@ -30,28 +31,25 @@ public abstract class MetalHostTargetSource implements ValueSource<String, Value
     protected abstract ExecOperations getExec ();
 
     /**
+     * Provider factory service.
+     *
+     * @return service
+     */
+    @Inject
+    protected abstract ProviderFactory getProviders ();
+
+    /**
      * {@inheritDoc}
      */
     @Nullable
     @Override
     public String obtain ()
     {
-        final String list;
-        list: {
-            final var property = System.getProperty("metal.path");
-            if (property != null) {
-                list = property;
-                break list;
-            }
-            final var environment = System.getenv("PATH");
-            if (environment != null) {
-                list = environment;
-                break list;
-            }
-            list = "";
-        }
+        final var path = getProviders().gradleProperty("metal.path")
+            .orElse(getProviders().environmentVariable("PATH"))
+            .orElse("");
 
-        final var file = Metal.toExecutableFile(list,"clang");
+        final var file = Metal.toExecutableFile(path.get(),"clang");
 
         final var buffer = new ByteArrayOutputStream();
         getExec().exec(exec -> {

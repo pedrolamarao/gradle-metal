@@ -25,7 +25,7 @@ public class ArchiveFunctionalTest
         
         metal {
             archives {
-                named("main") {
+                main {
                     archiveOptions = listOf()
                 }
             }
@@ -36,7 +36,6 @@ public class ArchiveFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 
@@ -53,12 +52,12 @@ public class ArchiveFunctionalTest
          
         metal {
             %s {
-                named("main") {
+                main {
                     compileOptions = listOf()
                 }
             }
             archives {
-                named("main") {
+                main {
                     archiveOptions = listOf()
                 }
             }
@@ -69,7 +68,6 @@ public class ArchiveFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 
@@ -101,8 +99,7 @@ public class ArchiveFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("link-test")
+            .withArguments("run-test")
             .build();
     }
 }

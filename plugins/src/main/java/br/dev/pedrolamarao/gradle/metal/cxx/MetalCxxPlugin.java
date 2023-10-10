@@ -20,7 +20,6 @@ public class MetalCxxPlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(MetalBasePlugin.class);
-        project.getPluginManager().apply(MetalCppPlugin.class);
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 

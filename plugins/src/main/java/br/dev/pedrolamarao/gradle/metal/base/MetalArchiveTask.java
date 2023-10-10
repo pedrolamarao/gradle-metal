@@ -50,8 +50,8 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     {
         return getOutputDirectory().map(out -> {
             final var target = getTarget().get();
-            final var name = getProject().getName();
-            return out.file("%s/%s.lib".formatted(target,name));
+            final var file = getMetal().get().archiveFileName(target,getProject().getName());
+            return out.file("%s/%s".formatted(target,file));
         });
     }
 

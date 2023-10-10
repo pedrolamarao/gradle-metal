@@ -25,7 +25,7 @@ public class ApplicationFunctionalTest
          
         metal {
             applications {
-                named("main") {
+                main {
                     linkOptions = listOf()
                 }
             }
@@ -36,7 +36,6 @@ public class ApplicationFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 
@@ -53,12 +52,12 @@ public class ApplicationFunctionalTest
          
         metal {
             %s {
-                named("main") {
+                main {
                     compileOptions = listOf()
                 }
             }
             applications {
-                named("main") {
+                main {
                     archiveOptions = listOf()
                 }
             }
@@ -69,7 +68,6 @@ public class ApplicationFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 }

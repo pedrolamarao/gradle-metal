@@ -42,6 +42,6 @@ public abstract class MetalSourceTask extends SourceTask
      */
     protected MetalSourceTask ()
     {
-        getTarget().convention( getProviders().gradleProperty("metal.target").orElse( getMetal().flatMap(MetalService::getHostTarget) ) );
+        getTarget().convention( getProviders().gradleProperty("metal.target").orElse( getMetal().map(MetalService::getHost) ) );
     }
 }

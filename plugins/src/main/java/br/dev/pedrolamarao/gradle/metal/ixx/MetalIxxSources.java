@@ -44,8 +44,18 @@ public abstract class MetalIxxSources implements Named
      */
     public abstract ListProperty<String> getCompileOptions ();
 
+    /**
+     * Imports.
+     *
+     * @return collection
+     */
     public abstract ConfigurableFileCollection getImports ();
 
+    /**
+     * Includes.
+     *
+     * @return collection
+     */
     public abstract ConfigurableFileCollection getIncludes ();
 
     /**
@@ -77,6 +87,11 @@ public abstract class MetalIxxSources implements Named
         return compileTask.map(MetalIxxCompileTask::getOutputs);
     }
 
+    /**
+     * If this source set is public and must be published.
+     *
+     * @return property
+     */
     public abstract Property<Boolean> getPublic ();
 
     /**

@@ -17,6 +17,8 @@ import java.io.File;
 @NonNullApi
 public abstract class MetalExtension implements ExtensionAware
 {
+    // properties
+
     /**
      * Metal service.
      *
@@ -46,7 +48,7 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<String> getHostTarget ()
     {
-        return getMetalService().flatMap(MetalService::getHostTarget);
+        return getMetalService().map(MetalService::getHost);
     }
 
     /**
@@ -55,6 +57,30 @@ public abstract class MetalExtension implements ExtensionAware
      * @return property
      */
     public abstract ListProperty<String> getLinkOptions ();
+
+    // methods
+
+    /**
+     * Formats an archive file name according to the host conventions.
+     *
+     * @param name  core name
+     * @return      file name
+     */
+    public Provider<String> archiveFileName (String name)
+    {
+        return getMetalService().map(it -> it.archiveFileName(name));
+    }
+
+    /**
+     * Formats an executable file name according to the host conventions.
+     *
+     * @param name  core name
+     * @return      file name
+     */
+    public Provider<String> executableFileName (String name)
+    {
+        return getMetalService().map(it -> it.executableFileName(name));
+    }
 
     /**
      * Locate tool.

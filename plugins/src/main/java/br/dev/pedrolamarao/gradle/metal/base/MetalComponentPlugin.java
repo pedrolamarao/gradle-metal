@@ -93,28 +93,28 @@ public abstract class MetalComponentPlugin
             final var asmContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("asm");
             if (asmContainer != null) {
                 final var asm = (MetalAsmSources) asmContainer.getByName(name);
-                asm.includable( cpp.getSources().getSourceDirectories() );
+                asm.includable( cpp.getSources() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,asm);
             }
 
             final var cContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("c");
             if (cContainer != null) {
                 final var c = (MetalCSources) cContainer.getByName(name);
-                c.includable( cpp.getSources().getSourceDirectories() );
+                c.includable( cpp.getSources() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,c);
             }
 
             final var cxxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("cxx");
             if (cxxContainer != null) {
                 final var cxx = (MetalCxxSources) cxxContainer.getByName(name);
-                cxx.includable( cpp.getSources().getSourceDirectories() );
+                cxx.includable( cpp.getSources() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,cxx);
             }
 
             final var ixxContainer = (NamedDomainObjectContainer<?>) metal.getExtensions().findByName("ixx");
             if (ixxContainer != null) {
                 final var ixx = (MetalIxxSources) ixxContainer.getByName(name);
-                ixx.includable( cpp.getSources().getSourceDirectories() );
+                ixx.includable( cpp.getSources() );
                 project.getLogger().info("gradle-metal: wiring sources: {} -> {}",cpp,ixx);
             }
         });
@@ -171,7 +171,7 @@ public abstract class MetalComponentPlugin
             logger.info("gradle-metal: wiring sources: {} -> {}", dependencyIxx, dependentIxx);
         });
 
-        // if ixx sources then wire from depedency to dependent
+        // if ixx sources then wire from dependency to dependent
 
         project.afterEvaluate(it ->
         {
@@ -196,6 +196,7 @@ public abstract class MetalComponentPlugin
                     final var dependencyIxx = (MetalIxxSources) ixx.getByName(dependency.getName());
                     dependentCxx.importable( dependencyIxx.getOutputDirectory() );
                     // TODO: wire inputs and outputs, not tasks
+                    tasks.named("commands-test-cxx").configure(task -> task.dependsOn("compile-main-ixx"));
                     tasks.named("compile-test-cxx").configure(task -> task.dependsOn("compile-main-ixx"));
                     it.getLogger().info("gradle-metal: wiring sources: {} -> {}",dependencyIxx,dependentCxx);
                 }

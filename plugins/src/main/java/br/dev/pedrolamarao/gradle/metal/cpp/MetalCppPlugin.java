@@ -32,13 +32,18 @@ public class MetalCppPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var providers = project.getProviders();
 
-        final var sources = objects.sourceDirectorySet(name,name);
-        sources.srcDir( layout.getProjectDirectory().dir("src/%s/cpp".formatted(name)) );
+        final var sourceSet = objects.newInstance(MetalCppSources.class,name);
+        sourceSet.getSources().from( layout.getProjectDirectory().dir("src/%s/cpp".formatted(name)) );
 
-        configurations.named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifacts(providers.provider(sources::getSourceDirectories));
+        project.afterEvaluate(it ->
+        {
+            if (sourceSet.getPublic().get()) {
+                configurations.named(Metal.INCLUDABLE_ELEMENTS).configure(configuration -> {
+                    configuration.getOutgoing().artifacts(providers.provider(sourceSet::getSources));
+                });
+            }
         });
 
-        return new MetalCppSources(name, sources);
+        return sourceSet;
     }
 }

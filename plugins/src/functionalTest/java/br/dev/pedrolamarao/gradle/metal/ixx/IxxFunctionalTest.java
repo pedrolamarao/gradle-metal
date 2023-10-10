@@ -194,7 +194,7 @@ public class IxxFunctionalTest
             ixx {
                 create("main") {
                     compileOptions = listOf("-std=c++20")
-                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
+                    includable( cpp.named("main").map { it.sources } )
                 }
             }
         }

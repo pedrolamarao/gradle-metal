@@ -25,12 +25,9 @@ public class MetalApplicationPlugin extends MetalComponentPlugin implements Plug
         project.getPluginManager().apply(MetalApplicationBasePlugin.class);
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
-        final var tasks = project.getTasks();
 
         final var applications = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("applications");
         final var application = (MetalApplication) applications.create("main");
         configure(project,application);
-
-        tasks.named("assemble").configure(it -> it.dependsOn(application.getLinkTask()));
     }
 }

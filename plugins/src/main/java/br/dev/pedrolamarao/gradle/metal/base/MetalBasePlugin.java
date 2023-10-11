@@ -147,23 +147,33 @@ public class MetalBasePlugin implements Plugin<Project>
 
         // tasks
 
-        tasks.register("compile").configure(task ->
+        tasks.register("compile",task ->
         {
             task.setGroup("metal");
             task.setDescription("compile source files");
         });
 
-        tasks.register("archive").configure(task ->
+        final var archive = tasks.register("archive",task ->
         {
             task.setGroup("metal");
             task.setDescription("assemble archives");
         });
 
-        tasks.register("link").configure(task ->
+        final var link = tasks.register("link",task ->
         {
             task.setGroup("metal");
             task.setDescription("assemble executables");
         });
+
+        final var test = tasks.register("test",task ->
+        {
+            task.setGroup("metal");
+            task.setDescription("run test executables");
+        });
+
+        tasks.named("assemble").configure(it -> it.dependsOn(archive,link));
+
+        tasks.named("check").configure(it -> it.dependsOn(test));
     }
 
     static MetalApplication createApplication (Project project, String name)

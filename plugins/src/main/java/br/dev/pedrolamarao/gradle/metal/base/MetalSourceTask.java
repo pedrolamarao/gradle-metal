@@ -30,18 +30,10 @@ public abstract class MetalSourceTask extends SourceTask
     protected abstract Property<MetalService> getMetal ();
 
     /**
-     * Provider factory service.
-     *
-     * @return service
-     */
-    @Inject
-    protected abstract ProviderFactory getProviders ();
-
-    /**
      * Constructor.
      */
     protected MetalSourceTask ()
     {
-        getTarget().convention( getProviders().gradleProperty("metal.target").orElse( getMetal().map(MetalService::getHost) ) );
+        getTarget().convention( getMetal().map(MetalService::getTarget) );
     }
 }

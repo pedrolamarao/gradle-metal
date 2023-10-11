@@ -26,7 +26,7 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
     @Input
     public Provider<File> getCompiler ()
     {
-        return getMetal().flatMap(it -> it.locateTool("clang++"));
+        return getMetal().map(it -> it.locateTool("clang++"));
     }
 
     /**

@@ -89,7 +89,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         @Input
         public Provider<File> getScanner ()
         {
-            return getMetal().flatMap(it -> it.locateTool("clang-scan-deps"));
+            return getMetal().map(it -> it.locateTool("clang-scan-deps"));
         }
 
         /**

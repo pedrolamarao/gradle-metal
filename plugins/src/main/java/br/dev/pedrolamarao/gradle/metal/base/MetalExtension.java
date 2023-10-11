@@ -42,13 +42,23 @@ public abstract class MetalExtension implements ExtensionAware
     public abstract ListProperty<String> getCompileOptions ();
 
     /**
-     * Host target provider.
+     * Host name.
      *
      * @return provider
      */
-    public Provider<String> getHostTarget ()
+    public Provider<String> getHost ()
     {
         return getMetalService().map(MetalService::getHost);
+    }
+
+    /**
+     * Target name.
+     *
+     * @return provider
+     */
+    public Provider<String> getTarget ()
+    {
+        return getMetalService().map(MetalService::getTarget);
     }
 
     /**
@@ -90,6 +100,6 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<File> locateTool (String name)
     {
-        return getMetalService().flatMap(it -> it.locateTool(name));
+        return getMetalService().map(it -> it.locateTool(name));
     }
 }

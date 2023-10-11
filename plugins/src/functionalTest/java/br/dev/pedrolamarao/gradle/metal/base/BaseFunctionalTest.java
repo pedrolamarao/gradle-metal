@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class BaseFunctionalTest
@@ -39,7 +40,7 @@ public class BaseFunctionalTest
     }
 
     @Test
-    public void hostTarget () throws Exception
+    public void host () throws Exception
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """
@@ -47,9 +48,9 @@ public class BaseFunctionalTest
                  id("br.dev.pedrolamarao.metal.base")
             }
             
-            tasks.register("hostTarget") {
+            tasks.register("host") {
                 doLast {
-                    System.out.printf("%s",metal.hostTarget.get())
+                    System.out.printf("%s",metal.host.get())
                 }
             }
             """
@@ -59,7 +60,7 @@ public class BaseFunctionalTest
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .withDebug(true)
-            .withArguments("--quiet","hostTarget")
+            .withArguments("--quiet","host")
             .build();
         assertFalse( result.getOutput().isEmpty() );
     }
@@ -89,5 +90,31 @@ public class BaseFunctionalTest
             .withArguments("--quiet","locateTool")
             .build();
         assertFalse( result.getOutput().isEmpty() );
+    }
+
+    @Test
+    public void target () throws Exception
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+             id("br.dev.pedrolamarao.metal.base")
+        }
+        
+        tasks.register("target") {
+            doLast {
+                System.out.printf("%s",metal.target.get())
+            }
+        }
+        """
+        );
+
+        final var result = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withDebug(true)
+            .withArguments("--quiet","target","-Pmetal.target=foo")
+            .build();
+        assertEquals( "foo", result.getOutput() );
     }
 }

@@ -29,7 +29,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Input
     public Provider<File> getArchiver ()
     {
-        return getMetal().flatMap(it -> it.locateTool("llvm-ar"));
+        return getMetal().map(it -> it.locateTool("llvm-ar"));
     }
 
     /**

@@ -1,7 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.GradleException;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
@@ -18,9 +17,11 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class MetalService implements BuildService<BuildServiceParameters.None>
 {
-    private final AtomicReference<String> hostTarget = new AtomicReference<>();
+    private final AtomicReference<String> host = new AtomicReference<>();
 
     private final String path;
+
+    private final String target;
 
     /**
      * Constructor.
@@ -29,8 +30,11 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
     public MetalService ()
     {
         path = getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
+            .orElse( getProviders().environmentVariable("PATH") )
             .orElse("")
+            .get();
+        target = getProviders().gradleProperty("metal.target")
+            .orElse( getProviders().provider(this::getHost) )
             .get();
     }
 
@@ -51,13 +55,13 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
     protected abstract ProviderFactory getProviders ();
 
     /**
-     * Host target.
+     * Host name.
      *
-     * @return target name
+     * @return name
      */
     public String getHost ()
     {
-        final var cached = hostTarget.get();
+        final var cached = host.get();
         if (cached != null) return cached;
 
         final var buffer = new ByteArrayOutputStream();
@@ -83,11 +87,21 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
         catch (IOException e) { throw new GradleException("failed parsing clang -v output", e); }
 
         if (value != null) {
-            hostTarget.set(value);
+            host.set(value);
             return value;
         }
 
         throw new GradleException("failed to discover host target");
+    }
+
+    /**
+     * Target name.
+     *
+     * @return name
+     */
+    public String getTarget ()
+    {
+        return target;
     }
 
     /**
@@ -172,16 +186,16 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      * @param name  tool name
      * @return      tool executable file provider
      */
-    public Provider<File> locateTool (String name)
+    public File locateTool (String name)
     {
         for (var item : path.split(File.pathSeparator))
         {
             final var directory = Paths.get(item);
             if (! Files.isDirectory(directory)) continue;
             final var file = directory.resolve(name);
-            if (Files.isExecutable(file)) return getProviders().provider(file::toFile);
+            if (Files.isExecutable(file)) return file.toFile();
             final var file_exe = file.resolveSibling(name + ".exe");
-            if (Files.isExecutable(file_exe)) return getProviders().provider(file_exe::toFile);
+            if (Files.isExecutable(file_exe)) return file_exe.toFile();
         }
 
         throw new GradleException("executable file not found: " + name);

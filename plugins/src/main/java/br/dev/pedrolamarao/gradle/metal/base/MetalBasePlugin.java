@@ -177,7 +177,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var linkOptions = objects.listProperty(String.class).convention(metal.getLinkOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
         final var target = objects.property(String.class)
-            .convention( providers.gradleProperty("metal.target").orElse(metal.getHostTarget()) );
+            .convention( providers.gradleProperty("metal.target").orElse(metal.getHost()) );
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
@@ -209,7 +209,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var archiveOptions = objects.listProperty(String.class).convention(metal.getArchiveOptions());
         final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
         final var target = objects.property(String.class)
-            .convention( providers.gradleProperty("metal.target").orElse(metal.getHostTarget()) );
+            .convention( providers.gradleProperty("metal.target").orElse(metal.getHost()) );
 
         final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
         {

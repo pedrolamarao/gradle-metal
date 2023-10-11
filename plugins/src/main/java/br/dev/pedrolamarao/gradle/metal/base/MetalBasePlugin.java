@@ -181,10 +181,10 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
         {
-            it.getLinkables().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
             it.getLinkOptions().convention(linkOptions);
             it.getOutputDirectory().set(outputDirectory);
             it.getTarget().set(target);
+            it.source(configurations.named(Metal.LINKABLE_DEPENDENCIES));
         });
         configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
         tasks.named("link").configure(it -> it.dependsOn(linkTask));

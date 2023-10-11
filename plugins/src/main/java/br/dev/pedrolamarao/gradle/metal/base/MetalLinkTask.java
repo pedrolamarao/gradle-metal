@@ -20,14 +20,6 @@ import java.util.ArrayList;
 public abstract class MetalLinkTask extends MetalSourceTask
 {
     /**
-     * Additional linkable sources. (Probably obsolete.)
-     *
-     * @return collection
-     */
-    @InputFiles
-    public abstract ConfigurableFileCollection getLinkables ();
-
-    /**
      * Linker executable path.
      *
      * @return provider
@@ -98,7 +90,6 @@ public abstract class MetalLinkTask extends MetalSourceTask
         linkArgs.add("-fuse-ld=lld");
         linkArgs.addAll(getLinkOptions().get());
         linkArgs.add("--output=%s".formatted(output));
-        getLinkables().forEach(file -> linkArgs.add(file.toString()));
         getSource().forEach(file -> linkArgs.add(file.toString()));
 
         getExec().exec(it ->

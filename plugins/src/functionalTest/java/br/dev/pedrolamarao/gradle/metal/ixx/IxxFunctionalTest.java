@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IxxFunctionalTest
 {
@@ -56,6 +57,8 @@ public class IxxFunctionalTest
             .withDebug(true)
             .build();
 
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
+
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );
         }
@@ -89,6 +92,7 @@ public class IxxFunctionalTest
             .withProjectDir(projectDir.toFile())
             .withArguments("--quiet","compileOptions")
             .build();
+
         assertEquals("[--foo]",compileOptions.getOutput());
     }
 
@@ -145,6 +149,8 @@ public class IxxFunctionalTest
             .withDebug(true)
             .build();
 
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
+
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 3, stream.count() );
         }
@@ -194,7 +200,7 @@ public class IxxFunctionalTest
             ixx {
                 create("main") {
                     compileOptions = listOf("-std=c++20")
-                    includable( cpp.named("main").map { it.sources } )
+                    includes.from( cpp.named("main").map { it.sources } )
                 }
             }
         }
@@ -207,6 +213,8 @@ public class IxxFunctionalTest
             .withArguments("compile-main-ixx")
             .withDebug(true)
             .build();
+
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
 
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );

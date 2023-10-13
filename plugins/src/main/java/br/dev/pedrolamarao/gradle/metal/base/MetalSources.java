@@ -5,9 +5,9 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.SetProperty;
 
 /**
- * Gradle Metal component.
+ * Gradle Metal sources.
  */
-public abstract class MetalComponent implements Named
+public abstract class MetalSources implements Named
 {
     /**
      * Source file collection.

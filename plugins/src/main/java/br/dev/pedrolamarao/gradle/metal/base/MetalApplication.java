@@ -7,16 +7,14 @@ import org.gradle.api.NonNullApi;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
-import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 /**
  * Metal application component.
  */
 @NonNullApi
-public class MetalApplication extends MetalComponent implements Named
+public abstract class MetalApplication extends MetalComponent implements Named
 {
-    private final ListProperty<String> linkOptions;
-
     private final TaskProvider<MetalLinkTask> linkTask;
 
     private final String name;
@@ -24,13 +22,12 @@ public class MetalApplication extends MetalComponent implements Named
     /**
      * Constructor.
      *
-     * @param linkOptions  link options
      * @param linkTask     link task
      * @param name         name
      */
-    public MetalApplication (ListProperty<String> linkOptions, TaskProvider<MetalLinkTask> linkTask, String name)
+    @Inject
+    public MetalApplication (TaskProvider<MetalLinkTask> linkTask, String name)
     {
-        this.linkOptions = linkOptions;
         this.linkTask = linkTask;
         this.name = name;
     }
@@ -40,18 +37,13 @@ public class MetalApplication extends MetalComponent implements Named
      *
      * @return property
      */
-    @Nonnull
-    public ListProperty<String> getLinkOptions ()
-    {
-        return linkOptions;
-    }
+    public abstract ListProperty<String> getLinkOptions ();
 
     /**
      * Link task.
      *
      * @return provider
      */
-    @Nonnull
     public TaskProvider<MetalLinkTask> getLinkTask ()
     {
         return linkTask;
@@ -64,14 +56,5 @@ public class MetalApplication extends MetalComponent implements Named
     public String getName ()
     {
         return name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void source (Object... sources)
-    {
-        linkTask.configure(it -> it.source(sources));
     }
 }

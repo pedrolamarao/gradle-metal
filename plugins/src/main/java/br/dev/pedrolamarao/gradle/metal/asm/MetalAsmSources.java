@@ -1,8 +1,9 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskOutputs;
@@ -14,11 +15,9 @@ import javax.inject.Inject;
  * Assembler sources.
  */
 @NonNullApi
-public class MetalAsmSources implements Named
+public abstract class MetalAsmSources extends MetalSources
 {
     private final TaskProvider<MetalAsmCommandsTask> commandsTask;
-
-    private final ListProperty<String> compileOptions;
 
     private final TaskProvider<MetalAsmCompileTask> compileTask;
 
@@ -28,15 +27,13 @@ public class MetalAsmSources implements Named
      * Constructor.
      *
      * @param commandsTask    commands task
-     * @param compileOptions  compile options
      * @param compileTask     compile task
      * @param name            name
      */
     @Inject
-    public MetalAsmSources (TaskProvider<MetalAsmCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalAsmCompileTask> compileTask, String name)
+    public MetalAsmSources (TaskProvider<MetalAsmCommandsTask> commandsTask, TaskProvider<MetalAsmCompileTask> compileTask, String name)
     {
         this.commandsTask = commandsTask;
-        this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
     }
@@ -46,10 +43,14 @@ public class MetalAsmSources implements Named
      *
      * @return property
      */
-    public ListProperty<String> getCompileOptions ()
-    {
-        return compileOptions;
-    }
+    public abstract ListProperty<String> getCompileOptions ();
+
+    /**
+     * Preprocessor includes.
+     *
+     * @return collection
+     */
+    public abstract ConfigurableFileCollection getIncludes ();
 
     /**
      * {@inheritDoc}
@@ -70,14 +71,9 @@ public class MetalAsmSources implements Named
         return compileTask.map(DefaultTask::getOutputs);
     }
 
-    /**
-     * Adds directories to include path.
-     *
-     * @param sources  sources to add
-     */
-    public void includable (Object... sources)
+    @Override
+    public String toString ()
     {
-        commandsTask.configure(it -> it.getIncludables().from(sources));
-        compileTask.configure(it -> it.getIncludables().from(sources));
+        return "MetalAsmSources[%s]".formatted(name);
     }
 }

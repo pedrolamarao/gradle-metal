@@ -1,7 +1,8 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import org.gradle.api.Named;
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
 import org.gradle.api.NonNullApi;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskOutputs;
@@ -13,11 +14,9 @@ import javax.inject.Inject;
  * C++ sources.
  */
 @NonNullApi
-public class MetalCxxSources implements Named
+public abstract class MetalCxxSources extends MetalSources
 {
     private final TaskProvider<MetalCxxCommandsTask> commandsTask;
-
-    private final ListProperty<String> compileOptions;
 
     private final TaskProvider<MetalCxxCompileTask> compileTask;
 
@@ -27,15 +26,13 @@ public class MetalCxxSources implements Named
      * Constructor.
      *
      * @param commandsTask    commands task
-     * @param compileOptions  compile options
      * @param compileTask     compile task
      * @param name            name
      */
     @Inject
-    public MetalCxxSources (TaskProvider<MetalCxxCommandsTask> commandsTask, ListProperty<String> compileOptions, TaskProvider<MetalCxxCompileTask> compileTask, String name)
+    public MetalCxxSources (TaskProvider<MetalCxxCommandsTask> commandsTask, TaskProvider<MetalCxxCompileTask> compileTask, String name)
     {
         this.commandsTask = commandsTask;
-        this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
     }
@@ -45,10 +42,21 @@ public class MetalCxxSources implements Named
      *
      * @return property
      */
-    public ListProperty<String> getCompileOptions ()
-    {
-        return compileOptions;
-    }
+    public abstract ListProperty<String> getCompileOptions ();
+
+    /**
+     * Preprocessor includes.
+     *
+     * @return collection
+     */
+    public abstract ConfigurableFileCollection getIncludes ();
+
+    /**
+     * C++ imports.
+     *
+     * @return collection
+     */
+    public abstract ConfigurableFileCollection getImports ();
 
     /**
      * {@inheritDoc}
@@ -69,36 +77,9 @@ public class MetalCxxSources implements Named
         return compileTask.map(MetalCxxCompileTask::getOutputs);
     }
 
-    /**
-     * Adds directories to the import path.
-     *
-     * @param sources sources to add
-     */
-    public void importable (Object... sources)
+    @Override
+    public String toString ()
     {
-        commandsTask.configure(it -> it.getImportables().from(sources));
-        compileTask.configure(it -> it.getImportables().from(sources));
-    }
-
-    /**
-     * Adds directories to the include path.
-     *
-     * @param sources sources to add
-     */
-    public void includable (Object... sources)
-    {
-        commandsTask.configure(it -> it.getIncludables().from(sources));
-        compileTask.configure(it -> it.getIncludables().from(sources));
-    }
-
-    /**
-     * Adds sources to compilation.
-     *
-     * @param sources sources to add
-     */
-    public void source (Object... sources)
-    {
-        commandsTask.configure(it -> it.source(sources));
-        compileTask.configure(it -> it.source(sources));
+        return "MetalCxxSources[%s]".formatted(name);
     }
 }

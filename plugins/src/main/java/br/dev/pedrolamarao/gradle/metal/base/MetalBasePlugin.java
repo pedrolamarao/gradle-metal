@@ -179,57 +179,66 @@ public class MetalBasePlugin implements Plugin<Project>
     static MetalApplication createApplication (Project project, String name)
     {
         final var configurations = project.getConfigurations();
-        final var metal = project.getExtensions().findByType(MetalExtension.class);
+        final var layout = project.getLayout();
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
-        final var linkOptions = objects.listProperty(String.class).convention(metal.getLinkOptions());
-        final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
-        final var target = objects.property(String.class)
-            .convention( providers.gradleProperty("metal.target").orElse(metal.getHost()) );
+        final var linkTask = tasks.register("link-%s".formatted(name),MetalLinkTask.class);
+        final var component = objects.newInstance(MetalApplication.class,linkTask,name);
+        component.getLinkOptions().convention(metal.getLinkOptions());
+        component.getTargets().convention(metal.getTargets());
+        component.getSources().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
 
-        final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
+        linkTask.configure(task ->
         {
-            it.getLinkOptions().convention(linkOptions);
-            it.getOutputDirectory().set(outputDirectory);
-            it.getTarget().set(target);
-            it.source(configurations.named(Metal.LINKABLE_DEPENDENCIES));
+            task.onlyIf(it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getLinkOptions().convention(component.getLinkOptions());
+            task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
+            task.setSource(component.getSources());
+            task.getTarget().convention(metal.getTarget());
         });
+
+        tasks.register("run-%s".formatted(name), Exec.class, task ->
+        {
+            task.onlyIf(it -> component.getTargets().zip(metal.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.dependsOn(linkTask);
+            task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
+        });
+
         configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
+
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
 
-        final var runTask = tasks.register("run-%s".formatted(name), Exec.class, task ->
-        {
-            task.dependsOn(linkTask);
-            task.executable( linkTask.flatMap(MetalLinkTask::getOutput).get() );
-        });
-
-        return new MetalApplication(linkOptions, linkTask, name);
+        return component;
     }
 
     static MetalArchive createArchive (Project project, String name)
     {
         final var configurations = project.getConfigurations();
-        final var metal = project.getExtensions().findByType(MetalExtension.class);
+        final var layout = project.getLayout();
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
-        final var providers = project.getProviders();
         final var tasks = project.getTasks();
 
-        final var archiveOptions = objects.listProperty(String.class).convention(metal.getArchiveOptions());
-        final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
-        final var target = objects.property(String.class)
-            .convention( providers.gradleProperty("metal.target").orElse(metal.getHost()) );
+        final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
+        final var component = objects.newInstance(MetalArchive.class,archiveTask,name);
+        component.getArchiveOptions().convention(metal.getArchiveOptions());
+        component.getTargets().convention(metal.getTargets());
 
-        final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
+        archiveTask.configure(task ->
         {
-            it.getArchiveOptions().convention(archiveOptions);
-            it.getOutputDirectory().set(outputDirectory);
-            it.getTarget().set(target);
+            task.onlyIf(it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getArchiveOptions().convention(component.getArchiveOptions());
+            task.getOutputDirectory().convention(layout.getBuildDirectory().dir("lib/%s".formatted(name)));
+            task.setSource(component.getSources());
+            task.getTarget().convention(metal.getTarget());
         });
+
         configurations.named(Metal.LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
+
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));
 
-        return new MetalArchive(archiveOptions, archiveTask, name);
+        return component;
     }
 }

@@ -1,10 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
-import org.gradle.api.Named;
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
@@ -12,7 +9,7 @@ import javax.inject.Inject;
 /**
  * C preprocessor sources.
  */
-public abstract class MetalCppSources implements Named
+public abstract class MetalCppSources extends MetalSources
 {
     private final String name;
 
@@ -55,6 +52,6 @@ public abstract class MetalCppSources implements Named
     @Override
     public String toString ()
     {
-        return "MetalCppSourceSet[%s]".formatted(name);
+        return "MetalCppSources[%s]".formatted(name);
     }
 }

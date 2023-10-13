@@ -70,4 +70,66 @@ public class ApplicationFunctionalTest
             .withProjectDir(projectDir.toFile())
             .build();
     }
+
+    @Test
+    public void languageC () throws IOException
+    {
+        final var languageDir = projectDir.resolve("src/main/c");
+
+        Files.createDirectories(languageDir);
+
+        Files.writeString(languageDir.resolve("main.c"),
+        """
+        int main (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """);
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+             id("br.dev.pedrolamarao.metal.application")
+             id("br.dev.pedrolamarao.metal.c")
+        }
+        """
+        );
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("run-main")
+            .build();
+    }
+
+    @Test
+    public void languageCxx () throws IOException
+    {
+        final var languageDir = projectDir.resolve("src/main/cxx");
+
+        Files.createDirectories(languageDir);
+
+        Files.writeString(languageDir.resolve("main.cxx"),
+    """
+        int main (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """);
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+             id("br.dev.pedrolamarao.metal.application")
+             id("br.dev.pedrolamarao.metal.cxx")
+        }
+        """
+        );
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("run-main")
+            .build();
+    }
 }

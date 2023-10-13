@@ -1,6 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import org.gradle.api.Named;
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
  * C++ module implementation sources.
  */
 @NonNullApi
-public abstract class MetalIxxSources implements Named
+public abstract class MetalIxxSources extends MetalSources
 {
     private final TaskProvider<MetalIxxCompileTask> compileTask;
 
@@ -94,36 +94,9 @@ public abstract class MetalIxxSources implements Named
      */
     public abstract Property<Boolean> getPublic ();
 
-    /**
-     * Source directory set.
-     *
-     * @return value
-     */
-    public abstract ConfigurableFileCollection getSources ();
-
-    /**
-     * Adds directories to the include path.
-     * .
-     * @param sources  sources to add
-     */
-    public void includable (Object... sources)
-    {
-        getIncludes().from(sources);
-    }
-
-    /**
-     * Adds directories to the import path.
-     *
-     * @param sources  sources to add
-     */
-    public void importable (Object... sources)
-    {
-        getImports().from(sources);
-    }
-
     @Override
     public String toString ()
     {
-        return "MetalIxxSourceSet[%s]".formatted(name);
+        return "MetalIxxSources[%s]".formatted(name);
     }
 }

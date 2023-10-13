@@ -57,7 +57,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
     /**
      * Host name.
      *
-     * @return name
+     * @return value
      */
     public String getHost ()
     {
@@ -95,9 +95,16 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
     }
 
     /**
+     * Tools path.
+     *
+     * @return value
+     */
+    public String getPath () { return path; }
+
+    /**
      * Target name.
      *
-     * @return name
+     * @return value
      */
     public String getTarget ()
     {

@@ -7,6 +7,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.services.ServiceReference;
 
 import java.io.File;
@@ -52,6 +53,20 @@ public abstract class MetalExtension implements ExtensionAware
     }
 
     /**
+     * Project-wide link options.
+     *
+     * @return property
+     */
+    public abstract ListProperty<String> getLinkOptions ();
+
+    /**
+     * Tools path.
+     *
+     * @return provider
+     */
+    public Provider<String> getPath () { return getMetalService().map(MetalService::getPath); }
+
+    /**
      * Target name.
      *
      * @return provider
@@ -62,11 +77,11 @@ public abstract class MetalExtension implements ExtensionAware
     }
 
     /**
-     * Project-wide link options.
+     * Set of allowed targets.
      *
-     * @return property
+     * @return set
      */
-    public abstract ListProperty<String> getLinkOptions ();
+    public abstract SetProperty<String> getTargets ();
 
     // methods
 

@@ -7,14 +7,14 @@ import org.gradle.api.NonNullApi;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
+import javax.inject.Inject;
+
 /**
  * Metal archive component.
  */
 @NonNullApi
-public class MetalArchive extends MetalComponent implements Named
+public abstract class MetalArchive extends MetalComponent implements Named
 {
-    private final ListProperty<String> archiveOptions;
-
     private final TaskProvider<MetalArchiveTask> archiveTask;
 
     private final String name;
@@ -22,13 +22,12 @@ public class MetalArchive extends MetalComponent implements Named
     /**
      * Constructor.
      *
-     * @param archiveOptions  archive options
      * @param archiveTask     archive task
      * @param name            name
      */
-    public MetalArchive (ListProperty<String> archiveOptions, TaskProvider<MetalArchiveTask> archiveTask, String name)
+    @Inject
+    public MetalArchive (TaskProvider<MetalArchiveTask> archiveTask, String name)
     {
-        this.archiveOptions = archiveOptions;
         this.archiveTask = archiveTask;
         this.name = name;
     }
@@ -38,10 +37,7 @@ public class MetalArchive extends MetalComponent implements Named
      *
      * @return property
      */
-    public ListProperty<String> getArchiveOptions ()
-    {
-        return archiveOptions;
-    }
+    public abstract ListProperty<String> getArchiveOptions ();
 
     /**
      * Archive task.
@@ -60,14 +56,5 @@ public class MetalArchive extends MetalComponent implements Named
     public String getName ()
     {
         return name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void source (Object... sources)
-    {
-        archiveTask.configure(it -> it.source(sources));
     }
 }

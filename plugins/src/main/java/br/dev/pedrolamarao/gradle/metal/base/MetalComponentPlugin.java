@@ -157,26 +157,42 @@ public abstract class MetalComponentPlugin
         final var logger = project.getLogger();
         final var plugins = project.getPluginManager();
 
+        plugins.withPlugin("br.dev.pedrolamarao.metal.asm",plugin ->
+        {
+            final var metal = extensions.getByType(MetalExtension.class);
+            final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("asm");
+            final var sources = (MetalAsmSources) container.getByName(dependency.getName());
+            dependent.getInternalSources().from(sources.getOutputs());
+            logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
+        });
+
+        plugins.withPlugin("br.dev.pedrolamarao.metal.c",plugin ->
+        {
+            final var metal = extensions.getByType(MetalExtension.class);
+            final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("c");
+            final var sources = (MetalCSources) container.getByName(dependency.getName());
+            dependent.getInternalSources().from(sources.getOutputs());
+            logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
+        });
+
         plugins.withPlugin("br.dev.pedrolamarao.metal.cxx",plugin ->
         {
             final var metal = extensions.getByType(MetalExtension.class);
-            final var cxx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
-            final var dependencyCxx = (MetalCxxSources) cxx.getByName(dependency.getName());
-            dependent.getSources().from(dependencyCxx.getOutputs());
-            logger.info("gradle-metal: wiring sources: {} -> {}", dependencyCxx, dependent);
+            final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
+            final var sources = (MetalCxxSources) container.getByName(dependency.getName());
+            dependent.getInternalSources().from(sources.getOutputs());
+            logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
         });
 
         plugins.withPlugin("br.dev.pedrolamarao.metal.ixx",plugin ->
         {
             final var metal = extensions.getByType(MetalExtension.class);
-            final var ixx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("ixx");
-            final var dependentIxx = (MetalIxxSources) ixx.getByName(dependent.getName());
-            final var dependencyIxx = (MetalIxxSources) ixx.getByName(dependency.getName());
+            final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("ixx");
+            final var dependentIxx = (MetalIxxSources) container.getByName(dependent.getName());
+            final var dependencyIxx = (MetalIxxSources) container.getByName(dependency.getName());
             dependentIxx.getImports().from(dependencyIxx.getOutputDirectory());
-            logger.info("gradle-metal: wiring sources: {} -> {}", dependencyIxx, dependentIxx);
+            logger.info("gradle-metal: wiring: {} -> {}", dependencyIxx, dependentIxx);
         });
-
-        // if ixx sources then wire from dependency to dependent
 
         project.afterEvaluate(it ->
         {
@@ -203,7 +219,7 @@ public abstract class MetalComponentPlugin
                     // TODO: wire inputs and outputs, not tasks
                     tasks.named("commands-test-cxx").configure(task -> task.dependsOn("compile-main-ixx"));
                     tasks.named("compile-test-cxx").configure(task -> task.dependsOn("compile-main-ixx"));
-                    it.getLogger().info("gradle-metal: wiring sources: {} -> {}",dependencyIxx,dependentCxx);
+                    it.getLogger().info("gradle-metal: wiring: {} -> {}",dependencyIxx,dependentCxx);
                 }
             }
         });

@@ -188,11 +188,12 @@ public class MetalBasePlugin implements Plugin<Project>
         final var component = objects.newInstance(MetalApplication.class,linkTask,name);
         component.getLinkOptions().convention(metal.getLinkOptions());
         component.getTargets().convention(metal.getTargets());
-        component.getSources().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
+        component.getArchives().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
 
         linkTask.configure(task ->
         {
             task.onlyIf(it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getArchives().from(component.getArchives());
             task.getLinkOptions().convention(component.getLinkOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
             task.setSource(component.getSources());
@@ -201,7 +202,11 @@ public class MetalBasePlugin implements Plugin<Project>
 
         tasks.register("run-%s".formatted(name), Exec.class, task ->
         {
-            task.onlyIf(it -> component.getTargets().zip(metal.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.onlyIf(it -> {
+                if (! linkTask.get().getOutput().get().getAsFile().exists()) return false;
+                if (! component.getTargets().get().isEmpty()) return false;
+                return component.getTargets().get().contains(metal.getTarget().get());
+            });
             task.dependsOn(linkTask);
             task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
         });

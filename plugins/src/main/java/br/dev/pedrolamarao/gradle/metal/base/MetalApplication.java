@@ -4,6 +4,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -31,6 +32,8 @@ public abstract class MetalApplication extends MetalComponent implements Named
         this.linkTask = linkTask;
         this.name = name;
     }
+
+    public abstract ConfigurableFileCollection getArchives ();
 
     /**
      * Link options.

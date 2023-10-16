@@ -10,6 +10,13 @@ import org.gradle.api.provider.SetProperty;
 public abstract class MetalComponent implements Named
 {
     /**
+     * Internal source file collection.
+     *
+     * @return collection
+     */
+    protected abstract ConfigurableFileCollection getInternalSources ();
+
+    /**
      * Source file collection.
      *
      * @return collection

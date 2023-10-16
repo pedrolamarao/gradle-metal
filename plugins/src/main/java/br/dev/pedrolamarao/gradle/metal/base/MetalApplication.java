@@ -33,6 +33,11 @@ public abstract class MetalApplication extends MetalComponent implements Named
         this.name = name;
     }
 
+    /**
+     * Archives.
+     *
+     * @return collection
+     */
     public abstract ConfigurableFileCollection getArchives ();
 
     /**

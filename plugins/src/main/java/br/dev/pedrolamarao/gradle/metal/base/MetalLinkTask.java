@@ -19,6 +19,11 @@ import java.util.ArrayList;
  */
 public abstract class MetalLinkTask extends MetalSourceTask
 {
+    /**
+     * Archives.
+     *
+     * @return collection
+     */
     @InputFiles
     public abstract ConfigurableFileCollection getArchives ();
 

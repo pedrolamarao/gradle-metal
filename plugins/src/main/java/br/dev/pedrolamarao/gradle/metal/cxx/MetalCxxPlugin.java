@@ -62,7 +62,7 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         compileTask.configure(task ->
         {
-            task.onlyIf(it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.onlyIf("target is enabled",it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getCompileOptions().set(sourceSet.getCompileOptions());
             task.getImportables().from(sourceSet.getImports());
             task.getIncludables().from(sourceSet.getIncludes());

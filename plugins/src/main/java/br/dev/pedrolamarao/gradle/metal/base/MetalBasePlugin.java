@@ -192,7 +192,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         linkTask.configure(task ->
         {
-            task.onlyIf(it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getArchives().from(component.getArchives());
             task.getLinkOptions().convention(component.getLinkOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
@@ -202,11 +202,8 @@ public class MetalBasePlugin implements Plugin<Project>
 
         tasks.register("run-%s".formatted(name), Exec.class, task ->
         {
-            task.onlyIf(it -> {
-                if (! linkTask.get().getOutput().get().getAsFile().exists()) return false;
-                if (component.getTargets().get().isEmpty()) return true;
-                return component.getTargets().get().contains(metal.getTarget().get());
-            });
+            task.onlyIf("executable file exists",it -> linkTask.get().getOutput().get().getAsFile().exists());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTask.get().getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.dependsOn(linkTask);
             task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
         });
@@ -233,7 +230,7 @@ public class MetalBasePlugin implements Plugin<Project>
 
         archiveTask.configure(task ->
         {
-            task.onlyIf(it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getArchiveOptions().convention(component.getArchiveOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("lib/%s".formatted(name)));
             task.setSource(component.getSources());

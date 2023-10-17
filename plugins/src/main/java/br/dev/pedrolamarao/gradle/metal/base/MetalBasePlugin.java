@@ -204,7 +204,7 @@ public class MetalBasePlugin implements Plugin<Project>
         {
             task.onlyIf(it -> {
                 if (! linkTask.get().getOutput().get().getAsFile().exists()) return false;
-                if (! component.getTargets().get().isEmpty()) return false;
+                if (component.getTargets().get().isEmpty()) return true;
                 return component.getTargets().get().contains(metal.getTarget().get());
             });
             task.dependsOn(linkTask);

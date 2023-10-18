@@ -1,4 +1,4 @@
-name: "ubuntu"
+name: "publish"
 on: [workflow_dispatch]
 jobs:
   publish:

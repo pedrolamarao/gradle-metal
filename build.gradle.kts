@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "br.dev.pedrolamarao.gradle.metal"
-version = "0.2"
+version = "0.3"
 
 subprojects {
     group = rootProject.group

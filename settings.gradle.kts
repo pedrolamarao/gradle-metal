@@ -3,7 +3,6 @@
 pluginManagement {
     plugins {
         id("com.gradle.plugin-publish") version("1.2.1")
-        id("com.palantir.git-version") version("3.0.0")
     }
 }
 

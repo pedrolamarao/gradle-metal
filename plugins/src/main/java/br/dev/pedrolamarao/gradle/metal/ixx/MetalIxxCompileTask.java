@@ -27,7 +27,7 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 
         // prepare compile arguments
         final var baseArgs = new ArrayList<String>();
-        if (getTarget().isPresent()) baseArgs.add("--target=%s".formatted(getTarget().get()));
+        baseArgs.add("--target=%s".formatted(getTarget().get()));
         baseArgs.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file)));
         getImportables().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file)));

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IxxFunctionalTest
 {
@@ -56,9 +57,43 @@ public class IxxFunctionalTest
             .withDebug(true)
             .build();
 
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
+
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );
         }
+    }
+
+    @Test
+    public void compileOptions () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.ixx")
+        }
+        
+        metal {
+            compileOptions = listOf("--foo")
+            
+            ixx { create("main") }
+        }
+        
+        tasks.register("compileOptions") {
+            doLast {
+                System.out.printf("%s",metal.ixx.named("main").flatMap{it.compileOptions}.get())
+            }
+        }
+        """
+        );
+
+        final var compileOptions = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("--quiet","compileOptions")
+            .build();
+
+        assertEquals("[--foo]",compileOptions.getOutput());
     }
 
     @Test
@@ -114,6 +149,8 @@ public class IxxFunctionalTest
             .withDebug(true)
             .build();
 
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
+
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 3, stream.count() );
         }
@@ -163,7 +200,7 @@ public class IxxFunctionalTest
             ixx {
                 create("main") {
                     compileOptions = listOf("-std=c++20")
-                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
+                    includes.from( cpp.named("main").map { it.sources } )
                 }
             }
         }
@@ -176,6 +213,8 @@ public class IxxFunctionalTest
             .withArguments("compile-main-ixx")
             .withDebug(true)
             .build();
+
+        assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
 
         try (var stream = Files.walk(projectDir.resolve("build/bmi")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );

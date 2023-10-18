@@ -1,6 +1,5 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalCompileTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Provider;
@@ -25,9 +24,7 @@ public abstract class MetalAsmCompileBaseTask extends MetalCompileTask
     @Input
     public Provider<File> getCompiler ()
     {
-        return getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutableFile(it,"clang"));
+        return getMetal().map(it -> it.locateTool("clang"));
     }
 
     /**
@@ -47,7 +44,7 @@ public abstract class MetalAsmCompileBaseTask extends MetalCompileTask
     protected List<String> toCompileArguments (Function<File,String> formatter)
     {
         final var arguments = new ArrayList<String>();
-        if (getTarget().isPresent()) arguments.add("--target=%s".formatted(getTarget().get()));
+        arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
         getIncludables().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
         arguments.add("--compile");

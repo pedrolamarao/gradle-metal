@@ -2,6 +2,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Exec;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 /**
@@ -16,6 +17,8 @@ public class MetalBasePlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(LifecycleBasePlugin.class);
+
+        project.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class, it -> {});
 
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
@@ -144,65 +147,100 @@ public class MetalBasePlugin implements Plugin<Project>
 
         // tasks
 
-        tasks.register("compile").configure(task ->
+        tasks.register("compile",task ->
         {
             task.setGroup("metal");
             task.setDescription("compile source files");
         });
 
-        tasks.register("archive").configure(task ->
+        final var archive = tasks.register("archive",task ->
         {
             task.setGroup("metal");
             task.setDescription("assemble archives");
         });
 
-        tasks.register("link").configure(task ->
+        final var link = tasks.register("link",task ->
         {
             task.setGroup("metal");
             task.setDescription("assemble executables");
         });
+
+        final var test = tasks.register("test",task ->
+        {
+            task.setGroup("metal");
+            task.setDescription("run test executables");
+        });
+
+        tasks.named("assemble").configure(it -> it.dependsOn(archive,link));
+
+        tasks.named("check").configure(it -> it.dependsOn(test));
     }
 
     static MetalApplication createApplication (Project project, String name)
     {
         final var configurations = project.getConfigurations();
-        final var metal = project.getExtensions().findByType(MetalExtension.class);
+        final var layout = project.getLayout();
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
-        final var linkOptions = objects.listProperty(String.class).convention(metal.getLinkOptions());
-        final var outputDirectory = project.getLayout().getBuildDirectory().dir("exe/%s".formatted(name));
+        final var linkTask = tasks.register("link-%s".formatted(name),MetalLinkTask.class);
+        final var component = objects.newInstance(MetalApplication.class,linkTask,name);
+        component.getLinkOptions().convention(metal.getLinkOptions());
+        component.getTargets().convention(metal.getTargets());
+        component.getArchives().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
 
-        final var linkTask = tasks.register("link-%s".formatted(name), MetalLinkTask.class, it ->
+        linkTask.configure(task ->
         {
-            it.getLinkables().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
-            it.getLinkOptions().convention(linkOptions);
-            it.getOutputDirectory().set(outputDirectory);
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getArchives().from(component.getArchives());
+            task.getLinkOptions().convention(component.getLinkOptions());
+            task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
+            task.setSource(component.getSources());
+            task.getTarget().convention(metal.getTarget());
         });
+
+        tasks.register("run-%s".formatted(name), Exec.class, task ->
+        {
+            task.onlyIf("executable file exists",it -> linkTask.get().getOutput().get().getAsFile().exists());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTask.get().getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.dependsOn(linkTask);
+            task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
+        });
+
         configurations.named(Metal.EXECUTABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(linkTask));
+
         tasks.named("link").configure(it -> it.dependsOn(linkTask));
 
-        return new MetalApplication(linkOptions, linkTask, name);
+        return component;
     }
 
     static MetalArchive createArchive (Project project, String name)
     {
         final var configurations = project.getConfigurations();
-        final var metal = project.getExtensions().findByType(MetalExtension.class);
+        final var layout = project.getLayout();
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
-        final var archiveOptions = objects.listProperty(String.class).convention(metal.getArchiveOptions());
-        final var outputDirectory = project.getLayout().getBuildDirectory().dir("lib/%s".formatted(name));
+        final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
+        final var component = objects.newInstance(MetalArchive.class,archiveTask,name);
+        component.getArchiveOptions().convention(metal.getArchiveOptions());
+        component.getTargets().convention(metal.getTargets());
 
-        final var archiveTask = tasks.register("archive-%s".formatted(name), MetalArchiveTask.class, it ->
+        archiveTask.configure(task ->
         {
-            it.getArchiveOptions().convention(archiveOptions);
-            it.getOutputDirectory().set(outputDirectory);
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getArchiveOptions().convention(component.getArchiveOptions());
+            task.getOutputDirectory().convention(layout.getBuildDirectory().dir("lib/%s".formatted(name)));
+            task.setSource(component.getSources());
+            task.getTarget().convention(metal.getTarget());
         });
+
         configurations.named(Metal.LINKABLE_ELEMENTS).configure(it -> it.getOutgoing().artifact(archiveTask));
+
         tasks.named("archive").configure(it -> it.dependsOn(archiveTask));
 
-        return new MetalArchive(archiveOptions, archiveTask, name);
+        return component;
     }
 }

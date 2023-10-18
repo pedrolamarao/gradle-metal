@@ -1,9 +1,11 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import org.gradle.api.Named;
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
 import org.gradle.api.NonNullApi;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
@@ -14,10 +16,8 @@ import javax.inject.Inject;
  * C++ module implementation sources.
  */
 @NonNullApi
-public class MetalIxxSources implements Named
+public abstract class MetalIxxSources extends MetalSources
 {
-    private final ListProperty<String> compileOptions;
-
     private final TaskProvider<MetalIxxCompileTask> compileTask;
 
     private final String name;
@@ -25,16 +25,16 @@ public class MetalIxxSources implements Named
     /**
      * Constructor.
      *
-     * @param compileOptions  compile options
-     * @param compileTask     compile task
-     * @param name            name
+     * @param compileTask compile task
+     * @param name        source set name
      */
     @Inject
-    public MetalIxxSources (ListProperty<String> compileOptions, TaskProvider<MetalIxxCompileTask> compileTask, String name)
+    public MetalIxxSources (TaskProvider<MetalIxxCompileTask> compileTask, String name)
     {
-        this.compileOptions = compileOptions;
         this.compileTask = compileTask;
         this.name = name;
+
+        getPublic().convention(false);
     }
 
     /**
@@ -42,10 +42,21 @@ public class MetalIxxSources implements Named
      *
      * @return property
      */
-    public ListProperty<String> getCompileOptions ()
-    {
-        return compileOptions;
-    }
+    public abstract ListProperty<String> getCompileOptions ();
+
+    /**
+     * Imports.
+     *
+     * @return collection
+     */
+    public abstract ConfigurableFileCollection getImports ();
+
+    /**
+     * Includes.
+     *
+     * @return collection
+     */
+    public abstract ConfigurableFileCollection getIncludes ();
 
     /**
      * {@inheritDoc}
@@ -77,22 +88,15 @@ public class MetalIxxSources implements Named
     }
 
     /**
-     * Adds directories to the include path.
-     * .
-     * @param sources  sources to add
-     */
-    public void includable (Object... sources)
-    {
-        compileTask.configure(it -> it.getIncludables().from(sources));
-    }
-
-    /**
-     * Adds directories to the import path.
+     * If this source set is public and must be published.
      *
-     * @param sources  sources to add
+     * @return property
      */
-    public void importable (Object... sources)
+    public abstract Property<Boolean> getPublic ();
+
+    @Override
+    public String toString ()
     {
-        compileTask.configure(it -> it.getImportables().from(sources));
+        return "MetalIxxSources[%s]".formatted(name);
     }
 }

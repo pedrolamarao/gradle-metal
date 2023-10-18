@@ -2,14 +2,16 @@
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
 Gradle Metal is a suite of Gradle plugins supporting development for the bare metal,
-primarily design to support project link:https://github.com/pedrolamarao/psys[Metal].
+primarily designed to support project link:https://github.com/pedrolamarao/metal[Metal].
 
 Features:
 
-* multiple languages (assembler, c and c++)
-* multiple components (static archives, shared libraries and executables)
-* compile commands database (for clang-check, CLion etc.)
-* dependency on included (sub)project, included build and external prebuilt components
+* compile assembler, c and c++ (including c++ module interfaces)
+* assemble archives and executables
+* build target support (e.g. `x86_64-elf`)
+* generate compilation commands database
+* source dependency on included project
+* binary dependency on prebuilt external project
 * LLVM tools
 
 [WARNING]
@@ -23,12 +25,12 @@ Current requirements:
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 
-Plugins are published to Gradle's Plugin Portal. To apply using the plugins DSL:
+Plugins are published to Gradle’s Plugin Portal. To apply using the plugins DSL:
 
-[source,kotlin]
+[source]
 ----
 plugins {
-    id("br.dev.pedrolamarao.metal.base") version("0.1-rc-0")
+    id("br.dev.pedrolamarao.metal.base") version("0.3")
 }
 ----
 
@@ -36,20 +38,22 @@ Check the link:samples[] for a variety of use-cases.
 
 Plugins:
 
-* `br.dev.pedrolamarao.metal.base`: adds the `metal` extension
-* `br.dev.pedrolamarao.metal.application`: creates a conventional "main" application with tasks
-* `br.dev.pedrolamarao.metal.archive`: creates a conventional "main" archive with tasks
-* `br.dev.pedrolamarao.metal.asm`:  adds assembler sources to "main" component (at `src/main/asm`) with tasks
-* `br.dev.pedrolamarao.metal.c`: adds C sources to "main" component (at `src/main/c`) with tasks
-* `br.dev.pedrolamarao.metal.cpp`: adds CPP sources to "main" component  (at `src/main/cxx`) with tasks
-* `br.dev.pedrolamarao.metal.cxx`: adds C++ module implementation sources to "main" component  (at `src/main/cxx`) with tasks
-* `br.dev.pedrolamarao.metal.ixx`: adds C++ module interface sources to "main" component  (at `src/main/cxx`) with tasks
+* `br.dev.pedrolamarao.metal.base`: adds the Gradle Metal service and extension
+* `br.dev.pedrolamarao.metal.application`: conventional application project
+* `br.dev.pedrolamarao.metal.archive`: conventional archive project
+* `br.dev.pedrolamarao.metal.asm`:  adds assembler source sets
+* `br.dev.pedrolamarao.metal.c`: adds C sources sets
+* `br.dev.pedrolamarao.metal.cpp`: adds C preprocessor source sets
+* `br.dev.pedrolamarao.metal.cxx`: adds C++ module implementation source sets
+* `br.dev.pedrolamarao.metal.ixx`: adds C++ module interface source sets
 
 Under construction:
 
-* dependencies on external cmake project, maven repository
-* GCC and MSVC tools
-* variant flavours (release, debug)
-* variant target machines (any "triple")
+* build flavour support (e.g. `debug`, `release`)
+* shared library component
+* source dependencies on cmake project
+* binary dependencies on maven repository
+* GCC tools
+* MSVC tools
 
 For development status, see Github issues at link:https://github.com/pedrolamarao/gradle-metal/issues[].

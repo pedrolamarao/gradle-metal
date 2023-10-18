@@ -20,12 +20,12 @@ import java.util.ArrayList;
 public abstract class MetalLinkTask extends MetalSourceTask
 {
     /**
-     * Additional linkable sources. (Probably obsolete.)
+     * Archives.
      *
      * @return collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getLinkables ();
+    public abstract ConfigurableFileCollection getArchives ();
 
     /**
      * Linker executable path.
@@ -35,9 +35,7 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @Input
     public Provider<File> getLinker ()
     {
-        return getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutableFile(it,"clang++"));
+        return getMetal().map(it -> it.locateTool("clang++"));
     }
 
     /**
@@ -56,9 +54,11 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        final var target = getTarget().orElse("default").get();
-        final var name = getProject().getName();
-        return getOutputDirectory().map(it -> it.file("%s/%s.exe".formatted(target,name)));
+        return getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().executableFileName(target,getProject().getName());
+            return out.file("%s/%s".formatted(target,file));
+        });
     }
 
     /**
@@ -68,6 +68,14 @@ public abstract class MetalLinkTask extends MetalSourceTask
      */
     @Internal
     public abstract DirectoryProperty getOutputDirectory ();
+
+    /**
+     * Internal source file collection.
+     *
+     * @return collection
+     */
+    @InputFiles
+    protected abstract ConfigurableFileCollection getInternalSources ();
 
     /**
      * Exec operations service.
@@ -85,22 +93,22 @@ public abstract class MetalLinkTask extends MetalSourceTask
     {
         final var output = getOutput().get().getAsFile().toPath();
 
+        // TODO: workaround to clang incorrectly attempting to link with gcc
+        var linkTarget = getTarget().get();
+        linkTarget = switch (linkTarget) {
+            case "i686-elf" -> "i686-linux-elf";
+            case "x86_64-elf" -> "x86_64-linux-elf";
+            default -> linkTarget;
+        };
+
         final var linkArgs = new ArrayList<String>();
-        if (getTarget().isPresent()) {
-            var linkTarget = getTarget().get();
-            // workaround to clang incorrectly attempting to link with gcc
-            linkTarget = switch (linkTarget) {
-                case "i686-elf" -> "i686-linux-elf";
-                case "x86_64-elf" -> "x86_64-linux-elf";
-                default -> linkTarget;
-            };
-            linkArgs.add("--target=%s".formatted(linkTarget));
-            linkArgs.add("-fuse-ld=lld");
-        }
+        linkArgs.add("--target=%s".formatted(linkTarget));
+        linkArgs.add("-fuse-ld=lld");
         linkArgs.addAll(getLinkOptions().get());
         linkArgs.add("--output=%s".formatted(output));
-        getLinkables().forEach(file -> linkArgs.add(file.toString()));
+        getArchives().forEach(file -> linkArgs.add(file.toString()));
         getSource().forEach(file -> linkArgs.add(file.toString()));
+        getInternalSources().forEach(file -> linkArgs.add(file.toString()));
 
         getExec().exec(it ->
         {

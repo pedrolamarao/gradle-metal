@@ -8,7 +8,7 @@ plugins {
 val versionDetails: groovy.lang.Closure<com.palantir.gradle.gitversion.VersionDetails> by extra
 
 group = "br.dev.pedrolamarao.gradle.metal"
-version = versionDetails().let { "0.3-rc-1" }
+version = versionDetails().let { "0.4-next+${it.gitHash}" }
 
 subprojects {
     group = rootProject.group

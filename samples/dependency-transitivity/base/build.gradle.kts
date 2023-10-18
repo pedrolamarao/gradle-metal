@@ -7,3 +7,11 @@ plugins {
 dependencies {
     implementation(project(":internal"))
 }
+
+metal {
+    cpp {
+        main {
+            public = true
+        }
+    }
+}

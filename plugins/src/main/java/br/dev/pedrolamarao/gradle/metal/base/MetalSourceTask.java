@@ -2,8 +2,8 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.SourceTask;
 
 import javax.inject.Inject;
@@ -19,23 +19,21 @@ public abstract class MetalSourceTask extends SourceTask
      * @return property
      */
     @Input
-    @Optional
     public abstract Property<String> getTarget ();
 
     /**
-     * Provider factory service.
+     * Metal service.
      *
      * @return service
      */
-    @Inject
-    protected abstract ProviderFactory getProviders ();
+    @ServiceReference
+    protected abstract Property<MetalService> getMetal ();
 
     /**
      * Constructor.
      */
-    @Inject
-    public MetalSourceTask ()
+    protected MetalSourceTask ()
     {
-        getTarget().convention(getProviders().gradleProperty("metal.target"));
+        getTarget().convention( getMetal().map(MetalService::getTarget) );
     }
 }

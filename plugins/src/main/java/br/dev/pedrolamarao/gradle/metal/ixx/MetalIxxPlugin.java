@@ -3,7 +3,6 @@ package br.dev.pedrolamarao.gradle.metal.ixx;
 import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
-import br.dev.pedrolamarao.gradle.metal.cpp.MetalCppPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
@@ -20,7 +19,6 @@ public class MetalIxxPlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(MetalBasePlugin.class);
-        project.getPluginManager().apply(MetalCppPlugin.class);
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
@@ -32,41 +30,57 @@ public class MetalIxxPlugin implements Plugin<Project>
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
-        final var metal = project.getExtensions().findByType(MetalExtension.class);
+        final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        final var commandsTask = tasks.register("commands-%s-ixx".formatted(name), MetalIxxCommandsTask.class);
+        final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class);
+        final var sourceSet = objects.newInstance(MetalIxxSources.class,compileTask,name);
+        sourceSet.getCompileOptions().convention(metal.getCompileOptions());
+        sourceSet.getImports().from(configurations.named(Metal.IMPORTABLE_DEPENDENCIES));
+        sourceSet.getIncludes().from(configurations.named(Metal.INCLUDABLE_DEPENDENCIES));
+        sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
+        sourceSet.getTargets().convention(metal.getTargets());
+
         final var commandsDirectory = layout.getBuildDirectory().dir("db/%s/ixx".formatted(name));
-        final var compileOptions = objects.listProperty(String.class).convention(metal.getCompileOptions());
-        final var importables = configurations.named(Metal.IMPORTABLE_DEPENDENCIES);
-        final var includables = configurations.named(Metal.INCLUDABLE_DEPENDENCIES);
-        final var sources = objects.sourceDirectorySet(name,name);
-        sources.srcDir(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         final var objectDirectory = layout.getBuildDirectory().dir("bmi/%s/ixx".formatted(name));
 
-        final var commandsTask = tasks.register("commands-%s-ixx".formatted(name), MetalIxxCommandsTask.class, task ->
+        commandsTask.configure(task ->
         {
-            task.getCompileOptions().set(compileOptions);
-            task.getIncludables().from(includables);
-            task.getImportables().from(importables);
-            task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
-            task.getOutputDirectory().set(commandsDirectory);
-            task.setSource(sources);
+            task.getCompileOptions().convention(sourceSet.getCompileOptions());
+            task.getImportables().from(sourceSet.getImports());
+            task.getIncludables().from(sourceSet.getIncludes());
+            task.getObjectDirectory().convention(objectDirectory.map(Directory::getAsFile));
+            task.getOutputDirectory().convention(commandsDirectory);
+            task.setSource(sourceSet.getSources());
+            task.getTarget().convention(metal.getTarget());
         });
+
+        compileTask.configure(task ->
+        {
+            task.onlyIf("target is enabled",it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            task.getCompileOptions().convention(sourceSet.getCompileOptions());
+            task.getImportables().from(sourceSet.getImports());
+            task.getIncludables().from(sourceSet.getIncludes());
+            task.getOutputDirectory().convention(objectDirectory);
+            task.setSource(sourceSet.getSources());
+            task.getTarget().convention(metal.getTarget());
+        });
+
         configurations.named(Metal.COMMANDS_ELEMENTS).configure(it -> it.getOutgoing().artifact(commandsTask));
 
-        final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class, task ->
+        project.afterEvaluate(__ ->
         {
-            task.getCompileOptions().set(compileOptions);
-            task.getIncludables().from(includables);
-            task.getImportables().from(importables);
-            task.getOutputDirectory().set(objectDirectory);
-            task.setSource(sources);
-        });
-        configurations.named(Metal.IMPORTABLE_ELEMENTS).configure(configuration -> {
-            configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getTargetDirectory), it -> it.builtBy(compileTask));
+            if (sourceSet.getPublic().get()) {
+                configurations.named(Metal.IMPORTABLE_ELEMENTS).configure(configuration -> {
+                    configuration.getOutgoing().artifact(compileTask.map(MetalIxxCompileTask::getTargetDirectory),it->it.builtBy(compileTask));
+                });
+            }
         });
 
-        return new MetalIxxSources(compileOptions, compileTask, name);
+        tasks.named("compile").configure(it -> it.dependsOn(compileTask));
+
+        return sourceSet;
     }
 }

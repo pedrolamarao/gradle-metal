@@ -5,14 +5,10 @@ plugins {
 }
 
 metal {
+    compileOptions = listOf("-std=c++20")
     ixx {
-        named("main") {
-            compileOptions = listOf("-std=c++20")
-        }
-    }
-    cxx {
-        named("main") {
-            compileOptions = listOf("-std=c++20")
+        main {
+            public = true
         }
     }
 }

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CxxFunctionalTest
 {
@@ -49,9 +49,43 @@ public class CxxFunctionalTest
             .withDebug(true)
             .build();
 
+        assertTrue( Files.exists(projectDir.resolve("build/obj")) );
+
         try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );
         }
+    }
+
+    @Test
+    public void compileOptions () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        metal {
+            compileOptions = listOf("--foo")
+            
+            cxx { create("main") }
+        }
+        
+        tasks.register("compileOptions") {
+            doLast {
+                System.out.printf("%s",metal.cxx.named("main").flatMap{it.compileOptions}.get())
+            }
+        }
+        """
+        );
+
+        final var compileOptions = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("--quiet","compileOptions")
+            .build();
+
+        assertEquals("[--foo]",compileOptions.getOutput());
     }
 
     @Test
@@ -90,7 +124,7 @@ public class CxxFunctionalTest
             }
             cxx {
                 create("main") {
-                    includable( cpp.named("main").map { it.sources.sourceDirectories } )
+                    includes.from( cpp.named("main").map { it.sources } )
                 }
             }
         }
@@ -103,6 +137,92 @@ public class CxxFunctionalTest
             .withArguments("compile-main-cxx")
             .withDebug(true)
             .build();
+
+        assertTrue( Files.exists(projectDir.resolve("build/obj")) );
+
+        try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
+            assertEquals( 1, stream.count() );
+        }
+    }
+
+    @Test
+    public void targetDisabled () throws IOException
+    {
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+
+        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
+        """
+        int main (int argc, char * argv [])
+        {
+            return 0;
+        }
+        """
+        );
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        metal {
+            cxx {
+                create("main") {
+                    targets = setOf("i686-elf")
+                }
+            }
+        }
+        """
+        );
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("compile-main-cxx","-Pmetal.target=x86_64-elf")
+            .withDebug(true)
+            .build();
+
+        assertFalse( Files.exists(projectDir.resolve("build/obj")) );
+    }
+
+    @Test
+    public void targetEnabled () throws IOException
+    {
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+
+        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
+        """
+        int main (int argc, char * argv [])
+        {
+            return 0;
+        }
+        """
+        );
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        metal {
+            cxx {
+                create("main") {
+                    targets = setOf("i686-elf")
+                }
+            }
+        }
+        """
+        );
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("compile-main-cxx","-Pmetal.target=i686-elf")
+            .withDebug(true)
+            .build();
+
+        assertTrue( Files.exists(projectDir.resolve("build/obj")) );
 
         try (var stream = Files.walk(projectDir.resolve("build/obj")).filter(Files::isRegularFile)) {
             assertEquals( 1, stream.count() );

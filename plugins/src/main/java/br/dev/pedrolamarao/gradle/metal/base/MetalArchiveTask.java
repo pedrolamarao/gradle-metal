@@ -29,9 +29,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Input
     public Provider<File> getArchiver ()
     {
-        return getProviders().gradleProperty("metal.path")
-            .orElse(getProviders().environmentVariable("PATH"))
-            .map(it -> Metal.toExecutableFile(it,"llvm-ar"));
+        return getMetal().map(it -> it.locateTool("llvm-ar"));
     }
 
     /**
@@ -50,9 +48,11 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        final var target = getTarget().orElse("default").get();
-        final var name = getProject().getName();
-        return getOutputDirectory().map(it -> it.file("%s/%s.lib".formatted(target,name)));
+        return getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().archiveFileName(target,getProject().getName());
+            return out.file("%s/%s".formatted(target,file));
+        });
     }
 
     /**

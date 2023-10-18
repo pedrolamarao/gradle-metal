@@ -25,7 +25,7 @@ public class ArchiveFunctionalTest
         
         metal {
             archives {
-                named("main") {
+                main {
                     archiveOptions = listOf()
                 }
             }
@@ -36,7 +36,6 @@ public class ArchiveFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 
@@ -53,12 +52,12 @@ public class ArchiveFunctionalTest
          
         metal {
             %s {
-                named("main") {
+                main {
                     compileOptions = listOf()
                 }
             }
             archives {
-                named("main") {
+                main {
                     archiveOptions = listOf()
                 }
             }
@@ -69,7 +68,38 @@ public class ArchiveFunctionalTest
         GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
+            .build();
+    }
+
+    @Test
+    public void testCxx () throws IOException
+    {
+        final var testLanguageDir = projectDir.resolve("src/test/cxx");
+
+        Files.createDirectories(testLanguageDir);
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.archive")
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        """
+        );
+
+        Files.writeString(testLanguageDir.resolve("test.cxx"),
+        """
+        int main (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """
+        );
+
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("run-test")
             .build();
     }
 }

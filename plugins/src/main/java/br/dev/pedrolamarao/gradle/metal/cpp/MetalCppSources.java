@@ -1,30 +1,29 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
-import org.gradle.api.Named;
-import org.gradle.api.file.SourceDirectorySet;
+import br.dev.pedrolamarao.gradle.metal.base.MetalSources;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
 /**
  * C preprocessor sources.
  */
-public class MetalCppSources implements Named
+public abstract class MetalCppSources extends MetalSources
 {
     private final String name;
-
-    private final SourceDirectorySet sources;
 
     /**
      * Constructor.
      *
-     * @param name     name
-     * @param sources  sources
+     * @param name  name
      */
     @Inject
-    public MetalCppSources (String name, SourceDirectorySet sources)
+    public MetalCppSources (String name)
     {
         this.name = name;
-        this.sources = sources;
+
+        getPublic().convention(false);
     }
 
     /**
@@ -37,12 +36,22 @@ public class MetalCppSources implements Named
     }
 
     /**
+     * If these sources a public and must be published.
+     *
+     * @return true if public
+     */
+    public abstract Property<Boolean> getPublic ();
+
+    /**
      * Source directory set.
      *
      * @return value
      */
-    public SourceDirectorySet getSources ()
+    public abstract ConfigurableFileCollection getSources ();
+
+    @Override
+    public String toString ()
     {
-        return sources;
+        return "MetalCppSources[%s]".formatted(name);
     }
 }

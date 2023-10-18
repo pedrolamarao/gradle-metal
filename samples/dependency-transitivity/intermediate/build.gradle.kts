@@ -8,3 +8,11 @@ dependencies {
     api(project(":base"))
     implementation(project(":internal"))
 }
+
+metal {
+    cpp {
+        main {
+            public = true
+        }
+    }
+}

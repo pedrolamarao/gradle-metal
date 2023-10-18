@@ -5,9 +5,10 @@ plugins {
 }
 
 metal {
-    cxx {
-        named("main") {
-            compileOptions = listOf("-fasm-blocks","-std=c++20")
+    compileOptions = listOf("-fasm-blocks","-std=c++20")
+    cpp {
+        main {
+            public = true
         }
     }
 }

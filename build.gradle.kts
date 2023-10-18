@@ -1,11 +1,14 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
 plugins {
+    id("com.palantir.git-version")
     id("base")
 }
 
+val versionDetails: groovy.lang.Closure<com.palantir.gradle.gitversion.VersionDetails> by extra
+
 group = "br.dev.pedrolamarao.gradle.metal"
-version = "0.2"
+version = versionDetails().let { "0.3-rc-1" }
 
 subprojects {
     group = rootProject.group

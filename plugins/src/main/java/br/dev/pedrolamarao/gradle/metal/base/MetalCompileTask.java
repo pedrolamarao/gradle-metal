@@ -41,7 +41,7 @@ public abstract class MetalCompileTask extends MetalSourceTask
     @OutputDirectory
     public Provider<Directory> getTargetDirectory ()
     {
-        return getOutputDirectory().flatMap(it -> it.dir(getTarget().orElse("default")));
+        return getOutputDirectory().flatMap(out -> getTarget().map(out::dir));
     }
 
     /**

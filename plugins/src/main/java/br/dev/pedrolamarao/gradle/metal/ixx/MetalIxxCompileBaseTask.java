@@ -1,12 +1,13 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
+import br.dev.pedrolamarao.gradle.metal.base.MetalService;
 import br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxCompileBaseTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.Input;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -73,12 +74,12 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         public abstract ExecOperations getExec ();
 
         /**
-         * Provider factory service.
+         * Metal service.
          *
          * @return service
          */
-        @Inject
-        public abstract ProviderFactory getProviders ();
+        @ServiceReference
+        public abstract Property<MetalService> getMetal ();
 
         /**
          * Scanner executable path.
@@ -88,9 +89,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         @Input
         public Provider<File> getScanner ()
         {
-            return getProviders().gradleProperty("metal.path")
-                .orElse(getProviders().environmentVariable("PATH"))
-                .map(it -> Metal.toExecutableFile(it,"clang-scan-deps"));
+            return getMetal().map(it -> it.locateTool("clang-scan-deps"));
         }
 
         /**

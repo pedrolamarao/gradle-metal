@@ -25,21 +25,12 @@ Current requirements:
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 
-To use the development version, you may install from source with `./gradlew publishToMavenLocal` and configure your project's settings like this:
+Plugins are published to Gradle’s Plugin Portal. To apply using the plugins DSL:
 
 [source]
 ----
-pluginManagement {
-    repositories {
-        mavenLocal()
-    }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {
-                useModule("br.dev.pedrolamarao.gradle.metal:plugins:0.3+")
-            }
-        }
-    }
+plugins {
+    id("br.dev.pedrolamarao.metal.base") version("0.3")
 }
 ----
 

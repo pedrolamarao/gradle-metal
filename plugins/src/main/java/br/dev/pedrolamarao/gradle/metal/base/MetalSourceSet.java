@@ -7,17 +7,17 @@ import org.gradle.api.provider.SetProperty;
 /**
  * Gradle Metal sources.
  */
-public abstract class MetalSources implements Named
+public abstract class MetalSourceSet implements Named
 {
     /**
-     * Source file collection.
+     * Sources.
      *
-     * @return collection
+     * @return configurable collection
      */
     public abstract ConfigurableFileCollection getSources ();
 
     /**
-     * Target set.
+     * Targets.
      *
      * @return property
      */

@@ -35,7 +35,7 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
      * @return collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getIncludables ();
+    public abstract ConfigurableFileCollection getInclude ();
 
     /**
      * Import path.
@@ -43,7 +43,7 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
      * @return collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getImportables ();
+    public abstract ConfigurableFileCollection getImport ();
 
     /**
      * Generate compiler arguments.
@@ -56,8 +56,8 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
         final var arguments = new ArrayList<String>();
         arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
-        getImportables().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));
-        getIncludables().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
+        getImport().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));
+        getInclude().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
         arguments.add("--compile");
         return arguments;
     }

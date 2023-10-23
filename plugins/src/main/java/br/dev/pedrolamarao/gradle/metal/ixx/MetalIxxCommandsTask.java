@@ -56,8 +56,8 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
         baseArgs.add(getCompiler().get().toString().replace("\\","\\\\"));
         baseArgs.add("--target=%s".formatted(getTarget().get()));
         baseArgs.addAll(getCompileOptions().get());
-        getIncludables().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
-        getImportables().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
+        getInclude().forEach(file -> baseArgs.add("--include-directory=%s".formatted(file).replace("\\","\\\\")));
+        getImport().forEach(file -> baseArgs.add("-fprebuilt-module-path=%s".formatted(file).replace("\\","\\\\")));
         baseArgs.add("-fprebuilt-module-path=%s".formatted(getObjectDirectory().get()).replace("\\","\\\\"));
         baseArgs.add("--precompile");
         baseArgs.add("--language=c++-module");

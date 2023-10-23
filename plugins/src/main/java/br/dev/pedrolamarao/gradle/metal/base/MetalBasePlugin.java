@@ -193,7 +193,7 @@ public class MetalBasePlugin implements Plugin<Project>
         linkTask.configure(task ->
         {
             task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
-            task.getArchives().from(component.getArchives());
+            task.getLink().from(component.getArchives());
             task.getLinkOptions().convention(component.getLinkOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
             task.setSource(component.getSources());

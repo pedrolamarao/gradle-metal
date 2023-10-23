@@ -124,7 +124,7 @@ public class CxxFunctionalTest
             }
             cxx {
                 create("main") {
-                    includes.from( cpp.named("main").map { it.sources } )
+                    include.from( cpp.named("main").map { it.includables } )
                 }
             }
         }

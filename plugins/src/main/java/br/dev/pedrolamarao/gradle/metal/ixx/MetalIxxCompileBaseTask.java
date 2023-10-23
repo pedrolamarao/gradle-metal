@@ -174,7 +174,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         final var scanArgs = new ArrayList<String>();
         scanArgs.add(getCompiler().get().toString());
         scanArgs.addAll(getCompileOptions().get());
-        getIncludables().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
+        getInclude().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
         scanArgs.add("--language=c++-module");
         scanArgs.add("--precompile");
 

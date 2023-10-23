@@ -200,7 +200,7 @@ public class IxxFunctionalTest
             ixx {
                 create("main") {
                     compileOptions = listOf("-std=c++20")
-                    includes.from( cpp.named("main").map { it.sources } )
+                    include.from( cpp.named("main").map { it.includables } )
                 }
             }
         }

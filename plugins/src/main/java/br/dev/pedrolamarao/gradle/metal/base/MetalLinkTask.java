@@ -20,12 +20,12 @@ import java.util.ArrayList;
 public abstract class MetalLinkTask extends MetalSourceTask
 {
     /**
-     * Archives.
+     * Link dependencies.
      *
-     * @return collection
+     * @return configurable collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getArchives ();
+    public abstract ConfigurableFileCollection getLink ();
 
     /**
      * Linker executable path.
@@ -70,14 +70,6 @@ public abstract class MetalLinkTask extends MetalSourceTask
     public abstract DirectoryProperty getOutputDirectory ();
 
     /**
-     * Internal source file collection.
-     *
-     * @return collection
-     */
-    @InputFiles
-    protected abstract ConfigurableFileCollection getInternalSources ();
-
-    /**
      * Exec operations service.
      *
      * @return service
@@ -106,9 +98,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
         linkArgs.add("-fuse-ld=lld");
         linkArgs.addAll(getLinkOptions().get());
         linkArgs.add("--output=%s".formatted(output));
-        getArchives().forEach(file -> linkArgs.add(file.toString()));
         getSource().forEach(file -> linkArgs.add(file.toString()));
-        getInternalSources().forEach(file -> linkArgs.add(file.toString()));
+        getLink().forEach(file -> linkArgs.add(file.toString()));
 
         getExec().exec(it ->
         {

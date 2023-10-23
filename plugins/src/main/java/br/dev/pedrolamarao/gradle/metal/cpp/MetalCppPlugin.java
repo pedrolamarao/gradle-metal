@@ -21,18 +21,18 @@ public class MetalCppPlugin implements Plugin<Project>
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
-        final var cpp = project.getObjects().domainObjectContainer(MetalCppSources.class, name -> createCppSources(project,name));
+        final var cpp = project.getObjects().domainObjectContainer(MetalCppSourceSet.class, name -> createCppSources(project,name));
         metal.getExtensions().add("cpp", cpp);
     }
 
-    static MetalCppSources createCppSources (Project project, String name)
+    static MetalCppSourceSet createCppSources (Project project, String name)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var objects = project.getObjects();
         final var providers = project.getProviders();
 
-        final var sourceSet = objects.newInstance(MetalCppSources.class,name);
+        final var sourceSet = objects.newInstance(MetalCppSourceSet.class,name);
         sourceSet.getSources().from( layout.getProjectDirectory().dir("src/%s/cpp".formatted(name)) );
 
         project.afterEvaluate(it ->

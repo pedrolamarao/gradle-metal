@@ -14,7 +14,7 @@ public abstract class MetalComponent implements Named
      *
      * @return collection
      */
-    protected abstract ConfigurableFileCollection getInternalSources ();
+    protected abstract ConfigurableFileCollection getLink ();
 
     /**
      * Source file collection.

@@ -25,11 +25,11 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
-        final var cxx = project.getObjects().domainObjectContainer(MetalCxxSources.class, name -> createSources(project,name));
+        final var cxx = project.getObjects().domainObjectContainer(MetalCxxSourceSet.class, name -> createSources(project,name));
         metal.getExtensions().add("cxx", cxx);
     }
 
-    static MetalCxxSources createSources (Project project, String name)
+    static MetalCxxSourceSet createSources (Project project, String name)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -37,12 +37,15 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        final var linkables = objects.fileCollection();
+
         final var commandsTask = tasks.register("commands-%s-cxx".formatted(name),MetalCxxCommandsTask.class);
         final var compileTask = tasks.register("compile-%s-cxx".formatted(name),MetalCxxCompileTask.class);
-        final var sourceSet = objects.newInstance(MetalCxxSources.class,commandsTask,compileTask,name);
+        linkables.from(compileTask);
+        final var sourceSet = objects.newInstance(MetalCxxSourceSet.class,linkables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getImports().from(configurations.named(IMPORTABLE_DEPENDENCIES));
-        sourceSet.getIncludes().from(configurations.named(INCLUDABLE_DEPENDENCIES));
+        sourceSet.getImport().from(configurations.named(IMPORTABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 
@@ -52,11 +55,11 @@ public class MetalCxxPlugin implements Plugin<Project>
         commandsTask.configure(task ->
         {
             task.getCompileOptions().set(sourceSet.getCompileOptions());
-            task.getImportables().from(sourceSet.getImports());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getImport().from(sourceSet.getImport());
+            task.getInclude().from(sourceSet.getInclude());
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             task.getOutputDirectory().set(commandsDirectory);
-            task.setSource(sourceSet.getSources());
+            task.setSource(sourceSet.getSources().plus(sourceSet.getCompile()));
             task.getTarget().convention(metal.getTarget());
         });
 
@@ -64,10 +67,10 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             task.onlyIf("target is enabled",it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getCompileOptions().set(sourceSet.getCompileOptions());
-            task.getImportables().from(sourceSet.getImports());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getImport().from(sourceSet.getImport());
+            task.getInclude().from(sourceSet.getInclude());
             task.getOutputDirectory().set(objectDirectory);
-            task.setSource(sourceSet.getSources());
+            task.setSource(sourceSet.getSources().plus(sourceSet.getCompile()));
             task.getTarget().convention(metal.getTarget());
         });
 

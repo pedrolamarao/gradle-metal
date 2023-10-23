@@ -185,18 +185,18 @@ public class MetalBasePlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var linkTask = tasks.register("link-%s".formatted(name),MetalLinkTask.class);
-        final var component = objects.newInstance(MetalApplication.class,linkTask,name);
+        final var component = objects.newInstance(MetalApplication.class,name);
         component.getLinkOptions().convention(metal.getLinkOptions());
         component.getTargets().convention(metal.getTargets());
-        component.getArchives().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
+        component.getArchive().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
 
         linkTask.configure(task ->
         {
             task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
-            task.getLink().from(component.getArchives());
+            task.getLink().from(component.getArchive());
             task.getLinkOptions().convention(component.getLinkOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
-            task.setSource(component.getSources());
+            task.setSource(component.getSource());
             task.getTarget().convention(metal.getTarget());
         });
 
@@ -224,7 +224,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var tasks = project.getTasks();
 
         final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
-        final var component = objects.newInstance(MetalArchive.class,archiveTask,name);
+        final var component = objects.newInstance(MetalArchive.class,name);
         component.getArchiveOptions().convention(metal.getArchiveOptions());
         component.getTargets().convention(metal.getTargets());
 
@@ -233,7 +233,7 @@ public class MetalBasePlugin implements Plugin<Project>
             task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getArchiveOptions().convention(component.getArchiveOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("lib/%s".formatted(name)));
-            task.setSource(component.getSources());
+            task.setSource(component.getSource());
             task.getTarget().convention(metal.getTarget());
         });
 

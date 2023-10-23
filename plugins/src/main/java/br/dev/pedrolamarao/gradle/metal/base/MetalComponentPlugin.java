@@ -46,7 +46,7 @@ public abstract class MetalComponentPlugin
             final var asm = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("asm");
             final var sources = (MetalAsmSourceSet) asm.create(name);
             sources.getTargets().convention(component.getTargets());
-            component.getSources().from(sources.getLinkables());
+            component.getSource().from(sources.getLinkables());
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
 
@@ -58,7 +58,7 @@ public abstract class MetalComponentPlugin
             final var c = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("c");
             final var sources = (MetalCSourceSet) c.create(name);
             sources.getTargets().convention(component.getTargets());
-            component.getSources().from(sources.getLinkables());
+            component.getSource().from(sources.getLinkables());
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
 
@@ -70,7 +70,7 @@ public abstract class MetalComponentPlugin
             final var cxx = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
             final var sources = (MetalCxxSourceSet) cxx.create(name);
             sources.getTargets().convention(component.getTargets());
-            component.getSources().from(sources.getLinkables());
+            component.getSource().from(sources.getLinkables());
             project.getLogger().info("gradle-metal: creating main sources: {}",sources);
         });
 

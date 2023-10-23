@@ -186,14 +186,14 @@ public class MetalBasePlugin implements Plugin<Project>
 
         final var linkTask = tasks.register("link-%s".formatted(name),MetalLinkTask.class);
         final var component = objects.newInstance(MetalApplication.class,name);
+        component.getLink().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
         component.getLinkOptions().convention(metal.getLinkOptions());
         component.getTargets().convention(metal.getTargets());
-        component.getArchive().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
 
         linkTask.configure(task ->
         {
             task.onlyIf("target is enabled",it -> component.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
-            task.getLink().from(component.getArchive());
+            task.getLink().from(component.getLink());
             task.getLinkOptions().convention(component.getLinkOptions());
             task.getOutputDirectory().convention(layout.getBuildDirectory().dir("exe/%s".formatted(name)));
             task.setSource(component.getSource());

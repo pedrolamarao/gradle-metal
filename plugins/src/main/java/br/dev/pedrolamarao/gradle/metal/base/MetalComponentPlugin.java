@@ -8,6 +8,8 @@ import br.dev.pedrolamarao.gradle.metal.ixx.MetalIxxSourceSet;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 
+import java.io.File;
+
 /**
  * Component project plugin.
  */
@@ -162,7 +164,7 @@ public abstract class MetalComponentPlugin
             final var metal = extensions.getByType(MetalExtension.class);
             final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("asm");
             final var sources = (MetalAsmSourceSet) container.getByName(dependency.getName());
-            dependent.getLink().from(sources.getLinkables());
+            dependent.getLink().from(sources.getLinkables().filter(File::isFile));
             logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
         });
 
@@ -171,7 +173,7 @@ public abstract class MetalComponentPlugin
             final var metal = extensions.getByType(MetalExtension.class);
             final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("c");
             final var sources = (MetalCSourceSet) container.getByName(dependency.getName());
-            dependent.getLink().from(sources.getLinkables());
+            dependent.getLink().from(sources.getLinkables().filter(File::isFile));
             logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
         });
 
@@ -180,7 +182,7 @@ public abstract class MetalComponentPlugin
             final var metal = extensions.getByType(MetalExtension.class);
             final var container = (NamedDomainObjectContainer<?>) metal.getExtensions().getByName("cxx");
             final var sources = (MetalCxxSourceSet) container.getByName(dependency.getName());
-            dependent.getLink().from(sources.getLinkables());
+            dependent.getLink().from(sources.getLinkables().filter(File::isFile));
             logger.info("gradle-metal: wiring: {} -> {}", sources, dependent);
         });
 

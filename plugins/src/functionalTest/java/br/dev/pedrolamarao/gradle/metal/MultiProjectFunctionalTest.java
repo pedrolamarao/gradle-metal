@@ -102,9 +102,9 @@ public class MultiProjectFunctionalTest
         """);
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("check")
             .build();
     }
 }

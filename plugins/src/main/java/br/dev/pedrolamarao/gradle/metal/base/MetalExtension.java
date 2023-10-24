@@ -49,7 +49,7 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<String> getHost ()
     {
-        return getMetalService().map(MetalService::getHost);
+        return getMetalService().flatMap(MetalService::getHost);
     }
 
     /**

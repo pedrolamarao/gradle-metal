@@ -2,6 +2,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.SetProperty;
 
 /**
@@ -15,6 +16,13 @@ public abstract class MetalComponent implements Named
      * @return configurable collection
      */
     protected abstract ConfigurableFileCollection getLink ();
+
+    /**
+     * Output file.
+     *
+     * @return property
+     */
+    public abstract RegularFileProperty getOutput ();
 
     /**
      * Component source.

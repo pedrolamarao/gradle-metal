@@ -40,7 +40,7 @@ public class MetalIxxPlugin implements Plugin<Project>
 
         final var commandsTask = tasks.register("commands-%s-ixx".formatted(name), MetalIxxCommandsTask.class);
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class);
-        compilables.from(compileTask.map(MetalCompileTask::getOutputs));
+        compilables.from(compileTask);
         importables.from(compileTask.flatMap(MetalCompileTask::getTargetDirectory));
         final var sourceSet = objects.newInstance(MetalIxxSourceSet.class,compilables,importables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());

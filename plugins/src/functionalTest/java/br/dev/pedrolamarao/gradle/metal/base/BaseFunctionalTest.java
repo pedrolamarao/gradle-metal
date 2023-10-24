@@ -33,9 +33,9 @@ public class BaseFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
             .build();
     }
 
@@ -45,22 +45,22 @@ public class BaseFunctionalTest
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """
             plugins {
-                 id("br.dev.pedrolamarao.metal.base")
+                id("br.dev.pedrolamarao.metal.base")
             }
             
             tasks.register("host") {
+                val host = metal.host
                 doLast {
-                    System.out.printf("%s",metal.host.get())
+                    print("${host.get()}")
                 }
             }
             """
         );
 
         final var result = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","host")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("--quiet","host")
             .build();
         assertFalse( result.getOutput().isEmpty() );
     }
@@ -75,19 +75,18 @@ public class BaseFunctionalTest
         }
         
         tasks.register("locateTool") {
+            val clang = metal.locateTool("clang")
             doLast {
-                val clang = metal.locateTool("clang")
-                System.out.printf("%s",clang)
+                print("${clang.get()}")
             }
         }
         """
         );
 
         final var result = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","locateTool")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("--quiet","locateTool")
             .build();
         assertFalse( result.getOutput().isEmpty() );
     }
@@ -98,22 +97,22 @@ public class BaseFunctionalTest
         Files.writeString(projectDir.resolve("build.gradle.kts"),
         """
         plugins {
-             id("br.dev.pedrolamarao.metal.base")
+            id("br.dev.pedrolamarao.metal.base")
         }
         
         tasks.register("target") {
+            val target = metal.target
             doLast {
-                System.out.printf("%s",metal.target.get())
+                print("${target.get()}")
             }
         }
         """
         );
 
         final var result = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","target","-Pmetal.target=foo")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("--quiet","target","-Pmetal.target=foo")
             .build();
         assertEquals( "foo", result.getOutput() );
     }

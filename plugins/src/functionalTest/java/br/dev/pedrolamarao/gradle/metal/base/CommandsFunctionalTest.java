@@ -28,10 +28,9 @@ public class CommandsFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","commands")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("commands")
             .build();
     }
 
@@ -82,10 +81,9 @@ public class CommandsFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","commands")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("commands")
             .build();
 
         assertTrue( Files.exists( projectDir.resolve("compile_commands.json") ) );
@@ -149,10 +147,9 @@ public class CommandsFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","commands")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("commands")
             .build();
 
         assertTrue( Files.exists( projectDir.resolve("compile_commands.json") ) );
@@ -217,10 +214,9 @@ public class CommandsFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","commands")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withDebug(true)
-            .withArguments("commands")
             .build();
 
         assertTrue( Files.exists( projectDir.resolve("compile_commands.json") ) );

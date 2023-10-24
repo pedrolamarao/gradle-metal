@@ -188,6 +188,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var component = objects.newInstance(MetalApplication.class,name);
         component.getLink().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
         component.getLinkOptions().convention(metal.getLinkOptions());
+        component.getOutput().convention(linkTask.flatMap(MetalLinkTask::getOutput));
         component.getTargets().convention(metal.getTargets());
 
         linkTask.configure(task ->
@@ -202,8 +203,10 @@ public class MetalBasePlugin implements Plugin<Project>
 
         tasks.register("run-%s".formatted(name), Exec.class, task ->
         {
-            task.onlyIf("executable file exists",it -> linkTask.get().getOutput().get().getAsFile().exists());
-            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTask.get().getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            final var linkOutput = linkTask.get().getOutput();
+            final var linkTarget = linkTask.get().getTarget();
+            task.onlyIf("executable file exists",it -> linkOutput.get().getAsFile().exists());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTarget,(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.dependsOn(linkTask);
             task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
         });
@@ -226,6 +229,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
         final var component = objects.newInstance(MetalArchive.class,name);
         component.getArchiveOptions().convention(metal.getArchiveOptions());
+        component.getOutput().convention(archiveTask.flatMap(MetalArchiveTask::getOutput));
         component.getTargets().convention(metal.getTargets());
 
         archiveTask.configure(task ->

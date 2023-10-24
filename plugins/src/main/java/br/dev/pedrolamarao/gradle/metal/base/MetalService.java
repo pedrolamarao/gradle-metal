@@ -1,13 +1,17 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,7 +38,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
             .orElse("")
             .get();
         target = getProviders().gradleProperty("metal.target")
-            .orElse( getProviders().provider(this::getHost) )
+            .orElse( getHost() )
             .get();
     }
 
@@ -59,39 +63,34 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      *
      * @return value
      */
-    public String getHost ()
+    public Provider<String> getHost ()
     {
-        final var cached = host.get();
-        if (cached != null) return cached;
-
-        final var buffer = new ByteArrayOutputStream();
-        getExec().exec(exec -> {
-            exec.executable( Metal.toExecutableFile(path,"clang") );
-            exec.args("-v");
-            exec.setErrorOutput(buffer);
-        });
-
-        String value = null;
-        try (var reader = new BufferedReader( new StringReader( buffer.toString() ) ) )
-        {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Target")) {
-                    final var split = line.split(":");
-                    if (split.length != 2) continue;
-                    value = split[1].trim();
-                    break;
+        return getProviders().provider(host::get).orElse(
+            getProviders().exec(exec ->
+            {
+                exec.executable( Metal.toExecutableFile(path,"clang") );
+                exec.args("-v");
+            })
+            .getStandardError().getAsText().map(buffer ->
+            {
+                String value = "unknown";
+                try (var reader = new BufferedReader( new StringReader( buffer.toString() ) ) )
+                {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("Target")) {
+                            final var split = line.split(":");
+                            if (split.length != 2) continue;
+                            value = split[1].trim();
+                            break;
+                        }
+                    }
                 }
-            }
-        }
-        catch (IOException e) { throw new GradleException("failed parsing clang -v output", e); }
-
-        if (value != null) {
-            host.set(value);
-            return value;
-        }
-
-        throw new GradleException("failed to discover host target");
+                catch (IOException e) { throw new GradleException("failed parsing clang -v output", e); }
+                host.set(value);
+                return value;
+            })
+        );
     }
 
     /**
@@ -119,7 +118,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      */
     public String archiveFileName (String name)
     {
-        return archiveFileName(getHost(),name);
+        return archiveFileName(getHost().get(),name);
     }
 
     /**
@@ -158,7 +157,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      */
     public String executableFileName (String name)
     {
-        return executableFileName(getHost(),name);
+        return executableFileName(getHost().get(),name);
     }
 
     /**

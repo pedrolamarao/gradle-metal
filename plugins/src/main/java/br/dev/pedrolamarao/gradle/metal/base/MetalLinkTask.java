@@ -46,6 +46,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @Input
     public abstract ListProperty<String> getLinkOptions ();
 
+    private Provider<RegularFile> outputFile;
+
     /**
      * Output file.
      *
@@ -54,11 +56,7 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        return getOutputDirectory().map(out -> {
-            final var target = getTarget().get();
-            final var file = getMetal().get().executableFileName(target,getProject().getName());
-            return out.file("%s/%s".formatted(target,file));
-        });
+        return outputFile;
     }
 
     /**
@@ -76,6 +74,16 @@ public abstract class MetalLinkTask extends MetalSourceTask
      */
     @Inject
     protected abstract ExecOperations getExec ();
+
+    public MetalLinkTask ()
+    {
+        final var name = getProject().getName();
+        this.outputFile = getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().executableFileName(target,name);
+            return out.file("%s/%s".formatted(target,file));
+        });
+    }
 
     /**
      * Link objects.

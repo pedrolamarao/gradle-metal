@@ -188,6 +188,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var component = objects.newInstance(MetalApplication.class,name);
         component.getLink().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
         component.getLinkOptions().convention(metal.getLinkOptions());
+        component.getOutput().convention(linkTask.flatMap(MetalLinkTask::getOutput));
         component.getTargets().convention(metal.getTargets());
 
         linkTask.configure(task ->
@@ -228,6 +229,7 @@ public class MetalBasePlugin implements Plugin<Project>
         final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
         final var component = objects.newInstance(MetalArchive.class,name);
         component.getArchiveOptions().convention(metal.getArchiveOptions());
+        component.getOutput().convention(archiveTask.flatMap(MetalArchiveTask::getOutput));
         component.getTargets().convention(metal.getTargets());
 
         archiveTask.configure(task ->

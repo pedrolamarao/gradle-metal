@@ -18,6 +18,8 @@ public abstract class MetalSourceTask extends SourceTask
     /**
      * Source base directory.
      *
+     * <p>Used to resolve source file relative path.</p>
+     *
      * @return property.
      */
     @Input

@@ -94,11 +94,22 @@ public class ApplicationFunctionalTest
              id("br.dev.pedrolamarao.metal.application")
              id("br.dev.pedrolamarao.metal.c")
         }
+        
+        tasks.register<Copy>("copy") {
+            into(projectDir.resolve("out"))
+            from(metal.applications.main.flatMap{it.output})
+        }
         """
         );
 
         GradleRunner.create()
             .withArguments("--configuration-cache","run-main")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        GradleRunner.create()
+            .withArguments("--configuration-cache","copy")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -125,11 +136,22 @@ public class ApplicationFunctionalTest
              id("br.dev.pedrolamarao.metal.application")
              id("br.dev.pedrolamarao.metal.cxx")
         }
+        
+        tasks.register<Copy>("copy") {
+            into(projectDir.resolve("out"))
+            from(metal.applications.main.flatMap{it.output})
+        }
         """
         );
 
         GradleRunner.create()
             .withArguments("--configuration-cache","run-main")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        GradleRunner.create()
+            .withArguments("--configuration-cache","copy")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

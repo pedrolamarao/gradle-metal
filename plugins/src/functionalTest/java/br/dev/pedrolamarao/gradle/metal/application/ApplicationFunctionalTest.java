@@ -34,6 +34,7 @@ public class ApplicationFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -66,6 +67,7 @@ public class ApplicationFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -96,9 +98,9 @@ public class ApplicationFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","run-main")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("run-main")
             .build();
     }
 
@@ -127,9 +129,9 @@ public class ApplicationFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","run-main")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("run-main")
             .build();
     }
 }

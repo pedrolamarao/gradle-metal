@@ -26,6 +26,7 @@ public class CppFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

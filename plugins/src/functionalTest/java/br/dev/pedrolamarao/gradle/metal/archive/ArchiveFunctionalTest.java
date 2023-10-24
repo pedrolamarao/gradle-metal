@@ -34,6 +34,7 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -66,6 +67,7 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -97,9 +99,9 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","run-test")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("run-test")
             .build();
     }
 }

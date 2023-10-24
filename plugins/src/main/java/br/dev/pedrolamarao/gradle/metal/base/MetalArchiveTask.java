@@ -40,6 +40,8 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Input
     public abstract ListProperty<String> getArchiveOptions ();
 
+    private final Provider<RegularFile> outputFile;
+
     /**
      * Output file.
      *
@@ -48,11 +50,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        return getOutputDirectory().map(out -> {
-            final var target = getTarget().get();
-            final var file = getMetal().get().archiveFileName(target,getProject().getName());
-            return out.file("%s/%s".formatted(target,file));
-        });
+        return outputFile;
     }
 
     /**
@@ -70,6 +68,16 @@ public abstract class MetalArchiveTask extends MetalSourceTask
      */
     @Inject
     protected abstract ExecOperations getExec ();
+
+    public MetalArchiveTask ()
+    {
+        final var name = getProject().getName();
+        this.outputFile = getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().executableFileName(target,name);
+            return out.file("%s/%s".formatted(target,file));
+        });
+    }
 
     /**
      * Archive objects.

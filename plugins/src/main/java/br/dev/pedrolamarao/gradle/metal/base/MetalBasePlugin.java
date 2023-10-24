@@ -202,8 +202,10 @@ public class MetalBasePlugin implements Plugin<Project>
 
         tasks.register("run-%s".formatted(name), Exec.class, task ->
         {
-            task.onlyIf("executable file exists",it -> linkTask.get().getOutput().get().getAsFile().exists());
-            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTask.get().getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
+            final var linkOutput = linkTask.get().getOutput();
+            final var linkTarget = linkTask.get().getTarget();
+            task.onlyIf("executable file exists",it -> linkOutput.get().getAsFile().exists());
+            task.onlyIf("target is enabled",it -> component.getTargets().zip(linkTarget,(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.dependsOn(linkTask);
             task.executable(linkTask.flatMap(MetalLinkTask::getOutput).get());
         });

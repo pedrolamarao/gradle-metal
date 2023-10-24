@@ -46,7 +46,7 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
     @TaskAction
     public void generate () throws Exception
     {
-        final var baseDirectory = getProject().getProjectDir().toPath();
+        final var baseDirectory = getBaseDirectory().get().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         final var modules = scan();
@@ -63,7 +63,7 @@ public abstract class MetalIxxCommandsTask extends MetalIxxCompileBaseTask
         baseArgs.add("--language=c++-module");
 
         // prepare directory field
-        final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
+        final var directory = baseDirectory.toString().replace("\\","\\\\");
 
         final var commandList = new ArrayList<String>();
         modules.forEach(module ->

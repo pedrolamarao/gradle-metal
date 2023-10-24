@@ -1,12 +1,14 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.SourceTask;
+import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
+import java.io.File;
 
 /**
  * Metal source task.
@@ -14,12 +16,28 @@ import javax.inject.Inject;
 public abstract class MetalSourceTask extends SourceTask
 {
     /**
-     * Metal target.
+     * Source base directory.
      *
-     * @return property
+     * @return property.
      */
     @Input
-    public abstract Property<String> getTarget ();
+    protected abstract Property<File> getBaseDirectory ();
+
+    /**
+     * Exec service.
+     *
+     * @return service
+     */
+    @Inject
+    protected abstract ExecOperations getExec ();
+
+    /**
+     * File service.
+     *
+     * @return service
+     */
+    @Inject
+    protected abstract FileOperations getFiles ();
 
     /**
      * Metal service.
@@ -30,10 +48,19 @@ public abstract class MetalSourceTask extends SourceTask
     protected abstract Property<MetalService> getMetal ();
 
     /**
+     * Metal target.
+     *
+     * @return property
+     */
+    @Input
+    public abstract Property<String> getTarget ();
+
+    /**
      * Constructor.
      */
     protected MetalSourceTask ()
     {
+        getBaseDirectory().convention( getProject().getProjectDir() );
         getTarget().convention( getMetal().map(MetalService::getTarget) );
     }
 }

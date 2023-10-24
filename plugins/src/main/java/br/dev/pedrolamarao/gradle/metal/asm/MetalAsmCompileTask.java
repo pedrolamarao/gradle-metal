@@ -113,7 +113,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
     @TaskAction
     public void compile ()
     {
-        final var baseDirectory = getProject().getProjectDir();
+        final var baseDirectory = getBaseDirectory().get();
         final var outputDirectory = getTargetDirectory();
         final var workers = getWorkers().noIsolation();
 
@@ -121,7 +121,7 @@ public abstract class MetalAsmCompileTask extends MetalAsmCompileBaseTask
         final var compileArgs = toCompileArguments(File::toString);
 
         // remove old objects
-        getProject().delete(outputDirectory);
+        getFiles().delete(outputDirectory);
 
         // assemble objects from sources
         getSource().forEach(source ->

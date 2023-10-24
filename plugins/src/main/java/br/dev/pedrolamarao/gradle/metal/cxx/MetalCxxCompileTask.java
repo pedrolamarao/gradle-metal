@@ -113,7 +113,7 @@ public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
     @TaskAction
     public void compile ()
     {
-        final var baseDirectory = getProject().getProjectDir();
+        final var baseDirectory = getBaseDirectory().get();
         final var outputDirectory = getTargetDirectory();
         final var queue = getWorkers().noIsolation();
 
@@ -121,7 +121,7 @@ public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
         final var compileArgs = toCompileArguments(File::toString);
 
         // delete old objects
-        getProject().delete(outputDirectory);
+        getFiles().delete(outputDirectory);
 
         // compile objects from sources
         getSource().forEach(source ->

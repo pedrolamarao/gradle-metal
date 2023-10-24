@@ -43,10 +43,9 @@ public class CxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-cxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-cxx")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );
@@ -72,17 +71,18 @@ public class CxxFunctionalTest
         }
         
         tasks.register("compileOptions") {
+            val compileOptions = metal.cxx.named("main").flatMap{it.compileOptions}
             doLast {
-                System.out.printf("%s",metal.cxx.named("main").flatMap{it.compileOptions}.get())
+                print("${compileOptions.get()}")
             }
         }
         """
         );
 
         final var compileOptions = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","compileOptions")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("--quiet","compileOptions")
             .build();
 
         assertEquals("[--foo]",compileOptions.getOutput());
@@ -132,10 +132,9 @@ public class CxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-cxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-cxx")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );
@@ -176,10 +175,9 @@ public class CxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-cxx","-Pmetal.target=x86_64-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-cxx","-Pmetal.target=x86_64-elf")
-            .withDebug(true)
             .build();
 
         assertFalse( Files.exists(projectDir.resolve("build/obj")) );
@@ -216,10 +214,9 @@ public class CxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-cxx","-Pmetal.target=i686-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-cxx","-Pmetal.target=i686-elf")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );

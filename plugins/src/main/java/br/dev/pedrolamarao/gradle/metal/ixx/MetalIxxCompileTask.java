@@ -37,7 +37,7 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 
         // remove old objects
         final var outputDirectory = getTargetDirectory().get().getAsFile().toPath();
-        getProject().delete(outputDirectory);
+        getFiles().delete(outputDirectory);
 
         // compile objects from sources
         Files.createDirectories(outputDirectory);
@@ -51,7 +51,7 @@ public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
             compileArgs.add("--output=%s".formatted(outputPath));
             compileArgs.add(module.source().toString());
 
-            getProject().exec(it -> {
+            getExec().exec(it -> {
                 it.executable(getCompiler().get());
                 it.args(compileArgs);
             });

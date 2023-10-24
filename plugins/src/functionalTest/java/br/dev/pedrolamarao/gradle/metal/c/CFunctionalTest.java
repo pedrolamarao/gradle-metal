@@ -43,10 +43,9 @@ public class CFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-c")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-c")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );
@@ -72,17 +71,18 @@ public class CFunctionalTest
         }
         
         tasks.register("compileOptions") {
+            val compileOptions = metal.c.named("main").flatMap{it.compileOptions}
             doLast {
-                System.out.printf("%s",metal.c.named("main").flatMap{it.compileOptions}.get())
+                print("${compileOptions.get()}")
             }
         }
         """
         );
 
         final var compileOptions = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","compileOptions")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("--quiet","compileOptions")
             .build();
 
         assertEquals("[--foo]",compileOptions.getOutput());
@@ -119,10 +119,9 @@ public class CFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-c","-Pmetal.target=x86_64-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-c","-Pmetal.target=x86_64-elf")
-            .withDebug(true)
             .build();
 
         assertFalse( Files.exists(projectDir.resolve("build/obj")) );
@@ -159,10 +158,9 @@ public class CFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-c","-Pmetal.target=i686-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-c","-Pmetal.target=i686-elf")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );

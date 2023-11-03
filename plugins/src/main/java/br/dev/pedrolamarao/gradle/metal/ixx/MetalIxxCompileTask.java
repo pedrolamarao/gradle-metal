@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 /**
  * Compile C++ module interface sources task.
  */
+@CacheableTask
 public abstract class MetalIxxCompileTask extends MetalIxxCompileBaseTask
 {
     /**

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 /**
  * Link native objects.
  */
+@CacheableTask
 public abstract class MetalLinkTask extends MetalSourceTask
 {
     /**
@@ -25,6 +26,7 @@ public abstract class MetalLinkTask extends MetalSourceTask
      * @return configurable collection
      */
     @InputFiles
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     public abstract ConfigurableFileCollection getLink ();
 
     /**

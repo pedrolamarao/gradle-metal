@@ -6,6 +6,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 /**
  * Compile C sources task.
  */
+@CacheableTask
 public abstract class MetalCCompileTask extends MetalCCompileBaseTask
 {
     /**

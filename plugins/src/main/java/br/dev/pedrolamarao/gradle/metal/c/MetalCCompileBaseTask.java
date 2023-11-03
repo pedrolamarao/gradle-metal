@@ -5,6 +5,8 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public abstract class MetalCCompileBaseTask extends MetalCompileTask
      * @return collection
      */
     @InputFiles
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     public abstract ConfigurableFileCollection getIncludables ();
 
     /**

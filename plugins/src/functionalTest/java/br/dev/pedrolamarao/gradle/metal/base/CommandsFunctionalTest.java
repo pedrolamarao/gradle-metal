@@ -1,21 +1,18 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CommandsFunctionalTest
+public class CommandsFunctionalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void apply () throws IOException
     {

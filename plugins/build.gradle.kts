@@ -105,3 +105,13 @@ gradlePlugin {
 tasks.named("check") {
     dependsOn(testing.suites.named("functionalTest"))
 }
+
+tasks.named<Test>("functionalTest").configure {
+    val metalPath = project.properties["metal.path"]
+    if (metalPath != null) {
+        systemProperty("metal.path",metalPath)
+    }
+    else {
+        throw GradleException("metal.path not set")
+    }
+}

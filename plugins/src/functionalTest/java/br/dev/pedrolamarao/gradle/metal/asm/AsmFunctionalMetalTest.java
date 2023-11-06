@@ -1,19 +1,16 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsmFunctionalTest
+public class AsmFunctionalMetalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void compile () throws IOException
     {

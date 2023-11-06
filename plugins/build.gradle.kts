@@ -107,7 +107,7 @@ tasks.named("check") {
 }
 
 tasks.named<Test>("functionalTest").configure {
-    val metalPath = project.properties["metal.path"]
+    val metalPath = project.findProperty("metal.path")
     if (metalPath != null) {
         systemProperty("metal.path",metalPath)
     }

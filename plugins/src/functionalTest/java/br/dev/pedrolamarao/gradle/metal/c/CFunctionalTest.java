@@ -1,19 +1,16 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CFunctionalTest
+public class CFunctionalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void compile () throws IOException
     {

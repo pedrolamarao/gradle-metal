@@ -107,11 +107,8 @@ tasks.named("check") {
 }
 
 tasks.named<Test>("functionalTest").configure {
-    val metalPath = project.findProperty("metal.path")
+    val metalPath = project.properties["metal.path"]
     if (metalPath != null) {
         systemProperty("metal.path",metalPath)
-    }
-    else {
-        throw GradleException("metal.path not set")
     }
 }

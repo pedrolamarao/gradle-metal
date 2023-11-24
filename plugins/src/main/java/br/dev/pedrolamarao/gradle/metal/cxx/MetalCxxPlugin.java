@@ -37,6 +37,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
         final var linkables = objects.fileCollection();
 
         final var commandsTask = tasks.register("commands-%s-cxx".formatted(name),MetalCxxCommandsTask.class);
@@ -44,8 +46,8 @@ public class MetalCxxPlugin implements Plugin<Project>
         linkables.from(compileTask);
         final var sourceSet = objects.newInstance(MetalCxxSourceSet.class,linkables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getImport().from(configurations.named(IMPORTABLE_DEPENDENCIES));
-        sourceSet.getInclude().from(configurations.named(INCLUDABLE_DEPENDENCIES));
+        sourceSet.getImport().from(configurations.named(name + IMPORTABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(name + INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/cxx".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 

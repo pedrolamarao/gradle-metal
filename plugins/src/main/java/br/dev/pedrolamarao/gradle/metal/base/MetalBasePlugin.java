@@ -23,31 +23,22 @@ public class MetalBasePlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
 
-        // dependency scopes
+        // configurations
 
         final var api = configurations.dependencyScope("api", configuration -> {
-            configuration.setDescription("metal api dependencies");
+            configuration.setDescription("metal api project dependencies");
         });
 
         final var implementation = configurations.dependencyScope("implementation", configuration -> {
-            configuration.setDescription("metal implementation dependencies");
+            configuration.setDescription("metal implementation project dependencies");
             configuration.extendsFrom(api.get());
         });
-
-        // outgoing configurations
 
         configurations.consumable(Metal.COMMANDS_ELEMENTS, configuration -> {
             configuration.attributes(it -> {
                 it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
             });
             configuration.setDescription("metal commands database elements");
-        });
-
-        configurations.consumable(Metal.EMPTY_ELEMENTS, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.NONE);
-            });
-            configuration.setDescription("metal empty elements (can we remove this?)");
         });
 
         project.getConfigurations().consumable(Metal.EXECUTABLE_ELEMENTS, configuration -> {
@@ -86,49 +77,11 @@ public class MetalBasePlugin implements Plugin<Project>
             configuration.setDescription("metal linkable elements");
         });
 
-        // incoming configurations
-
         configurations.resolvable(Metal.COMMANDS_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> {
                 it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
             });
             configuration.setDescription("metal commands database dependencies");
-        });
-
-        configurations.resolvable(Metal.EXECUTABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.RUN);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal executable dependencies");
-        });
-
-        project.getConfigurations().resolvable(Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal importable dependencies");
-        });
-
-        project.getConfigurations().resolvable(Metal.INCLUDABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal includable dependencies");
-        });
-
-        configurations.resolvable(Metal.LINKABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal linkable dependencies");
         });
 
         project.getDependencies().getAttributesSchema().attribute(MetalCapability.ATTRIBUTE, it -> {
@@ -184,9 +137,11 @@ public class MetalBasePlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
         final var linkTask = tasks.register("link-%s".formatted(name),MetalLinkTask.class);
         final var component = objects.newInstance(MetalApplication.class,name);
-        component.getLink().from(configurations.named(Metal.LINKABLE_DEPENDENCIES));
+        component.getLink().from(configurations.named(name + Metal.LINKABLE_DEPENDENCIES));
         component.getLinkOptions().convention(metal.getLinkOptions());
         component.getOutput().convention(linkTask.flatMap(MetalLinkTask::getOutput));
         component.getTargets().convention(metal.getTargets());
@@ -225,6 +180,8 @@ public class MetalBasePlugin implements Plugin<Project>
         final var metal = project.getExtensions().getByType(MetalExtension.class);
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
+
+        Metal.maybeCreateConfigurations(configurations,name);
 
         final var archiveTask = tasks.register("archive-%s".formatted(name),MetalArchiveTask.class);
         final var component = objects.newInstance(MetalArchive.class,name);

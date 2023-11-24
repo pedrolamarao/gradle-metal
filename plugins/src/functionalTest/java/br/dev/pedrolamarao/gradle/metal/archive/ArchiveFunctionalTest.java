@@ -101,4 +101,66 @@ public class ArchiveFunctionalTest extends MetalTestBase
             .withProjectDir(projectDir.toFile())
             .build();
     }
+
+    @Test
+    public void testDependency () throws IOException
+    {
+        final var fooDir = projectDir.resolve("foo");
+        Files.createDirectories(fooDir);
+        Files.writeString(fooDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.archive")
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        """);
+
+        final var barDir = projectDir.resolve("bar");
+        Files.createDirectories(barDir);
+        Files.writeString(barDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.archive")
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        dependencies {
+            testImplementation(project(":foo"))
+        }
+        """);
+
+        final var fooCxxDir = fooDir.resolve("src/main/cxx");
+        Files.createDirectories(fooCxxDir);
+        Files.writeString(fooCxxDir.resolve("foo.cxx"),
+        """
+        int foo (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """);
+
+        final var barCxxDir = projectDir.resolve("bar/test/cxx");
+        Files.createDirectories(barCxxDir);
+        Files.writeString(barCxxDir.resolve("bar.cxx"),
+        """
+        int foo (int argc, char * argv[]);
+        
+        int main (int argc, char * argv[])
+        {
+            return foo(argc,argv);
+        }
+        """);
+
+        Files.writeString(projectDir.resolve("settings.gradle.kts"),
+        """
+        include("bar")
+        include("foo")
+        """);
+
+        GradleRunner.create()
+            .withArguments("--configuration-cache","check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+    }
 }

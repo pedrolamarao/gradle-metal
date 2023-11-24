@@ -35,6 +35,8 @@ public class MetalIxxPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
         final var compilables = objects.fileCollection();
         final var importables = objects.fileCollection();
 
@@ -44,8 +46,8 @@ public class MetalIxxPlugin implements Plugin<Project>
         importables.from(compileTask.flatMap(MetalCompileTask::getTargetDirectory));
         final var sourceSet = objects.newInstance(MetalIxxSourceSet.class,compilables,importables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getImport().from(configurations.named(Metal.IMPORTABLE_DEPENDENCIES));
-        sourceSet.getInclude().from(configurations.named(Metal.INCLUDABLE_DEPENDENCIES));
+        sourceSet.getImport().from(configurations.named(name + Metal.IMPORTABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(name + Metal.INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 

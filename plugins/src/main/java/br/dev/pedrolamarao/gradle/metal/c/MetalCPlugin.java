@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
@@ -36,6 +37,8 @@ public class MetalCPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
         final var linkables = objects.fileCollection();
 
         final var commandsTask = tasks.register("commands-%s-c".formatted(name),MetalCCommandsTask.class);
@@ -43,7 +46,7 @@ public class MetalCPlugin implements Plugin<Project>
         linkables.from(compileTask);
         final var sourceSet = objects.newInstance(MetalCSourceSet.class,linkables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getInclude().from(configurations.named(INCLUDABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(name + INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/c".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 

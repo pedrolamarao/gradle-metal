@@ -77,6 +77,9 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Constructor.
+     */
     public MetalLinkTask ()
     {
         final var name = getProject().getName();

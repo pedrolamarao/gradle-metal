@@ -17,15 +17,17 @@ import java.util.ArrayList;
 /**
  * Link native objects.
  */
+@CacheableTask
 public abstract class MetalLinkTask extends MetalSourceTask
 {
     /**
-     * Archives.
+     * Link dependencies.
      *
-     * @return collection
+     * @return configurable collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getArchives ();
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public abstract ConfigurableFileCollection getLink ();
 
     /**
      * Linker executable path.
@@ -46,6 +48,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @Input
     public abstract ListProperty<String> getLinkOptions ();
 
+    private Provider<RegularFile> outputFile;
+
     /**
      * Output file.
      *
@@ -54,11 +58,7 @@ public abstract class MetalLinkTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        return getOutputDirectory().map(out -> {
-            final var target = getTarget().get();
-            final var file = getMetal().get().executableFileName(target,getProject().getName());
-            return out.file("%s/%s".formatted(target,file));
-        });
+        return outputFile;
     }
 
     /**
@@ -70,20 +70,25 @@ public abstract class MetalLinkTask extends MetalSourceTask
     public abstract DirectoryProperty getOutputDirectory ();
 
     /**
-     * Internal source file collection.
-     *
-     * @return collection
-     */
-    @InputFiles
-    protected abstract ConfigurableFileCollection getInternalSources ();
-
-    /**
      * Exec operations service.
      *
      * @return service
      */
     @Inject
     protected abstract ExecOperations getExec ();
+
+    /**
+     * Constructor.
+     */
+    public MetalLinkTask ()
+    {
+        final var name = getProject().getName();
+        this.outputFile = getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().executableFileName(target,name);
+            return out.file("%s/%s".formatted(target,file));
+        });
+    }
 
     /**
      * Link objects.
@@ -106,9 +111,8 @@ public abstract class MetalLinkTask extends MetalSourceTask
         linkArgs.add("-fuse-ld=lld");
         linkArgs.addAll(getLinkOptions().get());
         linkArgs.add("--output=%s".formatted(output));
-        getArchives().forEach(file -> linkArgs.add(file.toString()));
         getSource().forEach(file -> linkArgs.add(file.toString()));
-        getInternalSources().forEach(file -> linkArgs.add(file.toString()));
+        getLink().forEach(file -> linkArgs.add(file.toString()));
 
         getExec().exec(it ->
         {

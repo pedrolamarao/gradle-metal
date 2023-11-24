@@ -1,17 +1,14 @@
 package br.dev.pedrolamarao.gradle.metal.cpp;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
-public class CppFunctionalTest
+public class CppFunctionalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void apply () throws IOException
     {
@@ -26,6 +23,7 @@ public class CppFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

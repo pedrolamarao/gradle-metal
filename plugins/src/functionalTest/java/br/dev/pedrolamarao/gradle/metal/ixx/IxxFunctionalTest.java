@@ -1,20 +1,17 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class IxxFunctionalTest
+public class IxxFunctionalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void compile () throws IOException
     {
@@ -51,10 +48,9 @@ public class IxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("compile-main-ixx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-ixx")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
@@ -80,17 +76,18 @@ public class IxxFunctionalTest
         }
         
         tasks.register("compileOptions") {
+            val compileOptions = metal.ixx.named("main").flatMap{it.compileOptions}
             doLast {
-                System.out.printf("%s",metal.ixx.named("main").flatMap{it.compileOptions}.get())
+                print("${compileOptions.get()}")
             }
         }
         """
         );
 
         final var compileOptions = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","compileOptions")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("--quiet","compileOptions")
             .build();
 
         assertEquals("[--foo]",compileOptions.getOutput());
@@ -143,10 +140,9 @@ public class IxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-ixx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-ixx")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/bmi")) );
@@ -200,7 +196,7 @@ public class IxxFunctionalTest
             ixx {
                 create("main") {
                     compileOptions = listOf("-std=c++20")
-                    includes.from( cpp.named("main").map { it.sources } )
+                    include.from( cpp.named("main").map { it.includables } )
                 }
             }
         }
@@ -208,10 +204,9 @@ public class IxxFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-ixx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-ixx")
-            .withDebug(true)
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/bmi")) );

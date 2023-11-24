@@ -1,19 +1,16 @@
 package br.dev.pedrolamarao.gradle.metal.archive;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
-public class ArchiveFunctionalTest
+public class ArchiveFunctionalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void apply () throws IOException
     {
@@ -34,6 +31,7 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -66,6 +64,7 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -97,9 +96,71 @@ public class ArchiveFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","run-test")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("run-test")
+            .build();
+    }
+
+    @Test
+    public void testDependency () throws IOException
+    {
+        final var fooDir = projectDir.resolve("foo");
+        Files.createDirectories(fooDir);
+        Files.writeString(fooDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.archive")
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        """);
+
+        final var barDir = projectDir.resolve("bar");
+        Files.createDirectories(barDir);
+        Files.writeString(barDir.resolve("build.gradle.kts"),
+        """
+        plugins {
+            id("br.dev.pedrolamarao.metal.archive")
+            id("br.dev.pedrolamarao.metal.cxx")
+        }
+        
+        dependencies {
+            testImplementation(project(":foo"))
+        }
+        """);
+
+        final var fooCxxDir = fooDir.resolve("src/main/cxx");
+        Files.createDirectories(fooCxxDir);
+        Files.writeString(fooCxxDir.resolve("foo.cxx"),
+        """
+        int foo (int argc, char * argv[])
+        {
+            return 0;
+        }
+        """);
+
+        final var barCxxDir = projectDir.resolve("bar/test/cxx");
+        Files.createDirectories(barCxxDir);
+        Files.writeString(barCxxDir.resolve("bar.cxx"),
+        """
+        int foo (int argc, char * argv[]);
+        
+        int main (int argc, char * argv[])
+        {
+            return foo(argc,argv);
+        }
+        """);
+
+        Files.writeString(projectDir.resolve("settings.gradle.kts"),
+        """
+        include("bar")
+        include("foo")
+        """);
+
+        GradleRunner.create()
+            .withArguments("--configuration-cache","check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
             .build();
     }
 }

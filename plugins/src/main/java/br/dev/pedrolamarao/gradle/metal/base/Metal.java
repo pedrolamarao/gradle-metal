@@ -1,6 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.ConfigurationContainer;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -65,6 +66,53 @@ public class Metal
      * Linkable elements configuration name.
      */
     public static final String LINKABLE_ELEMENTS = "linkableElements";
+
+    public static void maybeCreateConfigurations (ConfigurationContainer configurations, String name)
+    {
+        if (configurations.findByName("%sApi".formatted(name)) != null) return;
+
+        final var api = configurations.dependencyScope("%sApi".formatted(name), configuration -> {
+            configuration.setDescription("metal api component dependencies");
+            configuration.extendsFrom(configurations.getByName("api"));
+        });
+        final var implementation = configurations.dependencyScope("%sImplementation".formatted(name), configuration -> {
+            configuration.setDescription("metal implementation component dependencies");
+            configuration.extendsFrom(api.get());
+            configuration.extendsFrom(configurations.getByName("implementation"));
+        });
+        configurations.resolvable(name + Metal.EXECUTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.RUN);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal executable dependencies");
+        });
+        configurations.resolvable(name + Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal importable dependencies");
+        });
+        configurations.resolvable(name + Metal.INCLUDABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal includable dependencies");
+        });
+        configurations.resolvable(name + Metal.LINKABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("metal linkable dependencies");
+        });
+    }
 
     /**
      * Find executable file in path.

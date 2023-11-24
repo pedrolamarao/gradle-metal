@@ -2,6 +2,7 @@ package br.dev.pedrolamarao.gradle.metal.ixx;
 
 import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
+import br.dev.pedrolamarao.gradle.metal.base.MetalCompileTask;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -22,11 +23,11 @@ public class MetalIxxPlugin implements Plugin<Project>
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
-        final var ixx = project.getObjects().domainObjectContainer(MetalIxxSources.class, name -> createSources(project,name));
+        final var ixx = project.getObjects().domainObjectContainer(MetalIxxSourceSet.class, name -> createSources(project,name));
         metal.getExtensions().add("ixx", ixx);
     }
 
-    static MetalIxxSources createSources (Project project, String name)
+    static MetalIxxSourceSet createSources (Project project, String name)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -34,12 +35,19 @@ public class MetalIxxPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
+        final var compilables = objects.fileCollection();
+        final var importables = objects.fileCollection();
+
         final var commandsTask = tasks.register("commands-%s-ixx".formatted(name), MetalIxxCommandsTask.class);
         final var compileTask = tasks.register("compile-%s-ixx".formatted(name), MetalIxxCompileTask.class);
-        final var sourceSet = objects.newInstance(MetalIxxSources.class,compileTask,name);
+        compilables.from(compileTask);
+        importables.from(compileTask.flatMap(MetalCompileTask::getTargetDirectory));
+        final var sourceSet = objects.newInstance(MetalIxxSourceSet.class,compilables,importables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getImports().from(configurations.named(Metal.IMPORTABLE_DEPENDENCIES));
-        sourceSet.getIncludes().from(configurations.named(Metal.INCLUDABLE_DEPENDENCIES));
+        sourceSet.getImport().from(configurations.named(name + Metal.IMPORTABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(name + Metal.INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/ixx".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 
@@ -49,8 +57,8 @@ public class MetalIxxPlugin implements Plugin<Project>
         commandsTask.configure(task ->
         {
             task.getCompileOptions().convention(sourceSet.getCompileOptions());
-            task.getImportables().from(sourceSet.getImports());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getImport().from(sourceSet.getImport());
+            task.getInclude().from(sourceSet.getInclude());
             task.getObjectDirectory().convention(objectDirectory.map(Directory::getAsFile));
             task.getOutputDirectory().convention(commandsDirectory);
             task.setSource(sourceSet.getSources());
@@ -61,8 +69,8 @@ public class MetalIxxPlugin implements Plugin<Project>
         {
             task.onlyIf("target is enabled",it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getCompileOptions().convention(sourceSet.getCompileOptions());
-            task.getImportables().from(sourceSet.getImports());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getImport().from(sourceSet.getImport());
+            task.getInclude().from(sourceSet.getInclude());
             task.getOutputDirectory().convention(objectDirectory);
             task.setSource(sourceSet.getSources());
             task.getTarget().convention(metal.getTarget());

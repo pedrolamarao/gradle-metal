@@ -45,7 +45,7 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
     @TaskAction
     public void generate () throws IOException
     {
-        final var baseDirectory = getProject().getProjectDir().toPath();
+        final var baseDirectory = getBaseDirectory().get().toPath();
         final var objectDirectory = getObjectDirectory().get().toPath();
 
         // prepare compile arguments list
@@ -54,7 +54,7 @@ public abstract class MetalAsmCommandsTask extends MetalAsmCompileBaseTask
         baseArgs.addAll( toCompileArguments(file -> file.toString().replace("\\","\\\\")) );
 
         // prepare directory field
-        final var directory = getProject().getProjectDir().toString().replace("\\","\\\\");
+        final var directory = baseDirectory.toString().replace("\\","\\\\");
 
         final var list = new ArrayList<String>();
         getSource().forEach(source ->

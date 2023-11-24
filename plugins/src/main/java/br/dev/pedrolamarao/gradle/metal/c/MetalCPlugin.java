@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.c;
 
+import br.dev.pedrolamarao.gradle.metal.base.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
@@ -24,11 +25,11 @@ public class MetalCPlugin implements Plugin<Project>
 
         final var metal = project.getExtensions().getByType(MetalExtension.class);
 
-        final var c = project.getObjects().domainObjectContainer(MetalCSources.class, name -> createSources(project,name));
+        final var c = project.getObjects().domainObjectContainer(MetalCSourceSet.class, name -> createSourceSet(project,name));
         metal.getExtensions().add("c", c);
     }
 
-    static MetalCSources createSources (Project project, String name)
+    static MetalCSourceSet createSourceSet (Project project, String name)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -36,11 +37,16 @@ public class MetalCPlugin implements Plugin<Project>
         final var objects = project.getObjects();
         final var tasks = project.getTasks();
 
+        Metal.maybeCreateConfigurations(configurations,name);
+
+        final var linkables = objects.fileCollection();
+
         final var commandsTask = tasks.register("commands-%s-c".formatted(name),MetalCCommandsTask.class);
         final var compileTask = tasks.register("compile-%s-c".formatted(name),MetalCCompileTask.class);
-        final var sourceSet = objects.newInstance(MetalCSources.class,commandsTask,compileTask,name);
+        linkables.from(compileTask);
+        final var sourceSet = objects.newInstance(MetalCSourceSet.class,linkables,name);
         sourceSet.getCompileOptions().convention(metal.getCompileOptions());
-        sourceSet.getIncludes().from(configurations.named(INCLUDABLE_DEPENDENCIES));
+        sourceSet.getInclude().from(configurations.named(name + INCLUDABLE_DEPENDENCIES));
         sourceSet.getSources().from(layout.getProjectDirectory().dir("src/%s/c".formatted(name)));
         sourceSet.getTargets().convention(metal.getTargets());
 
@@ -50,7 +56,7 @@ public class MetalCPlugin implements Plugin<Project>
         commandsTask.configure(task ->
         {
             task.getCompileOptions().convention(sourceSet.getCompileOptions());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getIncludables().from(sourceSet.getInclude());
             task.getObjectDirectory().set(objectDirectory.map(Directory::getAsFile));
             task.getOutputDirectory().set(commandsDirectory);
             task.setSource(sourceSet.getSources());
@@ -61,7 +67,7 @@ public class MetalCPlugin implements Plugin<Project>
         {
             task.onlyIf("target is enabled",it -> sourceSet.getTargets().zip(task.getTarget(),(targets,target) -> targets.isEmpty() || targets.contains(target)).get());
             task.getCompileOptions().convention(sourceSet.getCompileOptions());
-            task.getIncludables().from(sourceSet.getIncludes());
+            task.getIncludables().from(sourceSet.getInclude());
             task.getOutputDirectory().set(objectDirectory);
             task.setSource(sourceSet.getSources());
             task.getTarget().convention(metal.getTarget());

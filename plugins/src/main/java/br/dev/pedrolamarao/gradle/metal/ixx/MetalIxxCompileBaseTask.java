@@ -174,13 +174,13 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         final var scanArgs = new ArrayList<String>();
         scanArgs.add(getCompiler().get().toString());
         scanArgs.addAll(getCompileOptions().get());
-        getIncludables().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
+        getInclude().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
         scanArgs.add("--language=c++-module");
         scanArgs.add("--precompile");
 
         // discover dependencies from sources: assemble dependency files
         final var scanWorkers = getWorkers().noIsolation();
-        getProject().delete(getTemporaryDir());
+        getFiles().delete(getTemporaryDir());
         for (var sourceFile : getSource()) {
             final var outputPath = getTemporaryDir().toPath().resolve( "%X/%s.deps".formatted(sourceFile.hashCode(),sourceFile.getName() ));
             scanWorkers.submit(ScanAction.class, parameter -> {

@@ -2,7 +2,7 @@
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
 Gradle Metal is a suite of Gradle plugins supporting development for the bare metal,
-primarily designed to support project link:https://github.com/pedrolamarao/metal[Metal].
+primarily design to support project link:https://github.com/pedrolamarao/metal[Metal].
 
 Features:
 
@@ -25,12 +25,21 @@ Current requirements:
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 
-Plugins are published to Gradle’s Plugin Portal. To apply using the plugins DSL:
+To use the development version, you may install from source with `./gradlew publishToMavenLocal` and configure your project's settings like this:
 
 [source]
 ----
-plugins {
-    id("br.dev.pedrolamarao.metal.base") version("0.3")
+pluginManagement {
+    repositories {
+        mavenLocal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {
+                useModule("br.dev.pedrolamarao.gradle.metal:plugins:0.4")
+            }
+        }
+    }
 }
 ----
 

@@ -4,9 +4,7 @@ package br.dev.pedrolamarao.gradle.metal.base;
 
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -16,29 +14,18 @@ import javax.inject.Inject;
 @NonNullApi
 public abstract class MetalApplication extends MetalComponent implements Named
 {
-    private final TaskProvider<MetalLinkTask> linkTask;
-
     private final String name;
 
     /**
      * Constructor.
      *
-     * @param linkTask     link task
-     * @param name         name
+     * @param name  component name
      */
     @Inject
-    public MetalApplication (TaskProvider<MetalLinkTask> linkTask, String name)
+    public MetalApplication (String name)
     {
-        this.linkTask = linkTask;
         this.name = name;
     }
-
-    /**
-     * Archives.
-     *
-     * @return collection
-     */
-    public abstract ConfigurableFileCollection getArchives ();
 
     /**
      * Link options.
@@ -46,16 +33,6 @@ public abstract class MetalApplication extends MetalComponent implements Named
      * @return property
      */
     public abstract ListProperty<String> getLinkOptions ();
-
-    /**
-     * Link task.
-     *
-     * @return provider
-     */
-    public TaskProvider<MetalLinkTask> getLinkTask ()
-    {
-        return linkTask;
-    }
 
     /**
      * {@inheritDoc}

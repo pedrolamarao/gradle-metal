@@ -6,10 +6,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
@@ -19,6 +16,7 @@ import java.util.ArrayList;
 /**
  * Archive native objects.
  */
+@CacheableTask
 public abstract class MetalArchiveTask extends MetalSourceTask
 {
     /**
@@ -40,6 +38,8 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Input
     public abstract ListProperty<String> getArchiveOptions ();
 
+    private final Provider<RegularFile> outputFile;
+
     /**
      * Output file.
      *
@@ -48,11 +48,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @OutputFile
     public Provider<RegularFile> getOutput ()
     {
-        return getOutputDirectory().map(out -> {
-            final var target = getTarget().get();
-            final var file = getMetal().get().archiveFileName(target,getProject().getName());
-            return out.file("%s/%s".formatted(target,file));
-        });
+        return outputFile;
     }
 
     /**
@@ -70,6 +66,19 @@ public abstract class MetalArchiveTask extends MetalSourceTask
      */
     @Inject
     protected abstract ExecOperations getExec ();
+
+    /**
+     * Constructor.
+     */
+    public MetalArchiveTask ()
+    {
+        final var name = getProject().getName();
+        this.outputFile = getOutputDirectory().map(out -> {
+            final var target = getTarget().get();
+            final var file = getMetal().get().executableFileName(target,name);
+            return out.file("%s/%s".formatted(target,file));
+        });
+    }
 
     /**
      * Archive objects.

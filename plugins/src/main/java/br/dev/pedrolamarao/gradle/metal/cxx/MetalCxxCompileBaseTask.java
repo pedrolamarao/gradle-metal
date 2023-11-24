@@ -7,6 +7,8 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +37,8 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
      * @return collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getIncludables ();
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public abstract ConfigurableFileCollection getInclude ();
 
     /**
      * Import path.
@@ -43,7 +46,8 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
      * @return collection
      */
     @InputFiles
-    public abstract ConfigurableFileCollection getImportables ();
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public abstract ConfigurableFileCollection getImport ();
 
     /**
      * Generate compiler arguments.
@@ -56,8 +60,8 @@ public abstract class MetalCxxCompileBaseTask extends MetalCompileTask
         final var arguments = new ArrayList<String>();
         arguments.add("--target=%s".formatted(getTarget().get()));
         arguments.addAll(getCompileOptions().get());
-        getImportables().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));
-        getIncludables().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
+        getImport().forEach(file -> arguments.add("-fprebuilt-module-path=%s".formatted(formatter.apply(file))));
+        getInclude().forEach(file -> arguments.add("--include-directory=%s".formatted(formatter.apply(file))));
         arguments.add("--compile");
         return arguments;
     }

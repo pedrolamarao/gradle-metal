@@ -1,19 +1,16 @@
 package br.dev.pedrolamarao.gradle.metal.asm;
 
+import br.dev.pedrolamarao.gradle.metal.MetalTestBase;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsmFunctionalTest
+public class AsmFunctionalMetalTest extends MetalTestBase
 {
-    @TempDir Path projectDir;
-
     @Test
     public void compile () throws IOException
     {
@@ -42,9 +39,9 @@ public class AsmFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-asm")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-asm")
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );
@@ -65,22 +62,22 @@ public class AsmFunctionalTest
         
         metal {
             compileOptions = listOf("--foo")
-            
             asm { create("main") }
         }
         
         tasks.register("compileOptions") {
+            val compileOptions = metal.asm.named("main").flatMap{it.compileOptions}
             doLast {
-                System.out.printf("%s",metal.asm.named("main").flatMap{it.compileOptions}.get())
+                print("${compileOptions.get()}")
             }
         }
         """
         );
 
         final var compileOptions = GradleRunner.create()
+            .withArguments("--configuration-cache","--quiet","compileOptions")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("--quiet","compileOptions")
             .build();
 
         assertEquals("[--foo]",compileOptions.getOutput());
@@ -116,9 +113,9 @@ public class AsmFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-asm","-Pmetal.target=x86_64-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-asm","-Pmetal.target=x86_64-elf")
             .build();
 
         assertFalse( Files.exists(projectDir.resolve("build/obj")) );
@@ -154,9 +151,9 @@ public class AsmFunctionalTest
         );
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","compile-main-asm","-Pmetal.target=i686-elf")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("compile-main-asm","-Pmetal.target=i686-elf")
             .build();
 
         assertTrue( Files.exists(projectDir.resolve("build/obj")) );

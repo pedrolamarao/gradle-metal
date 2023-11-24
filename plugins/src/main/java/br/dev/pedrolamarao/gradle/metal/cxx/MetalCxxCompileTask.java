@@ -6,6 +6,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 /**
  * Compile C++ sources task.
  */
+@CacheableTask
 public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
 {
     /**
@@ -113,7 +115,7 @@ public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
     @TaskAction
     public void compile ()
     {
-        final var baseDirectory = getProject().getProjectDir();
+        final var baseDirectory = getBaseDirectory().get();
         final var outputDirectory = getTargetDirectory();
         final var queue = getWorkers().noIsolation();
 
@@ -121,7 +123,7 @@ public abstract class MetalCxxCompileTask extends MetalCxxCompileBaseTask
         final var compileArgs = toCompileArguments(File::toString);
 
         // delete old objects
-        getProject().delete(outputDirectory);
+        getFiles().delete(outputDirectory);
 
         // compile objects from sources
         getSource().forEach(source ->

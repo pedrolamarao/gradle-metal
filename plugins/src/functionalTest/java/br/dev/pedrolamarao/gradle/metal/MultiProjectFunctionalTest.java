@@ -2,16 +2,11 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 
-public class MultiProjectFunctionalTest
+public class MultiProjectFunctionalTest extends MetalTestBase
 {
-    @TempDir
-    Path projectDir;
-
     /**
      * There are two archive projects, foo and bar, with main C++ sources.
      * Both foo and bar test source set is empty.
@@ -102,9 +97,9 @@ public class MultiProjectFunctionalTest
         """);
 
         GradleRunner.create()
+            .withArguments("--configuration-cache","check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
-            .withArguments("check")
             .build();
     }
 }

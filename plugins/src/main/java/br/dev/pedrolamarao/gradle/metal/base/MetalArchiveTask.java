@@ -67,6 +67,9 @@ public abstract class MetalArchiveTask extends MetalSourceTask
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Constructor.
+     */
     public MetalArchiveTask ()
     {
         final var name = getProject().getName();

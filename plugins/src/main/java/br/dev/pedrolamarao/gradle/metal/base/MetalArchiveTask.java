@@ -75,7 +75,7 @@ public abstract class MetalArchiveTask extends MetalSourceTask
         final var name = getProject().getName();
         this.outputFile = getOutputDirectory().map(out -> {
             final var target = getTarget().get();
-            final var file = getMetal().get().executableFileName(target,name);
+            final var file = getMetal().get().archiveFileName(target,name);
             return out.file("%s/%s".formatted(target,file));
         });
     }

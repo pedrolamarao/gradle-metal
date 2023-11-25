@@ -1,8 +1,8 @@
 = application with c sources
 
-This sample demonstrates an application with assembler sources.
+This sample demonstrates an application with C sources.
 
-Look for source files in `src/main/c`.
+Look for source files in `src/main`.
 
 To build this sample, run: `../../gradlew --include-build=../.. build`
 

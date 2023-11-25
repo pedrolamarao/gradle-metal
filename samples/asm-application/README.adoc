@@ -2,7 +2,7 @@
 
 This sample demonstrates an application with assembler sources.
 
-Look for source files in `src/main/asm`.
+Look for source files in `src/main`.
 
 To build this sample, run: `../../gradlew --include-build=../.. build`
 

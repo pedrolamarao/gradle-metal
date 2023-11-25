@@ -2,11 +2,14 @@
 
 .global main
 main:
-        sub     rsp, 40
+        push    rbp
+        sub     rsp, 64
+        lea     rbp, [rsp + 64]
         lea     rcx, [rip + .L.str]
         call    printf
-        nop
-        add     rsp, 40
+        xor     eax, eax
+        add     rsp, 64
+        pop     rbp
         ret
 .L.str:
         .asciz  "Hello World!"

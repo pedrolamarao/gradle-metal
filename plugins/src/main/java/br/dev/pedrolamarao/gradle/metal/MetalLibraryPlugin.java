@@ -34,9 +34,8 @@ public class MetalLibraryPlugin implements Plugin<Project>
 
         final var archiveTask = tasks.register("archive",MetalArchive.class,archive ->
         {
-            final var target = archive.getTarget().get();
-            final var archiveName = archive.getMetal().get().archiveFileName(target);
-            archive.getOutput().set( layout.getBuildDirectory().file("lib/main/%s/%s".formatted(target,archiveName)) );
+            final var archiveName = archive.getMetal().zip(archive.getTarget(),(metal,target) -> metal.archiveFileName(target,name));
+            archive.getOutput().set( layout.getBuildDirectory().zip(archive.getTarget(),(dir,target) -> dir.file("lib/main/%s/%s".formatted(target,archiveName.get()))) );
             archive.setSource(objectFiles);
         });
         plugins.withPlugin("br.dev.pedrolamarao.metal.asm",asm ->

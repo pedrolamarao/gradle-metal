@@ -37,8 +37,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
 
         final var linkTask = tasks.register("link",MetalLink.class,link ->
         {
+            final var applicationName = link.getMetal().zip(link.getTarget(),(metal,target) -> metal.executableFileName(target,name));
             link.getLinkableDependencies().from(linkableDependencies);
-            link.getOutput().set( layout.getBuildDirectory().zip(link.getTarget(),(build,target) -> build.file("exe/main/%s/%s.exe".formatted(target,name))) );
+            link.getOutput().set( layout.getBuildDirectory().zip(link.getTarget(),(dir,target) -> dir.file("exe/main/%s/%s".formatted(target,applicationName.get()))) );
             link.getOptions().convention(linkOptions);
             link.setSource(applicationObjects);
         });

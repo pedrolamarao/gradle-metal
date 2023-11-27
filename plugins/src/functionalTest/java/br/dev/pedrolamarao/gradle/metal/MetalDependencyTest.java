@@ -26,10 +26,28 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
+        final var libraryHeaderDir = libraryDir.resolve("src/main/cpp");
+        Files.createDirectories(libraryHeaderDir);
+        Files.writeString(libraryHeaderDir.resolve("foo.h"),
+            """
+            #if defined(__cplusplus)
+            extern "C" {
+            #endif
+            
+            int foo ();
+            
+            #if defined(__cplusplus)
+            }
+            #endif
+            """
+        );
+
         final var librarySourceDir = libraryDir.resolve("src/main/c");
         Files.createDirectories(librarySourceDir);
         Files.writeString(librarySourceDir.resolve("foo.c"),
             """
+            #include <foo.h>
+            
             int foo () { return 0; }
             """
         );
@@ -54,7 +72,7 @@ public class MetalDependencyTest extends MetalTestBase
         Files.createDirectories(applicationSourceDir);
         Files.writeString(applicationSourceDir.resolve("main.cxx"),
             """
-            extern "C" int foo ();
+            #include <foo.h>
             
             int main (int argc, char * argv [])
             {
@@ -71,7 +89,7 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,":application:link")
+            .withArguments("--build-cache","--configuration-cache","--info","--stacktrace",metalPathProperty,":application:link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -97,10 +115,28 @@ public class MetalDependencyTest extends MetalTestBase
         );
         Files.writeString(libraryDir.resolve("settings.gradle.kts"),"");
 
+        final var libraryHeaderDir = libraryDir.resolve("src/main/cpp");
+        Files.createDirectories(libraryHeaderDir);
+        Files.writeString(libraryHeaderDir.resolve("foo.h"),
+            """
+            #if defined(__cplusplus)
+            extern "C" {
+            #endif
+            
+            int foo ();
+            
+            #if defined(__cplusplus)
+            }
+            #endif
+            """
+        );
+
         final var librarySourceDir = libraryDir.resolve("src/main/c");
         Files.createDirectories(librarySourceDir);
         Files.writeString(librarySourceDir.resolve("foo.c"),
             """
+            #include <foo.h>
+            
             int foo () { return 0; }
             """
         );
@@ -126,7 +162,7 @@ public class MetalDependencyTest extends MetalTestBase
         Files.createDirectories(applicationSourceDir);
         Files.writeString(applicationSourceDir.resolve("main.cxx"),
             """
-            extern "C" int foo ();
+            #include <foo.h>
             
             int main (int argc, char * argv [])
             {

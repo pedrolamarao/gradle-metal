@@ -1,8 +1,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.CacheableTask;
-
-import java.util.List;
 
 @CacheableTask
 public abstract class MetalAsmCompile extends MetalCompile
@@ -12,7 +11,8 @@ public abstract class MetalAsmCompile extends MetalCompile
         getCompiler().convention("clang");
     }
 
-    protected final void getLanguageArguments (List<String> args)
+    @Override
+    protected final void addLanguageOptions (ListProperty<String> args)
     {
         args.add("--language=assembler");
     }

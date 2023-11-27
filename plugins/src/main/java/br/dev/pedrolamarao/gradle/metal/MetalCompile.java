@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class MetalCompile extends SourceTask
 {
@@ -47,7 +46,7 @@ public abstract class MetalCompile extends SourceTask
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
-    protected void getLanguageArguments (List<String> args) { }
+    protected void addLanguageOptions (ListProperty<String> args) { }
 
     interface CompileParameter extends WorkParameters
     {
@@ -124,6 +123,7 @@ public abstract class MetalCompile extends SourceTask
                 parameters.getCompiler().set(compiler.toString());
                 parameters.getOutputDirectory().set(output);
                 parameters.getOptions().set(options);
+                addLanguageOptions(parameters.getOptions());
                 parameters.getSource().set(source);
                 parameters.getTarget().set(target);
             });

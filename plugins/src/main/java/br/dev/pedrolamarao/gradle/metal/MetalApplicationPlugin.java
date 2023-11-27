@@ -12,6 +12,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
         final var name = project.getName();
+        final var objects = project.getObjects();
         final var plugins = project.getPluginManager();
         final var tasks = project.getTasks();
 
@@ -33,7 +34,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
         final var application = project.getExtensions().create("application",MetalApplication.class);
         final var compileOptions = application.getCompileOptions();
         final var linkOptions = application.getLinkOptions();
-        final var applicationObjects = project.getObjects().fileCollection();
+
+        final var includeDir = layout.getProjectDirectory().dir("src/main/cpp");
+        final var objectFiles = objects.fileCollection();
 
         final var linkTask = tasks.register("link",MetalLink.class,link ->
         {
@@ -41,7 +44,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
             link.getLinkableDependencies().from(linkableDependencies);
             link.getOutput().set( layout.getBuildDirectory().zip(link.getTarget(),(dir,target) -> dir.file("exe/main/%s/%s".formatted(target,applicationName.get()))) );
             link.getOptions().convention(linkOptions);
-            link.setSource(applicationObjects);
+            link.setSource(objectFiles);
         });
         plugins.withPlugin("br.dev.pedrolamarao.metal.asm",asm ->
         {
@@ -51,27 +54,29 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 compile.getOptions().convention(compileOptions);
                 compile.setSource(layout.getProjectDirectory().dir("src/main/asm"));
             });
-            applicationObjects.from(compileTask);
+            objectFiles.from(compileTask);
         });
         plugins.withPlugin("br.dev.pedrolamarao.metal.c",c ->
         {
             final var compileTask = tasks.register("compileC",MetalCCompile.class,compile ->
             {
+                compile.getIncludePath().add(includeDir.toString());
                 compile.getOutputDirectory().set(layout.getBuildDirectory().dir("obj/main/c"));
                 compile.getOptions().convention(compileOptions);
                 compile.setSource(layout.getProjectDirectory().dir("src/main/c"));
             });
-            applicationObjects.from(compileTask);
+            objectFiles.from(compileTask);
         });
         plugins.withPlugin("br.dev.pedrolamarao.metal.cxx",cxx ->
         {
             final var compileTask = tasks.register("compileCxx",MetalCxxCompile.class,compile ->
             {
+                compile.getIncludePath().add(includeDir.toString());
                 compile.getOutputDirectory().set(layout.getBuildDirectory().dir("obj/main/cxx"));
                 compile.getOptions().convention(compileOptions);
                 compile.setSource(layout.getProjectDirectory().dir("src/main/cxx"));
             });
-            applicationObjects.from(compileTask);
+            objectFiles.from(compileTask);
         });
     }
 }

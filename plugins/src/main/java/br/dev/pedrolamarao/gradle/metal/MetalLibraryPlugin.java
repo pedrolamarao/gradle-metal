@@ -30,6 +30,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
         final var library = project.getExtensions().create("library",MetalLibrary.class);
         final var compileOptions = library.getCompileOptions();
 
+        final var includeDir = layout.getProjectDirectory().dir("src/main/cpp");
         final var objectFiles = objects.fileCollection();
 
         final var archiveTask = tasks.register("archive",MetalArchive.class,archive ->
@@ -52,6 +53,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
         {
             final var compileTask = tasks.register("compileC",MetalCCompile.class,compile ->
             {
+                compile.getIncludePath().add(includeDir.toString());
                 compile.getOutputDirectory().set(layout.getBuildDirectory().dir("obj/main/c"));
                 compile.getOptions().convention(compileOptions);
                 compile.setSource(layout.getProjectDirectory().dir("src/main/c"));
@@ -62,6 +64,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
         {
             final var compileTask = tasks.register("compileCxx",MetalCxxCompile.class,compile ->
             {
+                compile.getIncludePath().add(includeDir.toString());
                 compile.getOutputDirectory().set(layout.getBuildDirectory().dir("obj/main/cxx"));
                 compile.getOptions().convention(compileOptions);
                 compile.setSource(layout.getProjectDirectory().dir("src/main/cxx"));

@@ -94,13 +94,31 @@ public class MetalApplicationTest extends MetalTestBase
     @Test
     public void compileC () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src/main/c"));
-
-        Files.writeString(projectDir.resolve("src/main/c/main.c"),
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
             """
-            int main (int argc, char * argv[])
+            int foo ();
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/c"));
+        Files.writeString(projectDir.resolve("src/main/c/foo.c"),
+            """
+            #include <foo.h>
+            
+            int foo ()
             {
                 return 0;
+            }
+            """
+        );
+        Files.writeString(projectDir.resolve("src/main/c/main.c"),
+            """
+            #include <foo.h>
+            
+            int main (int argc, char * argv[])
+            {
+                return foo();
             }
             """
         );
@@ -123,7 +141,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( compile.task(":compileC").getOutcome() ).isEqualTo(SUCCESS);
 
         try (var stream = Files.walk(projectDir.resolve("build/obj/main/c")).filter(Files::isRegularFile)) {
-            assertThat( stream.count() ).isEqualTo(1);
+            assertThat( stream.count() ).isEqualTo(2);
         }
 
         GradleRunner.create()
@@ -174,13 +192,31 @@ public class MetalApplicationTest extends MetalTestBase
     @Test
     public void compileCxx () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src/main/cxx"));
-
-        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
             """
-            int main (int argc, char * argv[])
+            int foo ();
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+        Files.writeString(projectDir.resolve("src/main/cxx/foo.cxx"),
+            """
+            #include <foo.h>
+            
+            int foo ()
             {
                 return 0;
+            }
+            """
+        );
+        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
+            """
+            #include <foo.h>
+            
+            int main (int argc, char * argv[])
+            {
+                return foo();
             }
             """
         );
@@ -203,7 +239,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( compile.task(":compileCxx").getOutcome() ).isEqualTo(SUCCESS);
 
         try (var stream = Files.walk(projectDir.resolve("build/obj/main/cxx")).filter(Files::isRegularFile)) {
-            assertThat( stream.count() ).isEqualTo(1);
+            assertThat( stream.count() ).isEqualTo(2);
         }
 
         GradleRunner.create()

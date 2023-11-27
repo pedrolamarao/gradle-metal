@@ -94,11 +94,19 @@ public class MetalLibraryTest extends MetalTestBase
     @Test
     public void compileC () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src/main/c"));
-
-        Files.writeString(projectDir.resolve("src/main/c/main.c"),
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
             """
-            int main (int argc, char * argv[])
+            int foo ();
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/c"));
+        Files.writeString(projectDir.resolve("src/main/c/foo.c"),
+            """
+            #include <foo.h>
+            
+            int foo ()
             {
                 return 0;
             }

@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import br.dev.pedrolamarao.gradle.metal.MetalService;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;

@@ -1,6 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
+import br.dev.pedrolamarao.gradle.metal.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalCompileTask;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;

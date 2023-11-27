@@ -1,5 +1,9 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import br.dev.pedrolamarao.gradle.metal.Metal;
+import br.dev.pedrolamarao.gradle.metal.MetalCapability;
+import br.dev.pedrolamarao.gradle.metal.MetalService;
+import br.dev.pedrolamarao.gradle.metal.MetalVisibility;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Exec;
@@ -18,7 +22,7 @@ public class MetalBasePlugin implements Plugin<Project>
     {
         project.getPluginManager().apply(LifecycleBasePlugin.class);
 
-        project.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class, it -> {});
+        project.getGradle().getSharedServices().registerIfAbsent("metal", MetalService.class, it -> {});
 
         final var configurations = project.getConfigurations();
         final var tasks = project.getTasks();
@@ -85,7 +89,7 @@ public class MetalBasePlugin implements Plugin<Project>
         });
 
         project.getDependencies().getAttributesSchema().attribute(MetalCapability.ATTRIBUTE, it -> {
-            it.getCompatibilityRules().add(MetalCapabilityCompatibilityRule.class);
+            it.getCompatibilityRules().add(MetalCapability.CompatibilityRule.class);
         });
 
         // extensions

@@ -1,6 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.ixx;
 
-import br.dev.pedrolamarao.gradle.metal.base.MetalService;
+import br.dev.pedrolamarao.gradle.metal.MetalService;
 import br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxCompileBaseTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;

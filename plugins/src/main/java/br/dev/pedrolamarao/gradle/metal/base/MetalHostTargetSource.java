@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import br.dev.pedrolamarao.gradle.metal.Metal;
 import org.gradle.api.GradleException;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;

@@ -1,14 +1,14 @@
 package br.dev.pedrolamarao.gradle.metal.cxx;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
+import br.dev.pedrolamarao.gradle.metal.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 
-import static br.dev.pedrolamarao.gradle.metal.base.Metal.IMPORTABLE_DEPENDENCIES;
-import static br.dev.pedrolamarao.gradle.metal.base.Metal.INCLUDABLE_DEPENDENCIES;
+import static br.dev.pedrolamarao.gradle.metal.Metal.IMPORTABLE_DEPENDENCIES;
+import static br.dev.pedrolamarao.gradle.metal.Metal.INCLUDABLE_DEPENDENCIES;
 
 /**
  * C++ language support plugin.

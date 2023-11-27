@@ -3,8 +3,6 @@ package br.dev.pedrolamarao.gradle.metal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public abstract class MetalTestBase
@@ -12,12 +10,14 @@ public abstract class MetalTestBase
     @TempDir
     protected Path projectDir;
 
+    protected String metalPathProperty = "";
+
     @BeforeEach
-    void gradleProperties () throws IOException
+    void gradleProperties ()
     {
         final var metalPath = System.getProperty("metal.path");
         if (metalPath != null) {
-            Files.writeString(projectDir.resolve("gradle.properties"),"metal.path = %s".formatted(metalPath));
+            metalPathProperty = "-Pmetal.path=%s".formatted(metalPath);
         }
     }
 }

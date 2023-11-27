@@ -6,11 +6,11 @@ primarily design to support project link:https://github.com/pedrolamarao/metal[M
 
 Features:
 
-* compile assembler, c and c++ (including c++ module interfaces)
-* assemble archives and executables
-* build target support (e.g. `x86_64-elf`)
-* generate compilation commands database
-* source dependency on included project
+* compile assembler, c and c++ sources (with support for c++ modules)
+* assemble applications and (static) libraries
+* cross-compilation support
+* compilation commands database support
+* source dependency on included project or build
 * binary dependency on prebuilt external project
 * LLVM tools
 
@@ -21,7 +21,7 @@ In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
 
 Current requirements:
 
-* Gradle 8.4 or newer
+* Gradle 8.5 or newer
 * JDK 17 or newer
 * LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
 
@@ -45,23 +45,23 @@ pluginManagement {
 
 Check the link:samples[] for a variety of use-cases.
 
-Plugins:
+Project plugins:
 
-* `br.dev.pedrolamarao.metal.base`: adds the Gradle Metal service and extension
-* `br.dev.pedrolamarao.metal.application`: conventional application project
-* `br.dev.pedrolamarao.metal.archive`: conventional archive project
-* `br.dev.pedrolamarao.metal.asm`:  adds assembler source sets
-* `br.dev.pedrolamarao.metal.c`: adds C sources sets
-* `br.dev.pedrolamarao.metal.cpp`: adds C preprocessor source sets
-* `br.dev.pedrolamarao.metal.cxx`: adds C++ module implementation source sets
-* `br.dev.pedrolamarao.metal.ixx`: adds C++ module interface source sets
+* `br.dev.pedrolamarao.metal.application`: native application project
+* `br.dev.pedrolamarao.metal.library`: native library project
+
+Language plugins:
+
+* `br.dev.pedrolamarao.metal.asm`: adds assembler language
+* `br.dev.pedrolamarao.metal.c`: adds C language
+* `br.dev.pedrolamarao.metal.cxx`: adds C++ language
 
 Under construction:
 
 * build flavour support (e.g. `debug`, `release`)
 * shared library component
 * source dependencies on cmake project
-* binary dependencies on maven repository
+* binary dependencies from maven repository
 * GCC tools
 * MSVC tools
 

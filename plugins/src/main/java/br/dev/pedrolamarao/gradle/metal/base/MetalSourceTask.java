@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.base;
 
+import br.dev.pedrolamarao.gradle.metal.MetalService;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.provider.Property;
 import org.gradle.api.services.ServiceReference;

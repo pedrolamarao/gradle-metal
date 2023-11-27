@@ -1,6 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal.prebuilt;
 
-import br.dev.pedrolamarao.gradle.metal.base.Metal;
+import br.dev.pedrolamarao.gradle.metal.Metal;
 import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
 import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Action;
@@ -12,7 +12,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 
 import javax.inject.Inject;
 
-import static br.dev.pedrolamarao.gradle.metal.base.Metal.LINKABLE_ELEMENTS;
+import static br.dev.pedrolamarao.gradle.metal.Metal.LINKABLE_ELEMENTS;
 
 /**
  * Prebuilt component plugin.

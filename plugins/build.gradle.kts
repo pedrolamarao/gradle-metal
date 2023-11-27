@@ -21,7 +21,7 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.application"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalApplicationPlugin"
             displayName = "Gradle Metal application plugin"
-            description = "Configures a conventional Gradle Metal application project"
+            description = "Configures a Gradle Metal application project"
             tags = tagSet
         }
         create("asm") {
@@ -56,8 +56,15 @@ gradlePlugin {
             id = "br.dev.pedrolamarao.metal.library"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalLibraryPlugin"
             displayName = "Gradle Metal library plugin"
-            description = "Configures a conventional Gradle Metal library project"
+            description = "Configures a Gradle Metal library project"
             tags = tagSet
+        }
+        create("prebuilt") {
+            id = "br.dev.pedrolamarao.metal.prebuilt"
+            implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalPrebuiltPlugin"
+            displayName = "Gradle Metal prebuilt plugin"
+            description = "Configures a prebuilt Gradle Metal project"
+            tags = setOf("bare-metal","asm","c","cpp","cxx","c++","native")
         }
     }
 }

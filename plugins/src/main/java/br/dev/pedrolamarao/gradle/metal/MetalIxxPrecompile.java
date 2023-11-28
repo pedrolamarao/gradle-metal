@@ -1,17 +1,17 @@
 package br.dev.pedrolamarao.gradle.metal;
 
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.services.ServiceReference;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
-import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -24,26 +24,15 @@ import java.util.List;
 import java.util.Map;
 
 @CacheableTask
-public abstract class MetalIxxPrecompile extends SourceTask
+public abstract class MetalIxxPrecompile extends MetalCompile
 {
     // properties
-    @Input
-    public abstract Property<String> getCompiler ();
 
     @Input
     public abstract ListProperty<String> getImportPath ();
 
     @Input
     public abstract ListProperty<String> getIncludePath ();
-
-    @Input
-    public abstract ListProperty<String> getOptions ();
-
-    @OutputDirectory
-    public abstract DirectoryProperty getOutputDirectory ();
-
-    @Input
-    public abstract Property<String> getTarget ();
 
     // services
 
@@ -52,12 +41,6 @@ public abstract class MetalIxxPrecompile extends SourceTask
 
     @Inject
     protected abstract FileOperations getFiles ();
-
-    @ServiceReference
-    protected abstract Property<MetalService> getMetal ();
-
-    @Inject
-    protected abstract WorkerExecutor getWorkers ();
 
     /**
      * Object factory service.

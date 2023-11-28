@@ -8,7 +8,6 @@ import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -52,7 +51,7 @@ public abstract class MetalCompile extends SourceTask
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
-    protected abstract void addLanguageOptions (ListProperty<String> args);
+    protected void addLanguageOptions (ListProperty<String> args) { };
 
     interface CompileParameter extends WorkParameters
     {
@@ -112,7 +111,6 @@ public abstract class MetalCompile extends SourceTask
         }
     }
 
-    @TaskAction
     public void compile ()
     {
         final var workers = getWorkers().noIsolation();

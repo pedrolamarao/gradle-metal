@@ -1,7 +1,7 @@
 = gradle-metal
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
-Gradle Metal is a suite of Gradle plugins supporting development for the bare metal,
+Gradle Metal is a suite of Gradle plugins for bare metal development,
 primarily design to support project link:https://github.com/pedrolamarao/metal[Metal].
 
 Features:
@@ -19,15 +19,31 @@ This project is under early development.
 Compatibility *will be broken* without prior notice.
 In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
 
+A C++ library project with modules support is defined as simply as:
+
+[source,kotlin]
+----
+plugins {
+    id("br.dev.pedrolamarao.metal.library")
+    id("br.dev.pedrolamarao.metal.cxx")
+}
+
+library {
+    compileOptions = listOf("-std=c++20")
+}
+----
+
+Check the link:samples[] for a variety of use-cases.
+
 Current requirements:
 
 * Gradle 8.5 or newer
 * JDK 17 or newer
-* LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
+* LLVM 16 or newer (with `clang`, `clang-scan-deps`, `lld`, `llvm-ar` etc.)
 
 To use the development version, you may install from source with `./gradlew publishToMavenLocal` and configure your project's settings like this:
 
-[source]
+[source,kotlin]
 ----
 pluginManagement {
     repositories {
@@ -43,23 +59,10 @@ pluginManagement {
 }
 ----
 
-Check the link:samples[] for a variety of use-cases.
-
-Project plugins:
-
-* `br.dev.pedrolamarao.metal.application`: native application project
-* `br.dev.pedrolamarao.metal.library`: native library project
-
-Language plugins:
-
-* `br.dev.pedrolamarao.metal.asm`: adds assembler language
-* `br.dev.pedrolamarao.metal.c`: adds C language
-* `br.dev.pedrolamarao.metal.cxx`: adds C++ language
-
 Under construction:
 
-* build flavour support (e.g. `debug`, `release`)
-* shared library component
+* build flavour (e.g. `debug`, `release`)
+* shared library
 * source dependencies on cmake project
 * binary dependencies from maven repository
 * GCC tools

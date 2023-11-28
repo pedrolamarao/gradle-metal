@@ -25,7 +25,7 @@ public abstract class MetalLink extends SourceTask
     @IgnoreEmptyDirectories
     @InputFiles
     @PathSensitive(PathSensitivity.ABSOLUTE)
-    protected abstract ConfigurableFileCollection getLinkableDependencies ();
+    public abstract ConfigurableFileCollection getLinkDependencies ();
 
     @Input
     public abstract Property<String> getLinker ();
@@ -79,7 +79,7 @@ public abstract class MetalLink extends SourceTask
         getLibraryPath().get().forEach(path -> args.add("--library-directory=%s".formatted(path)));
         args.add("--output=%s".formatted(output));
         getSource().forEach(source -> args.add(source.toString()));
-        getLinkableDependencies().forEach(linkable -> args.add(linkable.toString()));
+        getLinkDependencies().forEach(linkable -> args.add(linkable.toString()));
 
         getExec().exec(it -> {
             it.executable(linker);

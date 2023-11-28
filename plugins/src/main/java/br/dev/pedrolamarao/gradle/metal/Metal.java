@@ -23,11 +23,6 @@ public class Metal
     public static final String COMMANDS_ELEMENTS = "commandsElements";
 
     /**
-     * Empty elements configuration name. (Probably obsolete.)
-     */
-    public static final String EMPTY_ELEMENTS = "emptyElements";
-
-    /**
      * Executable dependencies configuration name.
      */
     public static final String EXECUTABLE_DEPENDENCIES = "executableDependencies";

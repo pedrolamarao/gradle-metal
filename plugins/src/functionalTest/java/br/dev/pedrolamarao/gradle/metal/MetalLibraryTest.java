@@ -182,22 +182,57 @@ public class MetalLibraryTest extends MetalTestBase
     @Test
     public void compileCxx () throws IOException
     {
-        Files.createDirectories(projectDir.resolve("src/main/cxx"));
-
-        Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
             """
-            int main (int argc, char * argv[])
+            int foo ();
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/ixx"));
+        Files.writeString(projectDir.resolve("src/main/ixx/bar.ixx"),
+            """            
+            export module bar;
+            
+            export int bar ();
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/cxx"));
+        Files.writeString(projectDir.resolve("src/main/cxx/foo.cxx"),
+            """
+            #include <foo.h>
+            
+            int foo ()
             {
                 return 0;
             }
             """
         );
+        Files.writeString(projectDir.resolve("src/main/cxx/bar.cxx"),
+            """
+            module;
+            
+            #include <foo.h>
+            
+            module bar;
+            
+            int bar ()
+            {
+                return foo();
+            }
+            """
+        );
 
         Files.writeString(projectDir.resolve("build.gradle.kts"),
-            """
+            """         
             plugins {
                 id("br.dev.pedrolamarao.metal.library")
                 id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            library {
+                compileOptions = listOf("-std=c++20")
             }
             """
         );
@@ -210,8 +245,12 @@ public class MetalLibraryTest extends MetalTestBase
 
         assertThat( compile.task(":compileCxx").getOutcome() ).isEqualTo(SUCCESS);
 
-        try (var stream = Files.walk(projectDir.resolve("build/obj/main/cxx")).filter(Files::isRegularFile)) {
+        try (var stream = Files.walk(projectDir.resolve("build/bmi/main")).filter(Files::isRegularFile)) {
             assertThat( stream.count() ).isEqualTo(1);
+        }
+
+        try (var stream = Files.walk(projectDir.resolve("build/obj/main")).filter(Files::isRegularFile)) {
+            assertThat( stream.count() ).isEqualTo(3);
         }
 
         GradleRunner.create()

@@ -19,9 +19,12 @@ public class MetalDependencyTest extends MetalTestBase
         Files.writeString(libraryDir.resolve("build.gradle.kts"),
             """
             plugins {
-                id("base")
                 id("br.dev.pedrolamarao.metal.library")
-                id("br.dev.pedrolamarao.metal.c")
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            library {
+                compileOptions = listOf("-std=c++20")
             }
             """
         );
@@ -30,21 +33,27 @@ public class MetalDependencyTest extends MetalTestBase
         Files.createDirectories(libraryHeaderDir);
         Files.writeString(libraryHeaderDir.resolve("foo.h"),
             """
-            #if defined(__cplusplus)
-            extern "C" {
-            #endif
-            
             int foo ();
-            
-            #if defined(__cplusplus)
-            }
-            #endif
             """
         );
 
-        final var librarySourceDir = libraryDir.resolve("src/main/c");
+        final var libraryModuleDir = libraryDir.resolve("src/main/ixx");
+        Files.createDirectories(libraryModuleDir);
+        Files.writeString(libraryModuleDir.resolve("bar.ixx"),
+            """
+            module;
+            
+            #include <foo.h>
+            
+            export module bar;
+            
+            export int bar () { return foo(); }
+            """
+        );
+
+        final var librarySourceDir = libraryDir.resolve("src/main/cxx");
         Files.createDirectories(librarySourceDir);
-        Files.writeString(librarySourceDir.resolve("foo.c"),
+        Files.writeString(librarySourceDir.resolve("foo.cxx"),
             """
             #include <foo.h>
             
@@ -60,6 +69,10 @@ public class MetalDependencyTest extends MetalTestBase
                 id("base")
                 id("br.dev.pedrolamarao.metal.application")
                 id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            application {
+                compileOptions = listOf("-std=c++20")
             }
             
             dependencies {
@@ -74,9 +87,11 @@ public class MetalDependencyTest extends MetalTestBase
             """
             #include <foo.h>
             
+            import bar;
+            
             int main (int argc, char * argv [])
             {
-                return foo();
+                return foo() + bar();
             }
             """
         );
@@ -89,13 +104,14 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info","--stacktrace",metalPathProperty,":application:link")
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         assertThat( link.task(":application:link").getOutcome() ).isEqualTo( SUCCESS );
     }
+
     @Test
     public void composite () throws IOException
     {
@@ -104,36 +120,44 @@ public class MetalDependencyTest extends MetalTestBase
         Files.writeString(libraryDir.resolve("build.gradle.kts"),
             """
             plugins {
-                id("base")
                 id("br.dev.pedrolamarao.metal.library")
-                id("br.dev.pedrolamarao.metal.c")
+                id("br.dev.pedrolamarao.metal.cxx")
             }
             
             group = "library"
             version = "1.0"
+            
+            library {
+                compileOptions = listOf("-std=c++20")
+            }
             """
         );
-        Files.writeString(libraryDir.resolve("settings.gradle.kts"),"");
 
         final var libraryHeaderDir = libraryDir.resolve("src/main/cpp");
         Files.createDirectories(libraryHeaderDir);
         Files.writeString(libraryHeaderDir.resolve("foo.h"),
             """
-            #if defined(__cplusplus)
-            extern "C" {
-            #endif
-            
             int foo ();
-            
-            #if defined(__cplusplus)
-            }
-            #endif
             """
         );
 
-        final var librarySourceDir = libraryDir.resolve("src/main/c");
+        final var libraryModuleDir = libraryDir.resolve("src/main/ixx");
+        Files.createDirectories(libraryModuleDir);
+        Files.writeString(libraryModuleDir.resolve("bar.ixx"),
+            """
+            module;
+            
+            #include <foo.h>
+            
+            export module bar;
+            
+            export int bar () { return foo(); }
+            """
+        );
+
+        final var librarySourceDir = libraryDir.resolve("src/main/cxx");
         Files.createDirectories(librarySourceDir);
-        Files.writeString(librarySourceDir.resolve("foo.c"),
+        Files.writeString(librarySourceDir.resolve("foo.cxx"),
             """
             #include <foo.h>
             
@@ -151,12 +175,15 @@ public class MetalDependencyTest extends MetalTestBase
                 id("br.dev.pedrolamarao.metal.cxx")
             }
             
+            application {
+                compileOptions = listOf("-std=c++20")
+            }
+            
             dependencies {
                 implementation("library:library:1.0")
             }
             """
         );
-        Files.writeString(applicationDir.resolve("settings.gradle.kts"),"");
 
         final var applicationSourceDir = applicationDir.resolve("src/main/cxx");
         Files.createDirectories(applicationSourceDir);
@@ -164,9 +191,11 @@ public class MetalDependencyTest extends MetalTestBase
             """
             #include <foo.h>
             
+            import bar;
+            
             int main (int argc, char * argv [])
             {
-                return foo();
+                return foo() + bar();
             }
             """
         );
@@ -179,7 +208,7 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,":application:link")
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

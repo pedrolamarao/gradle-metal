@@ -199,6 +199,19 @@ public class MetalApplicationTest extends MetalTestBase
             """
         );
 
+        Files.createDirectories(projectDir.resolve("src/main/ixx"));
+        Files.writeString(projectDir.resolve("src/main/ixx/bar.ixx"),
+            """
+            module;
+            
+            #include <foo.h>
+            
+            export module bar;
+            
+            export int bar () { return foo(); }
+            """
+        );
+
         Files.createDirectories(projectDir.resolve("src/main/cxx"));
         Files.writeString(projectDir.resolve("src/main/cxx/foo.cxx"),
             """
@@ -212,11 +225,11 @@ public class MetalApplicationTest extends MetalTestBase
         );
         Files.writeString(projectDir.resolve("src/main/cxx/main.cxx"),
             """
-            #include <foo.h>
+            import bar;
             
             int main (int argc, char * argv[])
             {
-                return foo();
+                return bar();
             }
             """
         );
@@ -227,11 +240,15 @@ public class MetalApplicationTest extends MetalTestBase
                 id("br.dev.pedrolamarao.metal.application")
                 id("br.dev.pedrolamarao.metal.cxx")
             }
+            
+            application {
+                compileOptions = listOf("-std=c++20")
+            }
             """
         );
 
         final var compile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileCxx")
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"compileCxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -239,7 +256,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( compile.task(":compileCxx").getOutcome() ).isEqualTo(SUCCESS);
 
         try (var stream = Files.walk(projectDir.resolve("build/obj/main/cxx")).filter(Files::isRegularFile)) {
-            assertThat( stream.count() ).isEqualTo(2);
+            assertThat( stream.count() ).isEqualTo(3);
         }
 
         GradleRunner.create()

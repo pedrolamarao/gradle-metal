@@ -1,31 +1,64 @@
-package br.dev.pedrolamarao.gradle.metal.ixx;
+package br.dev.pedrolamarao.gradle.metal;
 
-import br.dev.pedrolamarao.gradle.metal.MetalIxxModule;
-import br.dev.pedrolamarao.gradle.metal.MetalService;
-import br.dev.pedrolamarao.gradle.metal.cxx.MetalCxxCompileBaseTask;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.services.ServiceReference;
-import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Compile C++ module interface sources base task.
- */
-public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
+@CacheableTask
+public abstract class MetalIxxPrecompile extends SourceTask
 {
+    // properties
+    @Input
+    public abstract Property<String> getCompiler ();
+
+    @Input
+    public abstract ListProperty<String> getImportPath ();
+
+    @Input
+    public abstract ListProperty<String> getIncludePath ();
+
+    @Input
+    public abstract ListProperty<String> getOptions ();
+
+    @OutputDirectory
+    public abstract DirectoryProperty getOutputDirectory ();
+
+    @Input
+    public abstract Property<String> getTarget ();
+
+    // services
+
+    @Inject
+    public abstract ExecOperations getExec ();
+
+    @Inject
+    protected abstract FileOperations getFiles ();
+
+    @ServiceReference
+    protected abstract Property<MetalService> getMetal ();
+
+    @Inject
+    protected abstract WorkerExecutor getWorkers ();
+
     /**
      * Object factory service.
      *
@@ -34,37 +67,45 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
     @Inject
     protected abstract ObjectFactory getObjects ();
 
+    // task
+
+    public MetalIxxPrecompile ()
+    {
+        getCompiler().convention("clang++");
+        getTarget().convention(getMetal().map(MetalService::getTarget));
+    }
+
     /**
      * Scan worker parameters.
      */
-    public interface ScanParameter extends WorkParameters
+    interface ScanParameter extends WorkParameters
     {
         /**
          * Compiler arguments.
          *
          * @return property
          */
-        ListProperty<String> getCompileArgs ();
+        ListProperty<String> getOptions ();
 
         /**
          * Output file.
          *
          * @return property
          */
-        RegularFileProperty getOutputFile ();
+        RegularFileProperty getOutput ();
 
         /**
          * Source file.
          *
          * @return property
          */
-        RegularFileProperty getSourceFile ();
+        RegularFileProperty getSource ();
     }
 
     /**
      * Scan worker action.
      */
-    public static abstract class ScanAction implements WorkAction<ScanParameter>
+    static abstract class ScanAction implements WorkAction<ScanParameter>
     {
         /**
          * Exec operations service.
@@ -82,16 +123,7 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         @ServiceReference
         public abstract Property<MetalService> getMetal ();
 
-        /**
-         * Scanner executable path.
-         *
-         * @return provider
-         */
-        @Input
-        public Provider<File> getScanner ()
-        {
-            return getMetal().map(it -> it.locateTool("clang-scan-deps"));
-        }
+        public ScanAction () { }
 
         /**
          * {@inheritDoc}
@@ -99,9 +131,11 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         @Override
         public void execute ()
         {
+            final var scanner = getMetal().map(it -> it.locateTool("clang-scan-deps")).get();
+
             final var parameters = getParameters();
-            final var sourceFile = parameters.getSourceFile().getAsFile().get();
-            final var outputFile = parameters.getOutputFile().getAsFile().get();
+            final var sourceFile = parameters.getSource().getAsFile().get();
+            final var outputFile = parameters.getOutput().getAsFile().get();
 
             // obtain P1689 dependency information from sources
             final var buffer = new ByteArrayOutputStream();
@@ -110,11 +144,11 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
                 final var scanArgs = new ArrayList<String>();
                 scanArgs.add("--format=p1689");
                 scanArgs.add("--");
-                scanArgs.addAll(parameters.getCompileArgs().get());
+                scanArgs.addAll(parameters.getOptions().get());
                 scanArgs.add(sourceFile.toString());
 
                 getExec().exec(it -> {
-                    it.executable(getScanner().get());
+                    it.executable(scanner);
                     it.args(scanArgs);
                     it.setStandardOutput(buffer);
                 });
@@ -173,9 +207,9 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
     {
         // prepare base arguments
         final var scanArgs = new ArrayList<String>();
-        scanArgs.add(getCompiler().get().toString());
-        scanArgs.addAll(getCompileOptions().get());
-        getInclude().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
+        scanArgs.add(getCompiler().get());
+        scanArgs.addAll(getOptions().get());
+        getIncludePath().get().forEach(file -> scanArgs.add("--include-directory=%s".formatted(file)));
         scanArgs.add("--language=c++-module");
         scanArgs.add("--precompile");
 
@@ -185,9 +219,9 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         for (var sourceFile : getSource()) {
             final var outputPath = getTemporaryDir().toPath().resolve( "%X/%s.deps".formatted(sourceFile.hashCode(),sourceFile.getName() ));
             scanWorkers.submit(ScanAction.class, parameter -> {
-                parameter.getCompileArgs().set(scanArgs);
-                parameter.getOutputFile().set(outputPath.toFile());
-                parameter.getSourceFile().set(sourceFile);
+                parameter.getOptions().set(scanArgs);
+                parameter.getOutput().set(outputPath.toFile());
+                parameter.getSource().set(sourceFile);
             });
         }
         scanWorkers.await();
@@ -213,5 +247,46 @@ public abstract class MetalIxxCompileBaseTask extends MetalCxxCompileBaseTask
         });
 
         return modules;
+    }
+
+    @TaskAction
+    public void precompile () throws Exception
+    {
+        final var compiler = getMetal().zip(getCompiler(),MetalService::locateTool).get();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
+
+        // discover dependencies from sources
+        final var modules = scan();
+
+        // remove old objects
+        getFiles().delete(outputDirectory);
+        Files.createDirectories(outputDirectory);
+
+        // prepare compile arguments
+        final var baseArgs = new ArrayList<String>();
+        baseArgs.add("--target=%s".formatted(getTarget().get()));
+        baseArgs.addAll(getOptions().get());
+        getIncludePath().get().forEach(dir -> baseArgs.add("--include-directory=%s".formatted(dir)));
+        getImportPath().get().forEach(dir -> baseArgs.add("-fprebuilt-module-path=%s".formatted(dir)));
+        baseArgs.add("-fprebuilt-module-path=%s".formatted(outputDirectory));
+        baseArgs.add("--precompile");
+        baseArgs.add("--language=c++-module");
+
+        // compile objects from sources
+        for (var module : modules)
+        {
+            final var moduleName = module.provides().get(0);
+            final var output = outputDirectory.resolve( moduleName.replace(":","-") + ".pcm" );
+
+            // finish compile arguments
+            final var compileArgs = new ArrayList<>(baseArgs);
+            compileArgs.add("--output=%s".formatted(output));
+            compileArgs.add(module.source().toString());
+
+            getExec().exec(it -> {
+                it.executable(compiler);
+                it.args(compileArgs);
+            });
+        }
     }
 }

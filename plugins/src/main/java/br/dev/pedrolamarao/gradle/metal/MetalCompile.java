@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 public abstract class MetalCompile extends SourceTask
 {
+    // properties
+
     @Input
     public abstract Property<String> getCompiler ();
 
@@ -35,18 +37,22 @@ public abstract class MetalCompile extends SourceTask
     @Input
     public abstract Property<String> getTarget ();
 
+    // services
+
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
 
     @Inject
     protected abstract WorkerExecutor getWorkers ();
 
+    // task
+
     public MetalCompile ()
     {
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
-    protected void addLanguageOptions (ListProperty<String> args) { }
+    protected abstract void addLanguageOptions (ListProperty<String> args);
 
     interface CompileParameter extends WorkParameters
     {

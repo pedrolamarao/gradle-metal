@@ -1,7 +1,5 @@
 package br.dev.pedrolamarao.gradle.metal;
 
-import br.dev.pedrolamarao.gradle.metal.base.MetalBasePlugin;
-import br.dev.pedrolamarao.gradle.metal.base.MetalExtension;
 import org.gradle.api.Action;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.Plugin;
@@ -97,6 +95,5 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
     public void apply (Project project)
     {
         project.getPluginManager().apply(MetalBasePlugin.class);
-        project.getExtensions().getByType(MetalExtension.class).getExtensions().create("prebuilt", Extension.class);
     }
 }

@@ -5,6 +5,6 @@ plugins {
     id("br.dev.pedrolamarao.metal.cxx")
 }
 
-tasks.withType<MetalCompile>().configureEach {
-    options = listOf("-std=c++20")
+application {
+    compileOptions = listOf("-std=c++20")
 }

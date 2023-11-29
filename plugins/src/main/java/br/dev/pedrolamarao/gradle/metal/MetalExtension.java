@@ -1,8 +1,7 @@
 // Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
 
-package br.dev.pedrolamarao.gradle.metal.base;
+package br.dev.pedrolamarao.gradle.metal;
 
-import br.dev.pedrolamarao.gradle.metal.MetalService;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;

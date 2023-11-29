@@ -6,8 +6,10 @@ import org.gradle.api.Project;
 public class MetalBasePlugin implements Plugin<Project>
 {
     @Override
-    public void apply (Project target)
+    public void apply (Project project)
     {
-        target.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class, it -> {});
+        project.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class,it -> {});
+
+        project.getExtensions().create("metal",MetalExtension.class);
     }
 }

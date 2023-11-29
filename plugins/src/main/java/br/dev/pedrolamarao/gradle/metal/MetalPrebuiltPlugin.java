@@ -94,6 +94,43 @@ public class MetalPrebuiltPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().apply(MetalBasePlugin.class);
+        final var configurations = project.getConfigurations();
+        final var extensions = project.getExtensions();
+        final var plugins = project.getPlugins();
+
+        plugins.apply(MetalBasePlugin.class);
+
+        extensions.create("prebuilt",Extension.class);
+
+        final var api = configurations.dependencyScope("api", configuration -> {
+            configuration.setDescription("prebuilt project api dependencies");
+        });
+
+        configurations.consumable(Metal.IMPORTABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("prebuilt project importable elements");
+        });
+
+        configurations.consumable(Metal.INCLUDABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("prebuilt project includable elements");
+        });
+
+        configurations.consumable(Metal.LINKABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("prebuilt project linkable elements");
+        });
     }
 }

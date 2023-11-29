@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.tasks.Exec;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -154,6 +155,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
         final var runTask = tasks.register("run",Exec.class,exec ->
         {
             final var executable = linkTask.flatMap(MetalLink::getOutput);
+            exec.onlyIf("executable file exists",spec -> Files.exists(executable.get().getAsFile().toPath()));
             exec.getInputs().file(executable);
             exec.setExecutable(executable.get());
         });

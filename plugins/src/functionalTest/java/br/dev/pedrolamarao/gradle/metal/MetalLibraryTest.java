@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
+import static org.gradle.testkit.runner.TaskOutcome.*;
 
 public class MetalLibraryTest extends MetalTestBase
 {
@@ -357,5 +356,41 @@ public class MetalLibraryTest extends MetalTestBase
             .build();
 
         assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    public void empty () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+            """         
+            plugins {
+                id("br.dev.pedrolamarao.metal.library")
+                id("br.dev.pedrolamarao.metal.asm")
+                id("br.dev.pedrolamarao.metal.c")
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            """
+        );
+
+        final var assemble = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--quiet",metalPathProperty,"assemble")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( assemble.task(":compileAsm").getOutcome() ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":compileC").getOutcome()   ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":compileCxx").getOutcome() ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":archive").getOutcome()       ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":assemble").getOutcome()   ).isEqualTo( UP_TO_DATE );
+
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--quiet",metalPathProperty,"check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( check.task(":runTest").getOutcome() ).isEqualTo( SKIPPED );
+        assertThat( check.task(":check").getOutcome() ).isEqualTo( UP_TO_DATE );
     }
 }

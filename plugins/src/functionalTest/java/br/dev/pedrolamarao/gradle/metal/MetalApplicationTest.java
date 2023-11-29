@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
+import static org.gradle.testkit.runner.TaskOutcome.*;
 
 public class MetalApplicationTest extends MetalTestBase
 {
@@ -302,5 +301,40 @@ public class MetalApplicationTest extends MetalTestBase
         try (var stream = Files.walk(projectDir.resolve("build/exe/main")).filter(Files::isRegularFile)) {
             assertThat( stream.count() ).isEqualTo(1);
         }
+    }
+
+    @Test
+    public void empty () throws IOException
+    {
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+            """         
+            plugins {
+                id("br.dev.pedrolamarao.metal.application")
+                id("br.dev.pedrolamarao.metal.asm")
+                id("br.dev.pedrolamarao.metal.c")
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            """
+        );
+
+        final var assemble = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"assemble")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( assemble.task(":compileAsm").getOutcome() ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":compileC").getOutcome()   ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":compileCxx").getOutcome() ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":link").getOutcome()       ).isEqualTo( NO_SOURCE );
+        assertThat( assemble.task(":assemble").getOutcome()   ).isEqualTo( UP_TO_DATE );
+
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"run")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( check.task(":run").getOutcome() ).isEqualTo( SKIPPED );
     }
 }

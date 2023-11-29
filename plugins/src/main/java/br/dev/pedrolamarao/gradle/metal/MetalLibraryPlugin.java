@@ -302,7 +302,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
 
         final var archiveTask = tasks.register("archive",MetalArchive.class,archive ->
         {
-            final var archiveName = archive.getMetal().zip(archive.getTarget(),(metal,target) -> metal.archiveFileName(target,name));
+            final var archiveName = archive.getTarget().map(target -> Metal.archiveFileName(target,name));
             final var archiveFile = layout.getBuildDirectory().zip(archive.getTarget(),(dir,target) -> dir.file("lib/main/%s/%s".formatted(target,archiveName.get())));
             archive.getOutput().convention(archiveFile);
             archive.setSource(objectFiles);
@@ -311,9 +311,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
 
         final var linkTestTask = tasks.register("linkTest",MetalLink.class,link ->
         {
-            final var applicationName = link.getMetal().zip(link.getTarget(),(metal,target) ->
-                metal.executableFileName(target,name)
-            );
+            final var applicationName = link.getTarget().map(target -> Metal.executableFileName(target,name));
             final var applicationFile = layout.getBuildDirectory().zip(link.getTarget(),(dir,target) ->
                 dir.file("exe/test/%s/%s".formatted(target,applicationName.get()))
             );

@@ -93,7 +93,7 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<String> archiveFileName (String name)
     {
-        return getMetalService().map(it -> it.archiveFileName(name));
+        return getTarget().map(target -> Metal.archiveFileName(target,name));
     }
 
     /**
@@ -104,7 +104,7 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<String> executableFileName (String name)
     {
-        return getMetalService().map(it -> it.executableFileName(name));
+        return getTarget().map(target -> Metal.executableFileName(target,name));
     }
 
     /**
@@ -115,6 +115,6 @@ public abstract class MetalExtension implements ExtensionAware
      */
     public Provider<File> locateTool (String name)
     {
-        return getMetalService().map(it -> it.locateTool(name));
+        return getPath().map(path -> Metal.toExecutableFile(path,name));
     }
 }

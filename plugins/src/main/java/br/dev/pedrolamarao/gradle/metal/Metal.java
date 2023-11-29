@@ -3,7 +3,6 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.GradleException;
-import org.gradle.api.artifacts.ConfigurationContainer;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -64,53 +63,6 @@ public class Metal
      */
     public static final String LINKABLE_ELEMENTS = "linkableElements";
 
-    public static void maybeCreateConfigurations (ConfigurationContainer configurations, String name)
-    {
-        if (configurations.findByName("%sApi".formatted(name)) != null) return;
-
-        final var api = configurations.dependencyScope("%sApi".formatted(name), configuration -> {
-            configuration.setDescription("metal api component dependencies");
-            configuration.extendsFrom(configurations.getByName("api"));
-        });
-        final var implementation = configurations.dependencyScope("%sImplementation".formatted(name), configuration -> {
-            configuration.setDescription("metal implementation component dependencies");
-            configuration.extendsFrom(api.get());
-            configuration.extendsFrom(configurations.getByName("implementation"));
-        });
-        configurations.resolvable(name + Metal.EXECUTABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.EXECUTABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.RUN);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal executable dependencies");
-        });
-        configurations.resolvable(name + Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal importable dependencies");
-        });
-        configurations.resolvable(name + Metal.INCLUDABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal includable dependencies");
-        });
-        configurations.resolvable(name + Metal.LINKABLE_DEPENDENCIES, configuration -> {
-            configuration.attributes(it -> {
-                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
-                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
-            });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("metal linkable dependencies");
-        });
-    }
-
     /**
      * Find executable file in path.
      *
@@ -132,5 +84,67 @@ public class Metal
         }
 
         throw new GradleException("executable file not found: " + name);
+    }
+
+    /**
+     * Formats an archive file name according to the target convention.
+     *
+     * @param target  target
+     * @param name    core name
+     * @return        file name
+     */
+    static String archiveFileName (String target, String name)
+    {
+        final var prefix = archiveFilePrefix(target);
+        final var suffix = archiveFileSuffix(target);
+        return "%s%s%s".formatted(prefix,name,suffix);
+    }
+
+    static String archiveFilePrefix (String target)
+    {
+        final var parts = target.split("-");
+        if (contains(parts,"msvc")) return "";
+        else return "lib";
+    }
+
+    static String archiveFileSuffix (String target)
+    {
+        final var parts = target.split("-");
+        if (contains(parts,"msvc")) return ".lib";
+        else return ".a";
+    }
+
+    /**
+     * Formats an executable file name according to the target convention.
+     *
+     * @param target  target
+     * @param name    core name
+     * @return        file name
+     */
+    static String executableFileName (String target, String name)
+    {
+        final var prefix = executableFilePrefix(target);
+        final var suffix = executableFileSuffix(target);
+        return "%s%s%s".formatted(prefix,name,suffix);
+    }
+
+    static String executableFilePrefix (String ignored)
+    {
+        return "";
+    }
+
+    static String executableFileSuffix (String target)
+    {
+        final var parts = target.split("-");
+        if (contains(parts,"windows")) return ".exe";
+        else return "";
+    }
+
+    static <T> boolean contains (T[] array, T value)
+    {
+        for (T item : array)
+            if (item.equals(value))
+                return true;
+        return false;
     }
 }

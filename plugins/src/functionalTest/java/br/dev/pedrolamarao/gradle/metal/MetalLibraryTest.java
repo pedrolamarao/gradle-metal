@@ -16,11 +16,23 @@ public class MetalLibraryTest extends MetalTestBase
     public void compileAsm () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/asm"));
-
-        Files.writeString(projectDir.resolve("src/main/asm/main.s"),
+        Files.writeString(projectDir.resolve("src/main/asm/foo.s"),
             """
+            .intel_syntax
+            .global foo
+            foo:
+                xor eax, eax
+                ret
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/test/asm"));
+        Files.writeString(projectDir.resolve("src/test/asm/main.s"),
+            """
+            .intel_syntax
             .global main
             main:
+                call foo
                 ret
             """
         );
@@ -89,6 +101,14 @@ public class MetalLibraryTest extends MetalTestBase
         try (var stream = Files.walk(projectDir.resolve("build/lib/main")).filter(Files::isRegularFile)) {
             assertThat( stream.count() ).isEqualTo(1);
         }
+
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 
     @Test
@@ -109,6 +129,18 @@ public class MetalLibraryTest extends MetalTestBase
             int foo ()
             {
                 return 0;
+            }
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/test/c"));
+        Files.writeString(projectDir.resolve("src/test/c/main.c"),
+            """
+            #include <foo.h>
+            
+            int main (int argc, char *  argv[])
+            {
+                return foo();
             }
             """
         );
@@ -177,6 +209,14 @@ public class MetalLibraryTest extends MetalTestBase
         try (var stream = Files.walk(projectDir.resolve("build/lib/main")).filter(Files::isRegularFile)) {
             assertThat( stream.count() ).isEqualTo(1);
         }
+
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 
     @Test
@@ -224,6 +264,19 @@ public class MetalLibraryTest extends MetalTestBase
             """
         );
 
+        Files.createDirectories(projectDir.resolve("src/test/cxx"));
+        Files.writeString(projectDir.resolve("src/test/cxx/main.cxx"),
+            """
+            #include <foo.h>
+            
+            import bar;
+            
+            int main (int argc, char * argv[])
+            {
+                return foo() + bar();
+            }
+            """
+        );
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         
             plugins {
@@ -296,5 +349,13 @@ public class MetalLibraryTest extends MetalTestBase
         try (var stream = Files.walk(projectDir.resolve("build/lib/main")).filter(Files::isRegularFile)) {
             assertThat( stream.count() ).isEqualTo(1);
         }
+
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"check")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 }

@@ -153,8 +153,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
 
         final var runTask = tasks.register("run",Exec.class,exec ->
         {
-            exec.dependsOn(linkTask);
-            exec.setExecutable(linkTask.get().getOutput().get());
+            final var executable = linkTask.flatMap(MetalLink::getOutput);
+            exec.getInputs().file(executable);
+            exec.setExecutable(executable.get());
         });
 
         tasks.named("assemble",it -> {

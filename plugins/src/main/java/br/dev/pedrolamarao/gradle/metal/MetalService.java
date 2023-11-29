@@ -18,9 +18,11 @@ import java.nio.file.Paths;
  */
 public abstract class MetalService implements BuildService<BuildServiceParameters.None>
 {
-    private final String path;
+    private final Provider<String> host;
 
-    private final String target;
+    private final Provider<String> path;
+
+    private final Provider<String> target;
 
     /**
      * Constructor.
@@ -30,11 +32,12 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
     {
         path = getProviders().gradleProperty("metal.path")
             .orElse( getProviders().environmentVariable("PATH") )
-            .orElse("")
-            .get();
+            .orElse("");
+
+        host = getProviders().of(MetalHostValueSource.class,spec -> spec.parameters(it -> it.getPath().set(path)));
+
         target = getProviders().gradleProperty("metal.target")
-            .orElse( getHost() )
-            .get();
+            .orElse( getHost() );
     }
 
     /**
@@ -52,7 +55,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      */
     public Provider<String> getHost ()
     {
-        return getProviders().of(MetalHostValueSource.class,spec -> spec.parameters(it -> it.getPath().set(getPath())));
+        return host;
     }
 
     /**
@@ -60,7 +63,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      *
      * @return value
      */
-    public String getPath () { return path; }
+    public String getPath () { return path.get(); }
 
     /**
      * Target name.
@@ -69,7 +72,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      */
     public String getTarget ()
     {
-        return target;
+        return target.get();
     }
 
     /**
@@ -156,7 +159,7 @@ public abstract class MetalService implements BuildService<BuildServiceParameter
      */
     public File locateTool (String name)
     {
-        for (var item : path.split(File.pathSeparator))
+        for (var item : path.get().split(File.pathSeparator))
         {
             final var directory = Paths.get(item);
             if (! Files.isDirectory(directory)) continue;

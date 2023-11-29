@@ -6,7 +6,3 @@ plugins {
 library {
     compileOptions = listOf("-std=c++20")
 }
-
-tasks.wrapper.configure {
-    gradleVersion = "8.4"
-}

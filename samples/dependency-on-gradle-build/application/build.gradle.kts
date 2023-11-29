@@ -9,7 +9,3 @@ version = "1.0"
 dependencies {
     implementation("br.dev.pedrolamarao.gradle.metal.sample:archive:1.0")
 }
-
-tasks.wrapper.configure {
-    gradleVersion = "8.4"
-}

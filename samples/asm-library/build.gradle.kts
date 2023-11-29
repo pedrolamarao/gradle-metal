@@ -6,3 +6,7 @@ plugins {
 tasks.compileAsm.configure {
     include("${target.get()}/*")
 }
+
+tasks.compileTestAsm.configure {
+    include("${target.get()}/*")
+}

@@ -1,5 +1,5 @@
-= dependency on a cmake build
+= dependency on a gradle build
 
-This sample demonstrates an application project with a dependency on a cmake build.
+This sample demonstrates an application project with a dependency on a gradle build.
 
-To build this sample, run: `../../gradlew --include-build=../.. build`
+To build this sample, run: `../../gradlew build`

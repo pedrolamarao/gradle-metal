@@ -1,18 +1,9 @@
 plugins {
-    id("br.dev.pedrolamarao.metal.archive")
-    id("br.dev.pedrolamarao.metal.cpp")
+    id("br.dev.pedrolamarao.metal.library")
     id("br.dev.pedrolamarao.metal.cxx")
 }
 
 dependencies {
     api(project(":base"))
     implementation(project(":internal"))
-}
-
-metal {
-    cpp {
-        main {
-            public = true
-        }
-    }
 }

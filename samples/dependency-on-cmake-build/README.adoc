@@ -2,4 +2,4 @@
 
 This sample demonstrates an application project with a dependency on a cmake build.
 
-To build this sample, run: `../../gradlew --include-build=../.. build`
+To build this sample, run: `../../gradlew build`

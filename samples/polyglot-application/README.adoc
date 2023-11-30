@@ -4,6 +4,6 @@ This sample demonstrates an application with polyglot sources.
 
 Look for source files in `src/main`.
 
-To build this sample, run: `../../gradlew --include-build=../.. build`
+To build this sample, run: `../../gradlew build`
 
 Look for the executable file in `build/exe`.

@@ -4,10 +4,8 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.NonNullApi;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.services.ServiceReference;
 
 import java.io.File;
@@ -29,20 +27,6 @@ public abstract class MetalExtension implements ExtensionAware
     protected abstract Property<MetalService> getMetalService ();
 
     /**
-     * Project-wide archive options.
-     *
-     * @return property
-     */
-    public abstract ListProperty<String> getArchiveOptions ();
-
-    /**
-     * Project-wide compile options.
-     *
-     * @return property
-     */
-    public abstract ListProperty<String> getCompileOptions ();
-
-    /**
      * Host name.
      *
      * @return provider
@@ -51,13 +35,6 @@ public abstract class MetalExtension implements ExtensionAware
     {
         return getMetalService().flatMap(MetalService::getHost);
     }
-
-    /**
-     * Project-wide link options.
-     *
-     * @return property
-     */
-    public abstract ListProperty<String> getLinkOptions ();
 
     /**
      * Tools path.
@@ -75,13 +52,6 @@ public abstract class MetalExtension implements ExtensionAware
     {
         return getMetalService().map(MetalService::getTarget);
     }
-
-    /**
-     * Set of allowed targets.
-     *
-     * @return set
-     */
-    public abstract SetProperty<String> getTargets ();
 
     // methods
 

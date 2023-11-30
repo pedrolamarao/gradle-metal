@@ -2,12 +2,19 @@
 
 package br.dev.pedrolamarao.gradle.metal;
 
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.internal.file.FileOperations;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.process.ExecOperations;
@@ -32,13 +39,34 @@ public abstract class MetalCompile extends SourceTask
     @Input
     public abstract ListProperty<String> getOptions ();
 
-    @OutputDirectory
+    @Internal
     public abstract DirectoryProperty getOutputDirectory ();
+
+    @Input
+    public abstract Property<String> getTarget ();
+
+    @OutputDirectory
+    public Provider<Directory> getTargetOutputDirectory ()
+    {
+        return getOutputDirectory().zip(getTarget(),Directory::dir);
+    }
 
     // services
 
+    @Inject
+    protected abstract FileOperations getFiles ();
+
+    @Inject
+    protected abstract ProjectLayout getLayout ();
+
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
+
+    @Inject
+    protected abstract ObjectFactory getObjects ();
+
+    @Inject
+    protected abstract ProviderFactory getProviders ();
 
     @Inject
     protected abstract WorkerExecutor getWorkers ();
@@ -47,6 +75,7 @@ public abstract class MetalCompile extends SourceTask
 
     public MetalCompile ()
     {
+        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     protected void addLanguageOptions (ListProperty<String> args) { };
@@ -115,9 +144,9 @@ public abstract class MetalCompile extends SourceTask
 
         final var compiler = getMetal().get().locateTool(getCompiler().get());
         final var options = getOptions();
-        final var target = getMetal().get().getTarget();
+        final var target = getTarget().get();
 
-        final var outputDirectory = getOutputDirectory().dir(target);
+        final var outputDirectory = getTargetOutputDirectory().get();
 
         getSource().forEach(source ->
         {

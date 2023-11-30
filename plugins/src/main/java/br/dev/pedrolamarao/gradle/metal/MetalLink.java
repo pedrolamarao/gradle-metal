@@ -38,6 +38,9 @@ public abstract class MetalLink extends SourceTask
     @OutputFile
     public abstract RegularFileProperty getOutput ();
 
+    @Input
+    public abstract Property<String> getTarget ();
+
     // services
 
     @Inject
@@ -52,6 +55,7 @@ public abstract class MetalLink extends SourceTask
     public MetalLink ()
     {
         getLinker().convention("clang++");
+        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     @TaskAction
@@ -60,7 +64,7 @@ public abstract class MetalLink extends SourceTask
         final var linker = getMetal().get().locateTool(getLinker().get());
         final var options = getOptions().get();
         final var output = getOutput().getAsFile().get();
-        final var target = getMetal().get().getTarget();
+        final var target = getTarget().map(this::targetMapper).get();
 
         try
         {
@@ -84,5 +88,13 @@ public abstract class MetalLink extends SourceTask
             it.executable(linker);
             it.args(args);
         });
+    }
+
+    String targetMapper (String target)
+    {
+        return switch (target) {
+            case "i686-elf" -> "i686-linux-elf";
+            default -> target;
+        };
     }
 }

@@ -2,17 +2,14 @@
 
 package br.dev.pedrolamarao.gradle.metal;
 
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -39,12 +36,6 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     @Input
     public abstract ListProperty<String> getIncludePath ();
 
-    @OutputDirectory
-    public Provider<Directory> getTargetOutputDirectory ()
-    {
-        return getOutputDirectory().zip(getMetal().map(MetalService::getTarget),Directory::dir);
-    }
-
     // services
 
     @Inject
@@ -66,6 +57,7 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     public MetalIxxPrecompile ()
     {
         getCompiler().convention("clang++");
+        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     /**
@@ -248,9 +240,9 @@ public abstract class MetalIxxPrecompile extends MetalCompile
         final var metal = getMetal().get();
 
         final var compiler = metal.locateTool(getCompiler().get());
-        final var target = metal.getTarget();
+        final var target = getTarget().get();
 
-        final var outputDirectory = getOutputDirectory().dir(target).get().getAsFile().toPath();
+        final var outputDirectory = getTargetOutputDirectory().get().getAsFile().toPath();
 
         // discover dependencies from sources
         final var modules = scan();

@@ -16,9 +16,11 @@ public class MetalDependencyTest extends MetalTestBase
     @Test
     public void subproject () throws IOException
     {
-        final var libraryDir = projectDir.resolve("library");
-        Files.createDirectories(libraryDir);
-        Files.writeString(libraryDir.resolve("build.gradle.kts"),
+        // base library
+
+        final var baseDir = projectDir.resolve("base");
+        Files.createDirectories(baseDir);
+        Files.writeString(baseDir.resolve("build.gradle.kts"),
             """
             plugins {
                 id("br.dev.pedrolamarao.metal.library")
@@ -31,37 +33,108 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
-        final var libraryHeaderDir = libraryDir.resolve("src/main/cpp");
-        Files.createDirectories(libraryHeaderDir);
-        Files.writeString(libraryHeaderDir.resolve("foo.h"),
+        Files.createDirectories(baseDir.resolve("src/main/cpp"));
+        Files.writeString(baseDir.resolve("src/main/cpp/base.h"),
             """
-            int foo ();
+            int base ();
             """
         );
 
-        final var libraryModuleDir = libraryDir.resolve("src/main/ixx");
-        Files.createDirectories(libraryModuleDir);
-        Files.writeString(libraryModuleDir.resolve("bar.ixx"),
+        Files.createDirectories(baseDir.resolve("src/main/ixx"));
+        Files.writeString(baseDir.resolve("src/main/ixx/base.ixx"),
             """
             module;
             
-            #include <foo.h>
+            #include <base.h>
             
-            export module bar;
+            export module base;
             
-            export int bar () { return foo(); }
+            export int mbase () { return base(); }
             """
         );
 
-        final var librarySourceDir = libraryDir.resolve("src/main/cxx");
-        Files.createDirectories(librarySourceDir);
-        Files.writeString(librarySourceDir.resolve("foo.cxx"),
+        Files.createDirectories(baseDir.resolve("src/main/cxx"));
+        Files.writeString(baseDir.resolve("src/main/cxx/base.cxx"),
             """
-            #include <foo.h>
+            #include <base.h>
             
-            int foo () { return 0; }
+            int base () { return 0; }
             """
         );
+
+        // intermediate library
+
+        final var middleDir = projectDir.resolve("middle");
+        Files.createDirectories(middleDir);
+        Files.writeString(middleDir.resolve("build.gradle.kts"),
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.library")
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            library {
+                compileOptions = listOf("-std=c++20")
+            }
+            
+            dependencies {
+                api(project(":base"))
+            }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/cpp"));
+        Files.writeString(middleDir.resolve("src/main/cpp/middle.h"),
+            """
+            int middle ();
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/ixx"));
+        Files.writeString(middleDir.resolve("src/main/ixx/middle.ixx"),
+            """
+            module;
+            
+            #include <base.h>
+            #include <middle.h>
+            
+            export module middle;
+            
+            import base;
+           
+            export int mmiddle () { return base() + mbase() + middle(); }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/cxx"));
+        Files.writeString(middleDir.resolve("src/main/cxx/middle.cxx"),
+            """
+            #include <base.h>
+            #include <middle.h>
+            
+            import base;
+            
+            int middle () { return base() + mbase(); }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/test/cxx"));
+        Files.writeString(middleDir.resolve("src/test/cxx/main.cxx"),
+            """
+            #include <base.h>
+            #include <middle.h>
+            
+            import base;
+            import middle;
+            
+            int main (int argc, char * argv [])
+            {
+                return base() + mbase() + middle() + mmiddle();
+            }
+            """
+        );
+
+        // application
 
         final var applicationDir = projectDir.resolve("application");
         Files.createDirectories(applicationDir);
@@ -78,7 +151,7 @@ public class MetalDependencyTest extends MetalTestBase
             }
             
             dependencies {
-                implementation(project(":library"))
+                implementation(project(":middle"))
             }
             """
         );
@@ -87,13 +160,15 @@ public class MetalDependencyTest extends MetalTestBase
         Files.createDirectories(applicationSourceDir);
         Files.writeString(applicationSourceDir.resolve("main.cxx"),
             """
-            #include <foo.h>
+            #include <base.h>
+            #include <middle.h>
             
-            import bar;
+            import base;
+            import middle;
             
             int main (int argc, char * argv [])
             {
-                return foo() + bar();
+                return base() + mbase() + middle() + mmiddle();
             }
             """
         );
@@ -101,32 +176,43 @@ public class MetalDependencyTest extends MetalTestBase
         Files.writeString(projectDir.resolve("settings.gradle.kts"),
             """
             include("application")
-            include("library")
+            include("base")
+            include("middle")
             """
         );
 
-        final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:link")
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":middle:check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
-        assertThat( link.task(":application:link").getOutcome() ).isEqualTo( SUCCESS );
+        assertThat( check.task(":middle:check").getOutcome() ).isEqualTo( SUCCESS );
+
+        final var run = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:run")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( run.task(":application:run").getOutcome() ).isEqualTo( SUCCESS );
     }
 
     @Test
     public void composite () throws IOException
     {
-        final var libraryDir = projectDir.resolve("library");
-        Files.createDirectories(libraryDir);
-        Files.writeString(libraryDir.resolve("build.gradle.kts"),
+        // base library
+
+        final var baseDir = projectDir.resolve("base");
+        Files.createDirectories(baseDir);
+        Files.writeString(baseDir.resolve("build.gradle.kts"),
             """
             plugins {
                 id("br.dev.pedrolamarao.metal.library")
                 id("br.dev.pedrolamarao.metal.cxx")
             }
             
-            group = "library"
+            group = "base"
             version = "1.0"
             
             library {
@@ -135,37 +221,111 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
-        final var libraryHeaderDir = libraryDir.resolve("src/main/cpp");
-        Files.createDirectories(libraryHeaderDir);
-        Files.writeString(libraryHeaderDir.resolve("foo.h"),
+        Files.createDirectories(baseDir.resolve("src/main/cpp"));
+        Files.writeString(baseDir.resolve("src/main/cpp/base.h"),
             """
-            int foo ();
+            int base ();
             """
         );
 
-        final var libraryModuleDir = libraryDir.resolve("src/main/ixx");
-        Files.createDirectories(libraryModuleDir);
-        Files.writeString(libraryModuleDir.resolve("bar.ixx"),
+        Files.createDirectories(baseDir.resolve("src/main/ixx"));
+        Files.writeString(baseDir.resolve("src/main/ixx/base.ixx"),
             """
             module;
             
-            #include <foo.h>
+            #include <base.h>
             
-            export module bar;
+            export module base;
             
-            export int bar () { return foo(); }
+            export int mbase () { return base(); }
             """
         );
 
-        final var librarySourceDir = libraryDir.resolve("src/main/cxx");
-        Files.createDirectories(librarySourceDir);
-        Files.writeString(librarySourceDir.resolve("foo.cxx"),
+        Files.createDirectories(baseDir.resolve("src/main/cxx"));
+        Files.writeString(baseDir.resolve("src/main/cxx/base.cxx"),
             """
-            #include <foo.h>
+            #include <base.h>
             
-            int foo () { return 0; }
+            int base () { return 0; }
             """
         );
+
+        // intermediate library
+
+        final var middleDir = projectDir.resolve("middle");
+        Files.createDirectories(middleDir);
+        Files.writeString(middleDir.resolve("build.gradle.kts"),
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.library")
+                id("br.dev.pedrolamarao.metal.cxx")
+            }
+            
+            group = "middle"
+            version = "1.0"
+            
+            library {
+                compileOptions = listOf("-std=c++20")
+            }
+            
+            dependencies {
+                api("base:base:1.0")
+            }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/cpp"));
+        Files.writeString(middleDir.resolve("src/main/cpp/middle.h"),
+            """
+            int middle ();
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/ixx"));
+        Files.writeString(middleDir.resolve("src/main/ixx/middle.ixx"),
+            """
+            module;
+            
+            #include <base.h>
+            #include <middle.h>
+            
+            export module middle;
+            
+            import base;
+           
+            export int mmiddle () { return base() + mbase() + middle(); }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/main/cxx"));
+        Files.writeString(middleDir.resolve("src/main/cxx/middle.cxx"),
+            """
+            #include <base.h>
+            #include <middle.h>
+            
+            import base;
+            
+            int middle () { return base() + mbase(); }
+            """
+        );
+
+        Files.createDirectories(middleDir.resolve("src/test/cxx"));
+        Files.writeString(middleDir.resolve("src/test/cxx/main.cxx"),
+            """
+            #include <base.h>
+            #include <middle.h>
+            
+            import base;
+            import middle;
+            
+            int main (int argc, char * argv [])
+            {
+                return base() + mbase() + middle() + mmiddle();
+            }
+            """
+        );
+
+        // application
 
         final var applicationDir = projectDir.resolve("application");
         Files.createDirectories(applicationDir);
@@ -182,7 +342,7 @@ public class MetalDependencyTest extends MetalTestBase
             }
             
             dependencies {
-                implementation("library:library:1.0")
+                implementation("middle:middle:1.0")
             }
             """
         );
@@ -191,13 +351,15 @@ public class MetalDependencyTest extends MetalTestBase
         Files.createDirectories(applicationSourceDir);
         Files.writeString(applicationSourceDir.resolve("main.cxx"),
             """
-            #include <foo.h>
+            #include <base.h>
+            #include <middle.h>
             
-            import bar;
+            import base;
+            import middle;
             
             int main (int argc, char * argv [])
             {
-                return foo() + bar();
+                return base() + mbase() + middle() + mmiddle();
             }
             """
         );
@@ -205,17 +367,26 @@ public class MetalDependencyTest extends MetalTestBase
         Files.writeString(projectDir.resolve("settings.gradle.kts"),
             """
             includeBuild("application")
-            includeBuild("library")
+            includeBuild("base")
+            includeBuild("middle")
             """
         );
 
-        final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:link")
+        final var check = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":middle:check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
-        assertThat( link.task(":application:link").getOutcome() ).isEqualTo( SUCCESS );
+        assertThat( check.task(":middle:check").getOutcome() ).isEqualTo( SUCCESS );
+
+        final var run = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:run")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( run.task(":application:run").getOutcome() ).isEqualTo( SUCCESS );
     }
 
     @Test

@@ -63,7 +63,6 @@ public class MetalApplicationPlugin implements Plugin<Project>
         // model
 
         final var application = project.getExtensions().create("application",MetalApplication.class);
-        final var compileOptions = application.getCompileOptions();
         final var importPath = importDependencies.map(it -> {
             final var list = new HashSet<String>();
             it.getElements().get().forEach(element -> list.add(element.toString()));
@@ -75,7 +74,6 @@ public class MetalApplicationPlugin implements Plugin<Project>
             it.getElements().get().forEach(element -> list.add(element.toString()));
             return list;
         });
-        final var linkOptions = application.getLinkOptions();
         final var objectFiles = objects.fileCollection();
 
         // tasks
@@ -84,9 +82,14 @@ public class MetalApplicationPlugin implements Plugin<Project>
         {
             final var compileTask = tasks.register("compileAsm",MetalAsmCompile.class,compile ->
             {
+                final var target = compile.getMetal().map(MetalService::getTarget);
+                final var targets = application.getTargets();
                 compile.getOutputDirectory().set(layout.getBuildDirectory().dir("obj/main/asm"));
-                compile.getOptions().convention(compileOptions);
+                compile.getOptions().convention(application.getCompileOptions());
                 compile.setSource(layout.getProjectDirectory().dir("src/main/asm"));
+                compile.onlyIf("target is enabled",it ->
+                    targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+                );
             });
             objectFiles.from(compileTask);
         });
@@ -95,11 +98,16 @@ public class MetalApplicationPlugin implements Plugin<Project>
         {
             final var compileTask = tasks.register("compileC",MetalCCompile.class,compile ->
             {
+                final var target = compile.getMetal().map(MetalService::getTarget);
+                final var targets = application.getTargets();
                 compile.dependsOn(includeDependencies.map(Configuration::getBuildDependencies));
                 compile.getIncludePath().convention(includePath);
                 compile.getOutputDirectory().convention(layout.getBuildDirectory().dir("obj/main/c"));
-                compile.getOptions().convention(compileOptions);
+                compile.getOptions().convention(application.getCompileOptions());
                 compile.setSource(layout.getProjectDirectory().dir("src/main/c"));
+                compile.onlyIf("target is enabled",it ->
+                    targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+                );
             });
             objectFiles.from(compileTask);
         });
@@ -108,6 +116,8 @@ public class MetalApplicationPlugin implements Plugin<Project>
         {
             final var precompileTask = tasks.register("precompileIxx",MetalIxxPrecompile.class,precompile ->
             {
+                final var target = precompile.getMetal().map(MetalService::getTarget);
+                final var targets = application.getTargets();
                 precompile.dependsOn(
                     includeDependencies.map(Configuration::getBuildDependencies),
                     importDependencies.map(Configuration::getBuildDependencies)
@@ -115,13 +125,16 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 precompile.getImportPath().convention(importPath);
                 precompile.getIncludePath().convention(includePath);
                 precompile.getOutputDirectory().convention(layout.getBuildDirectory().dir("bmi/main/ixx"));
-                precompile.getOptions().convention(compileOptions);
+                precompile.getOptions().convention(application.getCompileOptions());
                 precompile.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
+                precompile.onlyIf("target is enabled",it ->
+                    targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+                );
             });
 
             final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
                 final var list = new ArrayList<String>();
-                list.add(precompile.getOutputDirectory().get().toString());
+                list.add(precompile.getTargetOutputDirectory().get().toString());
                 list.addAll(dependencies);
                 return list;
             });
@@ -130,34 +143,42 @@ public class MetalApplicationPlugin implements Plugin<Project>
             compileSources.from(precompileTask);
             final var compileTask = tasks.register("compileCxx",MetalCxxCompile.class,compile ->
             {
+                final var target = compile.getMetal().map(MetalService::getTarget);
+                final var targets = application.getTargets();
                 compile.getImportPath().convention(compileImports);
                 compile.getIncludePath().convention(includePath);
                 compile.getOutputDirectory().convention(layout.getBuildDirectory().dir("obj/main/cxx"));
-                compile.getOptions().convention(compileOptions);
+                compile.getOptions().convention(application.getCompileOptions());
                 compile.setSource(compileSources);
+                compile.onlyIf("target is enabled",it ->
+                    targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+                );
             });
             objectFiles.from(compileTask);
         });
 
         final var linkTask = tasks.register("link",MetalLink.class,link ->
         {
-            final var applicationName = link.getTarget().map(target -> Metal.executableFileName(target,name));
-            final var applicationFile = layout.getBuildDirectory().zip(link.getTarget(),(dir,target) ->
-                dir.file("exe/main/%s/%s".formatted(target,applicationName.get()))
+            final var target = link.getMetal().map(MetalService::getTarget);
+            final var applicationName = target.map(t -> Metal.executableFileName(t,name));
+            final var applicationFile = layout.getBuildDirectory().zip(target,(dir,t) ->
+                dir.file("exe/main/%s/%s".formatted(t,applicationName.get()))
             );
             link.dependsOn(linkDependencies.map(Configuration::getBuildDependencies));
             link.getLinkDependencies().from(linkDependencies);
             link.getOutput().convention(applicationFile);
-            link.getOptions().convention(linkOptions);
+            link.getOptions().convention(application.getLinkOptions());
             link.setSource(objectFiles);
         });
 
         final var runTask = tasks.register("run",Exec.class,exec ->
         {
             final var executable = linkTask.flatMap(MetalLink::getOutput);
-            exec.onlyIf("executable file exists",spec -> Files.exists(executable.get().getAsFile().toPath()));
             exec.getInputs().file(executable);
             exec.setExecutable(executable.get());
+            exec.onlyIf("executable file exists",spec ->
+                Files.exists(executable.get().getAsFile().toPath())
+            );
         });
 
         tasks.named("assemble",it -> {

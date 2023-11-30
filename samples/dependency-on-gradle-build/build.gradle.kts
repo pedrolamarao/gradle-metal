@@ -1,5 +1,5 @@
 plugins {
-    id("base")
+    id("br.dev.pedrolamarao.metal.base")
 }
 
 tasks.build.configure {

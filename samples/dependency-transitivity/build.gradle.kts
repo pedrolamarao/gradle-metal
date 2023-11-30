@@ -1,3 +1,3 @@
 plugins {
-    id("base")
+    id("br.dev.pedrolamarao.metal.base")
 }

@@ -307,7 +307,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                 final var imports = precompileTask.zip(testImportPath, (precompile, dependencies) -> {
                     final var list = new ArrayList<String>();
                     list.add(tasks.named("precompileIxx",MetalIxxPrecompile.class).get().getTargetOutputDirectory().get().toString());
-                    list.add(precompile.getOutputDirectory().get().toString());
+                    list.add(precompile.getTargetOutputDirectory().get().toString());
                     list.addAll(dependencies);
                     return list;
                 });

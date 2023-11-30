@@ -35,9 +35,6 @@ public abstract class MetalCompile extends SourceTask
     @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory ();
 
-    @Input
-    public abstract Property<String> getTarget ();
-
     // services
 
     @ServiceReference
@@ -50,7 +47,6 @@ public abstract class MetalCompile extends SourceTask
 
     public MetalCompile ()
     {
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     protected void addLanguageOptions (ListProperty<String> args) { };
@@ -87,7 +83,7 @@ public abstract class MetalCompile extends SourceTask
             final var target = parameters.getTarget().get();
 
             final var output = parameters.getOutputDirectory()
-                .file("%s/%s.%s".formatted(hash(source),source.getName(),"o"))
+                .file("%X/%s.%s".formatted(hash(source),source.getName(),"o"))
                 .get().getAsFile();
 
             try
@@ -119,15 +115,16 @@ public abstract class MetalCompile extends SourceTask
 
         final var compiler = getMetal().get().locateTool(getCompiler().get());
         final var options = getOptions();
-        final var output = getOutputDirectory().dir(getTarget().get());
-        final var target = getTarget();
+        final var target = getMetal().get().getTarget();
+
+        final var outputDirectory = getOutputDirectory().dir(target);
 
         getSource().forEach(source ->
         {
             workers.submit(CompileAction.class, parameters ->
             {
                 parameters.getCompiler().set(compiler.toString());
-                parameters.getOutputDirectory().set(output);
+                parameters.getOutputDirectory().set(outputDirectory);
                 parameters.getOptions().set(options);
                 addLanguageOptions(parameters.getOptions());
                 parameters.getSource().set(source);

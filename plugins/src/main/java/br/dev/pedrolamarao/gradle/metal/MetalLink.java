@@ -38,9 +38,6 @@ public abstract class MetalLink extends SourceTask
     @OutputFile
     public abstract RegularFileProperty getOutput ();
 
-    @Input
-    public abstract Property<String> getTarget ();
-
     // services
 
     @Inject
@@ -55,7 +52,6 @@ public abstract class MetalLink extends SourceTask
     public MetalLink ()
     {
         getLinker().convention("clang++");
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     @TaskAction
@@ -64,7 +60,7 @@ public abstract class MetalLink extends SourceTask
         final var linker = getMetal().get().locateTool(getLinker().get());
         final var options = getOptions().get();
         final var output = getOutput().getAsFile().get();
-        final var target = getTarget().get();
+        final var target = getMetal().get().getTarget();
 
         try
         {
@@ -77,6 +73,7 @@ public abstract class MetalLink extends SourceTask
 
         final var args = new ArrayList<String>();
         args.add("--target=%s".formatted(target));
+        args.add("-fuse-ld=lld");
         args.addAll(options);
         getLibraryPath().get().forEach(path -> args.add("--library-directory=%s".formatted(path)));
         args.add("--output=%s".formatted(output));

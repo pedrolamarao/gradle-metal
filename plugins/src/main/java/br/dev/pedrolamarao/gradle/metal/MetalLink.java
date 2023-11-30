@@ -61,7 +61,10 @@ public abstract class MetalLink extends SourceTask
     @TaskAction
     public void link ()
     {
-        final var linker = getMetal().get().locateTool(getLinker().get());
+        final var metal = getMetal().get();
+
+        final var host = metal.getHost().get();
+        final var linker = metal.locateTool(getLinker().get());
         final var options = getOptions().get();
         final var output = getOutput().getAsFile().get();
         final var target = getTarget().map(this::targetMapper).get();
@@ -77,7 +80,7 @@ public abstract class MetalLink extends SourceTask
 
         final var args = new ArrayList<String>();
         args.add("--target=%s".formatted(target));
-        args.add("-fuse-ld=lld");
+        if (! target.contentEquals(host)) args.add("-fuse-ld=lld");
         args.addAll(options);
         getLibraryPath().get().forEach(path -> args.add("--library-directory=%s".formatted(path)));
         args.add("--output=%s".formatted(output));

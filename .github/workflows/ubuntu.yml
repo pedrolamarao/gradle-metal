@@ -21,7 +21,7 @@ jobs:
           ubuntu-version: 22.04
           version: 16.0.4
       - name: "Build with Gradle"
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build
   build-llvm-17:

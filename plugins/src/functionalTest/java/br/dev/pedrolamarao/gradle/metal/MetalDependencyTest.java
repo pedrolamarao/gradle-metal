@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 
 @DisplayName("Gradle Metal dependency resolution")
-public class MetalDependencyTest extends MetalTestBase
+class MetalDependencyTest extends MetalTestBase
 {
     @Test
-    public void subproject () throws IOException
+    void subproject () throws IOException
     {
         // base library
 
@@ -201,7 +201,7 @@ public class MetalDependencyTest extends MetalTestBase
     }
 
     @Test
-    public void composite () throws IOException
+    void composite () throws IOException
     {
         // base library
 
@@ -400,7 +400,7 @@ public class MetalDependencyTest extends MetalTestBase
     }
 
     @Test
-    public void libraryTest () throws IOException
+    void libraryTest () throws IOException
     {
         final var fooDir = projectDir.resolve("foo");
         Files.createDirectories(fooDir);

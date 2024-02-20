@@ -1,18 +1,17 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 
-/**
- * Gradle Metal target support.
- */
-public class MetalTargetTest extends MetalTestBase
+@DisplayName("Gradle Metal target support")
+class MetalTargetTest extends MetalTestBase
 {
     @Test
-    public void targets () throws IOException
+    void targets () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.writeString(projectDir.resolve("src/main/cpp/main.h"),

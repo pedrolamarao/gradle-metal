@@ -14,10 +14,10 @@ import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 
 @DisplayName("Gradle Metal C++ module interface support")
-public class MetalIxxPrecompileTest extends MetalTestBase
+class MetalIxxPrecompileTest extends MetalTestBase
 {
     @Test
-    public void compile () throws IOException
+    void compile () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src"));
 

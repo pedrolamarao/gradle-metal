@@ -13,11 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.*;
 
 @DisplayName("Gradle Metal library project")
-public class MetalLibraryTest extends MetalTestBase
+class MetalLibraryTest extends MetalTestBase
 {
     @DisplayName("compile with Assembler sources")
     @Test
-    public void compileAsm () throws IOException
+    void compileAsm () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/asm"));
         Files.writeString(projectDir.resolve("src/main/asm/foo.s"),
@@ -117,7 +117,7 @@ public class MetalLibraryTest extends MetalTestBase
 
     @DisplayName("compile with C sources")
     @Test
-    public void compileC () throws IOException
+    void compileC () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
@@ -226,7 +226,7 @@ public class MetalLibraryTest extends MetalTestBase
 
     @DisplayName("compile with C++ sources")
     @Test
-    public void compileCxx () throws IOException
+    void compileCxx () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
@@ -367,7 +367,7 @@ public class MetalLibraryTest extends MetalTestBase
 
     @DisplayName("compile with no sources")
     @Test
-    public void empty () throws IOException
+    void empty () throws IOException
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         

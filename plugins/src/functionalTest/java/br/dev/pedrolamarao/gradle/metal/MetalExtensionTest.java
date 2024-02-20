@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
 
 @DisplayName("Gradle Metal extension")
-public class MetalExtensionTest extends MetalTestBase
+class MetalExtensionTest extends MetalTestBase
 {
     @Test
-    public void archiveFileName () throws IOException
+    void archiveFileName () throws IOException
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         
@@ -43,7 +43,7 @@ public class MetalExtensionTest extends MetalTestBase
     }
 
     @Test
-    public void locateTool () throws IOException
+    void locateTool () throws IOException
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         

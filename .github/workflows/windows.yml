@@ -19,7 +19,11 @@ jobs:
         uses: gradle/gradle-build-action@v2.8.0
         with:
           arguments: build
-      - name: "Publish AlLlure Report"
+      - name: "Generate Allure Report"
+        uses: gradle/gradle-build-action@v2.8.0
+        with:
+            arguments: allureAggregateReport
+      - name: "Publish ALlure Report"
         uses: actions/upload-artifact@v4
         if: always()
         with:

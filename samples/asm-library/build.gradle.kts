@@ -10,3 +10,11 @@ tasks.compileAsm.configure {
 tasks.compileTestAsm.configure {
     include("${target.get()}/*")
 }
+
+tasks.compileAsmCommands.configure {
+    include("${target.get()}/*")
+}
+
+tasks.compileTestAsmCommands.configure {
+    include("${target.get()}/*")
+}

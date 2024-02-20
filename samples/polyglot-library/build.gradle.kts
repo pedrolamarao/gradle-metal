@@ -13,3 +13,7 @@ library {
 tasks.compileAsm.configure {
     include("${target.get()}/*")
 }
+
+tasks.compileAsmCommands.configure {
+    include("${target.get()}/*")
+}

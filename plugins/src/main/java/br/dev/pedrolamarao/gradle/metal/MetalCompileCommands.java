@@ -18,9 +18,9 @@ import static br.dev.pedrolamarao.gradle.metal.MetalCompile.hash;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Gradle Metal commands database generator task.
+ * Gradle Metal compile commands task.
  */
-public abstract class MetalGenerateCommands extends SourceTask
+public abstract class MetalCompileCommands extends SourceTask
 {
     // properties
 
@@ -79,19 +79,18 @@ public abstract class MetalGenerateCommands extends SourceTask
     /**
      * Constructor.
      */
-    public MetalGenerateCommands ()
+    public MetalCompileCommands ()
     {
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     private static final String template =
-        """
+          """
           {
             "arguments": [ %s ],
             "file": "%s",
             "output": "%s"
-          }
-        """;
+          }""";
 
     /**
      * Generate action.
@@ -107,6 +106,7 @@ public abstract class MetalGenerateCommands extends SourceTask
 
         try (var writer = Files.newBufferedWriter(output.getAsFile().toPath(),UTF_8)) {
             writer.write("[\n");
+            final String[] comma = {""};
             getSource().forEach(file ->
             {
                 final var arguments = options.stream()
@@ -116,6 +116,10 @@ public abstract class MetalGenerateCommands extends SourceTask
                     new File(compileDirectory,"%X/%s.%s".formatted(hash(file),file.getName(),"o"));
 
                 try {
+                    // ARGH
+                    writer.write(comma[0]);
+                    comma[0] = ",\n";
+
                     writer.write(
                         template.formatted(
                             arguments.replace("\\","\\\\"),
@@ -126,7 +130,7 @@ public abstract class MetalGenerateCommands extends SourceTask
                 }
                 catch (IOException e) { throw new RuntimeException(e); }
             });
-            writer.write("]");
+            writer.write("\n]");
         }
     }
 }

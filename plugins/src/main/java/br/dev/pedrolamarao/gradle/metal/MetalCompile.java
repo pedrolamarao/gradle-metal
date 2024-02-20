@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -146,6 +147,19 @@ public abstract class MetalCompile extends SourceTask
      * @param list list to receive this task's language options
      */
     protected void addLanguageOptions (ListProperty<String> list) { };
+
+    @Internal
+    Provider<List<String>> getInternalOptions ()
+    {
+        return getProviders().provider(() ->
+        {
+            final var list = new ArrayList<String>();
+            list.add("--target=%s".formatted(getTarget().get()));
+            list.addAll(getOptions().get());
+            list.add("--compile");
+            return list;
+        });
+    }
 
     interface CompileParameter extends WorkParameters
     {

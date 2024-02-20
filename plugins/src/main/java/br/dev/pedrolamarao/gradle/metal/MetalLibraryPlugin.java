@@ -34,14 +34,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
 
         // configurations
 
-        final var api = configurations.dependencyScope("api", configuration -> {
-            configuration.setDescription("library api dependencies");
-        });
+        final var api = configurations.named("api");
 
-        final var implementation = configurations.dependencyScope("implementation", configuration -> {
-            configuration.setDescription("library implementation dependencies");
-            configuration.extendsFrom(api.get());
-        });
+        final var implementation = configurations.named("implementation");
 
         final var importDependencies = configurations.resolvable(Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> {
@@ -60,6 +55,8 @@ public class MetalLibraryPlugin implements Plugin<Project>
             configuration.extendsFrom(implementation.get());
             configuration.setDescription("library import dependencies");
         });
+
+        final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
 
         final var importableElements = configurations.consumable(Metal.IMPORTABLE_ELEMENTS, configuration -> {
             configuration.attributes(it -> {
@@ -173,8 +170,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                         targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                     );
                 });
+                objectFiles.from(compileTask);
 
-                tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/main/asm/%s/commands.json"::formatted) );
                     task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -183,8 +181,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(source);
                     task.getOutput().convention(output);
                 });
-
-                objectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
 
             // test
@@ -201,8 +198,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     compile.setSource(source);
                     compile.onlyIf("target is enabled",it -> target.zip(host,String::equals).get());
                 });
+                testObjectFiles.from(compileTask);
 
-                tasks.register("compileTestAsmCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileTestAsmCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/test/asm/%s/commands.json"::formatted) );
                     task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -211,8 +209,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(source);
                     task.getOutput().convention(output);
                 });
-
-                testObjectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
         });
 
@@ -236,8 +233,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                         targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                     );
                 });
+                objectFiles.from(compileTask);
 
-                tasks.register("compileCCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileCCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/main/c/%s/commands.json"::formatted) );
                     task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -246,8 +244,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(source);
                     task.getOutput().convention(output);
                 });
-
-                objectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
 
             // test
@@ -266,8 +263,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     compile.setSource(source);
                     compile.onlyIf("target is enabled",it -> target.zip(host,String::equals).get());
                 });
+                testObjectFiles.from(compileTask);
 
-                tasks.register("compileTestCCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileTestCCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/test/c/%s/commands.json"::formatted) );
                     task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -276,8 +274,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(source);
                     task.getOutput().convention(output);
                 });
-
-                testObjectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
         });
 
@@ -303,22 +300,22 @@ public class MetalLibraryPlugin implements Plugin<Project>
                         targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                     );
                 });
-
-                tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
-                {
-                    final var output = buildDirectory.file( task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted) );
-                    task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
-                    task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
-                    task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-                    task.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
-                    task.getOutput().convention(output);
-                });
-
                 importableElements.configure(it ->
                     it.getOutgoing().artifact(precompileTask.map(MetalIxxPrecompile::getTargetOutputDirectory), it2 ->
                         it2.builtBy(precompileTask)
                     )
                 );
+
+                final var precommandsTask = tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
+                {
+                    final var output = buildDirectory.file( task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted) );
+                    task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
+                    task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
+                    task.getCompileDirectory().convention(precompileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
+                    task.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
+                    task.getOutput().convention(output);
+                });
+                commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
 
                 final var imports = precompileTask.zip(importPath, (precompile, dependencies) -> {
                     final var list = new ArrayList<String>();
@@ -344,8 +341,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                         targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                     );
                 });
+                objectFiles.from(compileTask);
 
-                tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted) );
                     task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
@@ -354,8 +352,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(layout.getProjectDirectory().dir("src/main/cxx"));
                     task.getOutput().convention(output);
                 });
-
-                objectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
 
             // test
@@ -376,21 +373,22 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     precompile.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
                     precompile.onlyIf("target is enabled",it -> target.zip(host,String::equals).get());
                 });
-
-                tasks.register("precompileTestIxxCommands",MetalCompileCommands.class,task ->
-                {
-                    task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
-                    task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
-                    task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-                    task.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
-                    task.getOutput().convention(layout.getBuildDirectory().file("commands/test/ixx/commands.json"));
-                });
-
                 importableElements.configure(it ->
                     it.getOutgoing().artifact(precompileTask.map(MetalIxxPrecompile::getTargetOutputDirectory), it2 ->
                         it2.builtBy(precompileTask)
                     )
                 );
+
+                final var precommandsTask = tasks.register("precompileTestIxxCommands",MetalCompileCommands.class,task ->
+                {
+                    final var output = buildDirectory.file( task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted) );
+                    task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
+                    task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
+                    task.getCompileDirectory().convention(precompileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
+                    task.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
+                    task.getOutput().convention(output);
+                });
+                commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
 
                 final var imports = precompileTask.zip(testImportPath, (precompile, dependencies) -> {
                     final var list = new ArrayList<String>();
@@ -416,8 +414,9 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     compile.setSource(source);
                     compile.onlyIf("target is enabled",it -> target.zip(host,String::equals).get());
                 });
+                testObjectFiles.from(compileTask);
 
-                tasks.register("compileTestCxxCommands",MetalCompileCommands.class,task ->
+                final var commandsTask = tasks.register("compileTestCxxCommands",MetalCompileCommands.class,task ->
                 {
                     final var output = buildDirectory.file( task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted) );
                     task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -426,8 +425,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
                     task.setSource(source);
                     task.getOutput().convention(output);
                 });
-
-                testObjectFiles.from(compileTask);
+                commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
             }
         });
 

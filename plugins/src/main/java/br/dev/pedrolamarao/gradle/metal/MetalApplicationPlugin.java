@@ -34,9 +34,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
 
         // configurations
 
-        final var implementation = configurations.dependencyScope("implementation", configuration -> {
-            configuration.setDescription("application implementation dependencies");
-        });
+        final var implementation = configurations.named("implementation");
 
         final var importDependencies = configurations.resolvable(Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> {
@@ -64,6 +62,8 @@ public class MetalApplicationPlugin implements Plugin<Project>
             configuration.extendsFrom(implementation.get());
             configuration.setDescription("application link dependencies");
         });
+
+        final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
 
         // model
 
@@ -98,8 +98,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
                     targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                 );
             });
+            objectFiles.from(compileTask);
 
-            tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
+            final var commandsTask = tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
             {
                 final var output = buildDirectory.file( task.getTarget().map("commands/main/asm/%s/commands.json"::formatted) );
                 task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -108,8 +109,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 task.setSource(source);
                 task.getOutput().convention(output);
             });
-
-            objectFiles.from(compileTask);
+            commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
         });
 
         plugins.withPlugin("br.dev.pedrolamarao.metal.c",c ->
@@ -129,8 +129,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
                     targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                 );
             });
+            objectFiles.from(compileTask);
 
-            tasks.register("compileCCommands",MetalCompileCommands.class,task ->
+            final var commandsTask = tasks.register("compileCCommands",MetalCompileCommands.class,task ->
             {
                 final var output = buildDirectory.file( task.getTarget().map("commands/main/c/%s/commands.json"::formatted) );
                 task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -139,8 +140,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 task.setSource(source);
                 task.getOutput().convention(output);
             });
-
-            objectFiles.from(compileTask);
+            commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
         });
 
         plugins.withPlugin("br.dev.pedrolamarao.metal.cxx",cxx ->
@@ -162,8 +162,14 @@ public class MetalApplicationPlugin implements Plugin<Project>
                     targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                 );
             });
+            final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
+                final var list = new ArrayList<String>();
+                list.add(precompile.getTargetOutputDirectory().get().toString());
+                list.addAll(dependencies);
+                return list;
+            });
 
-            tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
+            final var precommandsTask = tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
             {
                 final var output = buildDirectory.file( task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted) );
                 task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
@@ -172,13 +178,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 task.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
                 task.getOutput().convention(output);
             });
-
-            final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
-                final var list = new ArrayList<String>();
-                list.add(precompile.getTargetOutputDirectory().get().toString());
-                list.addAll(dependencies);
-                return list;
-            });
+            commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
 
             final var compileSources = objects.fileCollection();
             compileSources.from(layout.getProjectDirectory().dir("src/main/cxx"));
@@ -197,8 +197,9 @@ public class MetalApplicationPlugin implements Plugin<Project>
                     targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
                 );
             });
+            objectFiles.from(compileTask);
 
-            tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
+            final var commandsTask = tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
             {
                 final var output = buildDirectory.file( task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted) );
                 task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
@@ -207,8 +208,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
                 task.setSource(layout.getProjectDirectory().dir("src/main/cxx"));
                 task.getOutput().convention(output);
             });
-
-            objectFiles.from(compileTask);
+            commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
         });
 
         final var linkTask = tasks.register("link",MetalLink.class,link ->

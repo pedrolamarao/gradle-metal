@@ -2,7 +2,12 @@
 
 plugins {
     id("com.gradle.plugin-publish")
+    id("io.qameta.allure-adapter")
     id("jvm-test-suite")
+}
+
+allure {
+    version = "2.25.0"
 }
 
 java {
@@ -20,7 +25,7 @@ gradlePlugin {
         create("application") {
             id = "br.dev.pedrolamarao.metal.application"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalApplicationPlugin"
-            displayName = "Gradle Metal application plugin"
+            displayName = "Gradle Metal application project plugin"
             description = "Configures a Gradle Metal application project"
             tags = tagSet
         }
@@ -55,7 +60,7 @@ gradlePlugin {
         create("library") {
             id = "br.dev.pedrolamarao.metal.library"
             implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalLibraryPlugin"
-            displayName = "Gradle Metal library plugin"
+            displayName = "Gradle Metal library project plugin"
             description = "Configures a Gradle Metal library project"
             tags = tagSet
         }
@@ -64,7 +69,7 @@ gradlePlugin {
             implementationClass = "br.dev.pedrolamarao.gradle.metal.MetalPrebuiltPlugin"
             displayName = "Gradle Metal prebuilt plugin"
             description = "Configures a prebuilt Gradle Metal project"
-            tags = setOf("bare-metal","asm","c","cpp","cxx","c++","native")
+            tags = tagSet
         }
     }
 }
@@ -93,4 +98,6 @@ tasks.named<Test>("functionalTest").configure {
     if (metalPath != null) {
         systemProperty("metal.path",metalPath)
     }
+    reports.html.required = false
+    reports.junitXml.isOutputPerTestCase = true
 }

@@ -80,13 +80,13 @@ public class MetalTargetTest extends MetalTestBase
         );
 
         final var target_host = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"compileCxx")
+            .withArguments("--build-cache","--configuration-cache","--info","compileCxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var target_i686_elf = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"-Pmetal.target=i686-elf","compileCxx")
+            .withArguments("--build-cache","--configuration-cache","--info","-Pmetal.target=i686-elf","compileCxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

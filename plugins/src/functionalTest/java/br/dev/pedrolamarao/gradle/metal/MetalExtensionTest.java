@@ -31,7 +31,7 @@ public class MetalExtensionTest extends MetalTestBase
         );
 
         final var test = GradleRunner.create()
-            .withArguments("--build-cache", "--configuration-cache", "--quiet", metalPathProperty, ":print")
+            .withArguments("--build-cache", "--configuration-cache", "--quiet",":print")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -58,7 +58,7 @@ public class MetalExtensionTest extends MetalTestBase
         );
 
         final var test = GradleRunner.create()
-            .withArguments("--build-cache", "--configuration-cache", "--quiet", metalPathProperty, ":print")
+            .withArguments("--build-cache","--configuration-cache","--quiet",":print")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

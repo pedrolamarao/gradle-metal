@@ -52,7 +52,7 @@ public class MetalAsmCompileTest extends MetalTestBase
         );
 
         final var compile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compile")
+            .withArguments("--build-cache","--configuration-cache","compile")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -64,13 +64,13 @@ public class MetalAsmCompileTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var recompile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compile")
+            .withArguments("--build-cache","--configuration-cache","compile")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

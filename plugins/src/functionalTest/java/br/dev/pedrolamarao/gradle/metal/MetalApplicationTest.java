@@ -36,7 +36,7 @@ public class MetalApplicationTest extends MetalTestBase
         );
 
         final var compile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileAsm")
+            .withArguments("--build-cache","--configuration-cache","compileAsm")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -48,13 +48,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var recompile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileAsm")
+            .withArguments("--build-cache","--configuration-cache","compileAsm")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -62,7 +62,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( recompile.task(":compileAsm").getOutcome() ).isEqualTo(FROM_CACHE);
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -74,13 +74,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var relink = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -134,7 +134,7 @@ public class MetalApplicationTest extends MetalTestBase
         );
 
         final var compile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileC")
+            .withArguments("--build-cache","--configuration-cache","compileC")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -146,13 +146,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var recompile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileC")
+            .withArguments("--build-cache","--configuration-cache","compileC")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -160,7 +160,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( recompile.task(":compileC").getOutcome() ).isEqualTo(FROM_CACHE);
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -172,13 +172,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var relink = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -249,7 +249,7 @@ public class MetalApplicationTest extends MetalTestBase
         );
 
         final var compile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,"compileCxx")
+            .withArguments("--build-cache","--configuration-cache","--info","compileCxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -261,13 +261,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var recompile = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"compileCxx")
+            .withArguments("--build-cache","--configuration-cache","compileCxx")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -275,7 +275,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( recompile.task(":compileCxx").getOutcome() ).isEqualTo(FROM_CACHE);
 
         final var link = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -287,13 +287,13 @@ public class MetalApplicationTest extends MetalTestBase
         }
 
         GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"clean")
+            .withArguments("--build-cache","--configuration-cache","clean")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
 
         final var relink = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"link")
+            .withArguments("--build-cache","--configuration-cache","link")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -320,7 +320,7 @@ public class MetalApplicationTest extends MetalTestBase
         );
 
         final var assemble = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"assemble")
+            .withArguments("--build-cache","--configuration-cache","assemble")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -332,7 +332,7 @@ public class MetalApplicationTest extends MetalTestBase
         assertThat( assemble.task(":assemble").getOutcome()   ).isEqualTo( UP_TO_DATE );
 
         final var check = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache",metalPathProperty,"run")
+            .withArguments("--build-cache","--configuration-cache","run")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

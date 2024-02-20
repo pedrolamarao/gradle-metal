@@ -182,7 +182,7 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var check = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":middle:check")
+            .withArguments("--build-cache","--configuration-cache","--info",":middle:check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -190,7 +190,7 @@ public class MetalDependencyTest extends MetalTestBase
         assertThat( check.task(":middle:check").getOutcome() ).isEqualTo( SUCCESS );
 
         final var run = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:run")
+            .withArguments("--build-cache","--configuration-cache","--info",":application:run")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -249,6 +249,8 @@ public class MetalDependencyTest extends MetalTestBase
             int base () { return 0; }
             """
         );
+
+        Files.copy(projectDir.resolve("gradle.properties"),baseDir.resolve("gradle.properties"));
 
         // intermediate library
 
@@ -325,6 +327,8 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
+        Files.copy(projectDir.resolve("gradle.properties"),middleDir.resolve("gradle.properties"));
+
         // application
 
         final var applicationDir = projectDir.resolve("application");
@@ -364,6 +368,8 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
+        Files.copy(projectDir.resolve("gradle.properties"),applicationDir.resolve("gradle.properties"));
+
         Files.writeString(projectDir.resolve("settings.gradle.kts"),
             """
             includeBuild("application")
@@ -373,7 +379,7 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var check = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":middle:check")
+            .withArguments("--build-cache","--configuration-cache","--info",":middle:check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -381,7 +387,7 @@ public class MetalDependencyTest extends MetalTestBase
         assertThat( check.task(":middle:check").getOutcome() ).isEqualTo( SUCCESS );
 
         final var run = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":application:run")
+            .withArguments("--build-cache","--configuration-cache","--info",":application:run")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();
@@ -505,7 +511,7 @@ public class MetalDependencyTest extends MetalTestBase
         );
 
         final var check = GradleRunner.create()
-            .withArguments("--build-cache","--configuration-cache","--info",metalPathProperty,":bar:check")
+            .withArguments("--build-cache","--configuration-cache","--info",":bar:check")
             .withPluginClasspath()
             .withProjectDir(projectDir.toFile())
             .build();

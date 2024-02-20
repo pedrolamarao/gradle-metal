@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static br.dev.pedrolamarao.gradle.metal.MetalCompile.hash;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -88,6 +89,7 @@ public abstract class MetalCompileCommands extends SourceTask
           """
           {
             "arguments": [ %s ],
+            "directory": "%s",
             "file": "%s",
             "output": "%s"
           }""";
@@ -100,20 +102,21 @@ public abstract class MetalCompileCommands extends SourceTask
     @TaskAction
     public void generate () throws IOException
     {
-        final var compileDirectory = getCompileDirectory().get();
+        final var tool = getMetal().get().locateTool(getCompiler().get());
+        final var directory = getProject().getProjectDir();
         final var options = getOptions().get();
         final var output = getOutput().get();
 
         try (var writer = Files.newBufferedWriter(output.getAsFile().toPath(),UTF_8)) {
-            writer.write("[\n");
             final String[] comma = {""};
+            writer.write("[\n");
             getSource().forEach(file ->
             {
-                final var arguments = options.stream()
+                final var arguments = Stream.concat(Stream.of(tool.toString()),options.stream())
                     .collect(Collectors.joining("\", \"", "\"", "\""));
 
                 final var compileOutput =
-                    new File(compileDirectory,"%X/%s.%s".formatted(hash(file),file.getName(),"o"));
+                    new File(directory,"%X/%s.%s".formatted(hash(file),file.getName(),"o"));
 
                 try {
                     // ARGH
@@ -123,6 +126,7 @@ public abstract class MetalCompileCommands extends SourceTask
                     writer.write(
                         template.formatted(
                             arguments.replace("\\","\\\\"),
+                            directory.toString().replace("\\","\\\\"),
                             file.toString().replace("\\","\\\\"),
                             compileOutput.toString().replace("\\","\\\\")
                         )

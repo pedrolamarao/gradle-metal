@@ -29,22 +29,51 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+
+/**
+ * Gradle Metal compile task.
+ */
 public abstract class MetalCompile extends SourceTask
 {
     // properties
 
+    /**
+     * Compiler tool.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getCompiler ();
 
+    /**
+     * Compiler options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getOptions ();
 
+    /**
+     * Compiler output directory.
+     *
+     * @return property
+     */
     @Internal
     public abstract DirectoryProperty getOutputDirectory ();
 
+    /**
+     * Compiler target.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getTarget ();
 
+    /**
+     * Compiler target directory.
+     *
+     * @return provider
+     */
     @OutputDirectory
     public Provider<Directory> getTargetOutputDirectory ()
     {
@@ -53,32 +82,70 @@ public abstract class MetalCompile extends SourceTask
 
     // services
 
+    /**
+     * FileOperations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract FileOperations getFiles ();
 
+    /**
+     * ProjectLayout service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ProjectLayout getLayout ();
 
+    /**
+     * Gradle Metal service.
+     *
+     * @return service
+     */
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
 
+    /**
+     * ObjectFactory service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ObjectFactory getObjects ();
 
+    /**
+     * ProviderFactory service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ProviderFactory getProviders ();
 
+    /**
+     * WorkerExecutor service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract WorkerExecutor getWorkers ();
 
     // task
 
+    /**
+     * Constructor.
+     */
     public MetalCompile ()
     {
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
-    protected void addLanguageOptions (ListProperty<String> args) { };
+    /**
+     * Add this task's language options to the specified list.
+     *
+     * @param list list to receive this task's language options
+     */
+    protected void addLanguageOptions (ListProperty<String> list) { };
 
     interface CompileParameter extends WorkParameters
     {
@@ -138,6 +205,9 @@ public abstract class MetalCompile extends SourceTask
         }
     }
 
+    /**
+     * Compile action.
+     */
     public void compile ()
     {
         final var workers = getWorkers().noIsolation();

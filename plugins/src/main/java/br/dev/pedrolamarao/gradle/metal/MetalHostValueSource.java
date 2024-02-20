@@ -13,13 +13,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 
+/**
+ * Gradle Metal host value source.
+ *
+ * <p>Discovers the host by running <code>clang</code> and parsing its output.</p>
+ */
 public abstract class MetalHostValueSource implements ValueSource<String,MetalHostValueSource.Parameters>
 {
+    /**
+     * Gradle metal host value source parameters.
+     */
     public interface Parameters extends ValueSourceParameters
     {
+        /**
+         * Compiler tool.
+         *
+         * @return property
+         */
         Property<String> getPath ();
     }
 
+    /**
+     * ExecOperations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ExecOperations getExec ();
 

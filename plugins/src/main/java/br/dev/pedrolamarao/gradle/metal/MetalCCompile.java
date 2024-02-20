@@ -7,24 +7,38 @@ import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
+/**
+ * Gradle Metal C compile task.
+ */
 @CacheableTask
 public abstract class MetalCCompile extends MetalCompile
 {
+    /**
+     * Compiler include path.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getIncludePath ();
 
+    /**
+     * Constructor.
+     */
     public MetalCCompile ()
     {
         getCompiler().convention("clang");
     }
 
     @Override
-    protected final void addLanguageOptions (ListProperty<String> args)
+    protected final void addLanguageOptions (ListProperty<String> list)
     {
-        getIncludePath().get().forEach(path -> args.add("--include-directory=%s".formatted(path)));
-        args.add("--language=c");
+        getIncludePath().get().forEach(path -> list.add("--include-directory=%s".formatted(path)));
+        list.add("--language=c");
     }
 
+    /**
+     * Compile action.
+     */
     @TaskAction
     public void compile ()
     {

@@ -16,41 +16,87 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+/**
+ * Gradle Metal linker task.
+ */
 @CacheableTask
 public abstract class MetalLink extends SourceTask
 {
     // properties
 
+    /**
+     * Linker library path.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<Directory> getLibraryPath ();
 
+    /**
+     * Linker library dependencies.
+     *
+     * @return property
+     */
     @IgnoreEmptyDirectories
     @InputFiles
     @PathSensitive(PathSensitivity.ABSOLUTE)
     public abstract ConfigurableFileCollection getLinkDependencies ();
 
+    /**
+     * Linker tool.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getLinker ();
 
+    /**
+     * Linker options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getOptions ();
 
+    /**
+     * Linker output file.
+     *
+     * @return property
+     */
     @OutputFile
     public abstract RegularFileProperty getOutput ();
 
+    /**
+     * Linker target.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getTarget ();
 
     // services
 
+    /**
+     * ExecOperations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Gradle Metal service.
+     *
+     * @return service
+     */
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
 
     // task
 
+    /**
+     * Constructor.
+     */
     @Inject
     public MetalLink ()
     {
@@ -58,6 +104,9 @@ public abstract class MetalLink extends SourceTask
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
+    /**
+     * Link action.
+     */
     @TaskAction
     public void link ()
     {

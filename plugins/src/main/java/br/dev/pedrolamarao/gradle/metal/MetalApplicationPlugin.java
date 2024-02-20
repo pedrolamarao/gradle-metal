@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/**
+ * Gradle Metal application plugin.
+ */
 public class MetalApplicationPlugin implements Plugin<Project>
 {
     @Override

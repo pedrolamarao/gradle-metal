@@ -14,27 +14,63 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+/**
+ * Gradle Metal archiver task.
+ */
 @CacheableTask
 public abstract class MetalArchive extends SourceTask
 {
+    /**
+     * Archiver tool.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getArchiver ();
 
+    /**
+     * Archiver options.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getOptions ();
 
+    /**
+     * Archiver output file.
+     *
+     * @return property
+     */
     @OutputFile
     public abstract RegularFileProperty getOutput ();
 
+    /**
+     * Archiver target.
+     *
+     * @return property
+     */
     @Input
     public abstract Property<String> getTarget ();
 
+    /**
+     * ExecOperations service.
+     *
+     * @return service
+     */
     @Inject
     protected abstract ExecOperations getExec ();
 
+    /**
+     * Gradle Metal service.
+     *
+     * @return service
+     */
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
 
+    /**
+     * Constructor.
+     */
     @Inject
     public MetalArchive ()
     {
@@ -42,6 +78,9 @@ public abstract class MetalArchive extends SourceTask
         getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
+    /**
+     * Archive action.
+     */
     @TaskAction
     public void archive ()
     {

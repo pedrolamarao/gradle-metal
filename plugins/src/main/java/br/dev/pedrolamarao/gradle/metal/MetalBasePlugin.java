@@ -5,6 +5,9 @@ package br.dev.pedrolamarao.gradle.metal;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+/**
+ * Gradle Metal base plugin.
+ */
 public class MetalBasePlugin implements Plugin<Project>
 {
     @Override

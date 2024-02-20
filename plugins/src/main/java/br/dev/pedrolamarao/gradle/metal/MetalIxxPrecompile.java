@@ -25,27 +25,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Gradle Metal C++ module interface compiler task.
+ */
 @CacheableTask
 public abstract class MetalIxxPrecompile extends MetalCompile
 {
     // properties
 
+    /**
+     * Compiler import path.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getImportPath ();
 
+    /**
+     * Compiler include path.
+     *
+     * @return property
+     */
     @Input
     public abstract ListProperty<String> getIncludePath ();
 
     // services
 
+    /**
+     * ExecOperation service.
+     *
+     * @return property
+     */
     @Inject
     public abstract ExecOperations getExec ();
 
+    /**
+     * FileOperations service.
+     *
+     * @return property
+     */
     @Inject
     protected abstract FileOperations getFiles ();
 
     /**
-     * Object factory service.
+     * ObjectFactory service.
      *
      * @return service
      */
@@ -54,6 +77,9 @@ public abstract class MetalIxxPrecompile extends MetalCompile
 
     // task
 
+    /**
+     * Constructor.
+     */
     public MetalIxxPrecompile ()
     {
         getCompiler().convention("clang++");
@@ -101,7 +127,7 @@ public abstract class MetalIxxPrecompile extends MetalCompile
         public abstract ExecOperations getExec ();
 
         /**
-         * Metal service.
+         * Gradle Metal service.
          *
          * @return service
          */
@@ -110,9 +136,6 @@ public abstract class MetalIxxPrecompile extends MetalCompile
 
         public ScanAction () { }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void execute ()
         {
@@ -234,6 +257,11 @@ public abstract class MetalIxxPrecompile extends MetalCompile
         return modules;
     }
 
+    /**
+     * Compile action.
+     *
+     * @throws Exception in case of failure
+     */
     @TaskAction
     public void precompile () throws Exception
     {

@@ -6,20 +6,29 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 
+/**
+ * Gradle Metal assembler "compile" task.
+ */
 @CacheableTask
 public abstract class MetalAsmCompile extends MetalCompile
 {
+    /**
+     * Constructor.
+     */
     public MetalAsmCompile ()
     {
         getCompiler().convention("clang");
     }
 
     @Override
-    protected final void addLanguageOptions (ListProperty<String> args)
+    protected final void addLanguageOptions (ListProperty<String> list)
     {
-        args.add("--language=assembler");
+        list.add("--language=assembler");
     }
 
+    /**
+     * Compile action.
+     */
     @TaskAction
     public void compile ()
     {

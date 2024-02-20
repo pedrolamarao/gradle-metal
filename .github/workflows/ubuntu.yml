@@ -24,6 +24,11 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           arguments: build
+      - name: "Generate Allure Report"
+        uses: gradle/gradle-build-action@v3
+        if: always()
+        with:
+            arguments: allureAggregateReport
   build-llvm-17:
       name: "build with llvm 17"
       runs-on: ubuntu-22.04
@@ -47,3 +52,8 @@ jobs:
             uses: gradle/gradle-build-action@v2
             with:
                 arguments: build
+          - name: "Generate Allure Report"
+            uses: gradle/gradle-build-action@v3
+            if: always()
+            with:
+                arguments: allureAggregateReport

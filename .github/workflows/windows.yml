@@ -21,6 +21,7 @@ jobs:
           arguments: build
       - name: "Generate Allure Report"
         uses: gradle/gradle-build-action@v3
+        if: always()
         with:
             arguments: allureAggregateReport
       - name: "Publish Allure Report"

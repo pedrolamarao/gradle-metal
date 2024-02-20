@@ -19,11 +19,9 @@ jobs:
         uses: gradle/gradle-build-action@v2.8.0
         with:
           arguments: build
-      - name: "Test Report"
-        uses: phoenix-actions/test-reporting@v8
-        id: test-report               # Set ID reference for step
-        if: success() || failure()    # run this step even if previous step failed
+      - name: "Publish AlLlure Report"
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-            name: JUnit Tests            # Name of the check run which will be created
-            path: "**/build/test-results/**/*.xml"    # Path to test results
-            reporter: java-junit        # Format of test results
+            name: windows-latest-jdk-17
+            path: "build/reports/allure-report/allureAggregateReport/index.html"

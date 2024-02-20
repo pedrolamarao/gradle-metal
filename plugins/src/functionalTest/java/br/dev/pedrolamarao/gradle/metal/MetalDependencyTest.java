@@ -250,8 +250,6 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
-        Files.copy(projectDir.resolve("gradle.properties"),baseDir.resolve("gradle.properties"));
-
         // intermediate library
 
         final var middleDir = projectDir.resolve("middle");
@@ -327,8 +325,6 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
-        Files.copy(projectDir.resolve("gradle.properties"),middleDir.resolve("gradle.properties"));
-
         // application
 
         final var applicationDir = projectDir.resolve("application");
@@ -368,7 +364,13 @@ public class MetalDependencyTest extends MetalTestBase
             """
         );
 
-        Files.copy(projectDir.resolve("gradle.properties"),applicationDir.resolve("gradle.properties"));
+        // root
+
+        if (Files.exists(projectDir.resolve("gradle.properties"))) {
+            Files.copy(projectDir.resolve("gradle.properties"),baseDir.resolve("gradle.properties"));
+            Files.copy(projectDir.resolve("gradle.properties"),middleDir.resolve("gradle.properties"));
+            Files.copy(projectDir.resolve("gradle.properties"),applicationDir.resolve("gradle.properties"));
+        }
 
         Files.writeString(projectDir.resolve("settings.gradle.kts"),
             """

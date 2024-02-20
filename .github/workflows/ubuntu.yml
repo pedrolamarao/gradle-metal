@@ -38,7 +38,7 @@ jobs:
             with:
                 java-version: "17"
                 distribution: "temurin"
-          - name: "Install LLVM 16"
+          - name: "Install LLVM 17"
             uses: KyleMayes/install-llvm-action@v1
             with:
                 force-version: true

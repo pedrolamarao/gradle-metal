@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -12,10 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 
-public class MetalCCompileTest extends MetalTestBase
+@DisplayName("Gradle Metal C language")
+class MetalCCompileTest extends MetalTestBase
 {
     @Test
-    public void compile () throws IOException
+    void compile () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src"));
 

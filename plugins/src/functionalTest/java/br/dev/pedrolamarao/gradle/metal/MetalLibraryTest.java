@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,8 +12,10 @@ import java.nio.file.Files;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.*;
 
+@DisplayName("Gradle Metal library project")
 public class MetalLibraryTest extends MetalTestBase
 {
+    @DisplayName("compile with Assembler sources")
     @Test
     public void compileAsm () throws IOException
     {
@@ -112,6 +115,7 @@ public class MetalLibraryTest extends MetalTestBase
         assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 
+    @DisplayName("compile with C sources")
     @Test
     public void compileC () throws IOException
     {
@@ -220,6 +224,7 @@ public class MetalLibraryTest extends MetalTestBase
         assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 
+    @DisplayName("compile with C++ sources")
     @Test
     public void compileCxx () throws IOException
     {
@@ -360,6 +365,7 @@ public class MetalLibraryTest extends MetalTestBase
         assertThat( check.task(":check").getOutcome() ).isEqualTo(SUCCESS);
     }
 
+    @DisplayName("compile with no sources")
     @Test
     public void empty () throws IOException
     {

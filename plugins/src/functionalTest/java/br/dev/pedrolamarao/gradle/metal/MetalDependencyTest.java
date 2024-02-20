@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 
+@DisplayName("Gradle Metal dependency resolution")
 public class MetalDependencyTest extends MetalTestBase
 {
     @Test

@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 
+@DisplayName("Gradle Metal C++ module interface support")
 public class MetalIxxPrecompileTest extends MetalTestBase
 {
     @Test

@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
 
+@DisplayName("Gradle Metal extension")
 public class MetalExtensionTest extends MetalTestBase
 {
     @Test

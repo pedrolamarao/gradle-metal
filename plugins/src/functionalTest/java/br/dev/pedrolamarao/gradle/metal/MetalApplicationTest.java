@@ -3,6 +3,7 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,10 +12,12 @@ import java.nio.file.Files;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gradle.testkit.runner.TaskOutcome.*;
 
-public class MetalApplicationTest extends MetalTestBase
+@DisplayName("Gradle Metal application project")
+class MetalApplicationTest extends MetalTestBase
 {
+    @DisplayName("compile with Assembler sources")
     @Test
-    public void compileAsm () throws IOException
+    void compileAsm () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/asm"));
 
@@ -92,8 +95,9 @@ public class MetalApplicationTest extends MetalTestBase
         }
     }
 
+    @DisplayName("compile with C sources")
     @Test
-    public void compileC () throws IOException
+    void compileC () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
@@ -190,8 +194,9 @@ public class MetalApplicationTest extends MetalTestBase
         }
     }
 
+    @DisplayName("compile with C++ sources")
     @Test
-    public void compileCxx () throws IOException
+    void compileCxx () throws IOException
     {
         Files.createDirectories(projectDir.resolve("src/main/cpp"));
         Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
@@ -305,8 +310,9 @@ public class MetalApplicationTest extends MetalTestBase
         }
     }
 
+    @DisplayName("compile with no sources")
     @Test
-    public void empty () throws IOException
+    void empty () throws IOException
     {
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         

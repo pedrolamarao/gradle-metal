@@ -29,6 +29,12 @@ jobs:
         if: always()
         with:
             arguments: allureAggregateReport
+      - name: "Publish Allure Report"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ubuntu-22.04-llvm-16
+          path: "build/reports/allure-report/allureAggregateReport/index.html"
   build-llvm-17:
       name: "build with llvm 17"
       runs-on: ubuntu-22.04
@@ -57,3 +63,9 @@ jobs:
             if: always()
             with:
                 arguments: allureAggregateReport
+          - name: "Publish Allure Report"
+            uses: actions/upload-artifact@v4
+            if: always()
+            with:
+                name: ubuntu-22.04-llvm-17
+                path: "build/reports/allure-report/allureAggregateReport/index.html"

@@ -28,5 +28,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-            name: windows-latest-jdk-17
+            name: windows-latest
             path: "build/reports/allure-report/allureAggregateReport/index.html"

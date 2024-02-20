@@ -37,7 +37,7 @@ Check the link:samples[] for a variety of use-cases.
 
 Current requirements:
 
-* Gradle 8.5 or newer
+* Gradle 8.6 or newer
 * JDK 17 or newer
 * LLVM 16 or newer (with `clang`, `clang-scan-deps`, `lld`, `llvm-ar` etc.)
 

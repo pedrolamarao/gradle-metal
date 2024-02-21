@@ -43,7 +43,6 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var objects =  project.getObjects();
         final var tasks = project.getTasks();
 
-        final var buildDirectory = layout.getBuildDirectory();
         final var projectDirectory = layout.getProjectDirectory();
 
         final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
@@ -64,37 +63,40 @@ public class MetalCxxPlugin implements Plugin<Project>
             return list;
         });
 
-        final var precompileTask = tasks.register("precompileIxx",MetalIxxPrecompile.class,precompile ->
+        final var precompileTask = tasks.register("precompileIxx",MetalIxxPrecompile.class,task ->
         {
-            final var target = precompile.getTarget();
-            final var targets = component.getTargets();
+            final var condition = component.getTargets().zip(task.getTarget(),
+                (allowed,target) -> allowed.isEmpty() || allowed.contains(target)
+            );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("bmi/main/ixx/%s"::formatted)
+            );
+            final var source = task.getProject().getLayout().getProjectDirectory().dir("src/main/ixx");
 
-            precompile.dependsOn(
+            task.dependsOn(
                 includeDependencies.map(Configuration::getBuildDependencies),
                 importDependencies.map(Configuration::getBuildDependencies)
             );
-            precompile.getImportPath().convention(importPath);
-            precompile.getIncludePath().convention(includePath);
-            precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/main/ixx"));
-            precompile.getOptions().convention(component.getCompileOptions());
-            precompile.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
-            precompile.getTarget().convention(component.getTarget());
+            task.getImportPath().convention(importPath);
+            task.getIncludePath().convention(includePath);
+            task.getOutputDirectory().convention(output);
+            task.getOptions().convention(component.getCompileOptions());
+            task.setSource(source);
+            task.getTarget().convention(component.getTarget());
 
-            precompile.exclude(component.getExcludes());
-            precompile.include(component.getIncludes());
-            precompile.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
-            );
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
+            task.onlyIf("target is enabled",it -> condition.get());
         });
         importableElements.configure(it ->
-            it.getOutgoing().artifact(precompileTask.map(MetalIxxPrecompile::getTargetOutputDirectory),it2 ->
-                it2.builtBy(precompileTask)
-            )
+            it.getOutgoing().artifact(precompileTask)
         );
 
         final var precommandsTask = tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
@@ -111,7 +113,7 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
             final var list = new ArrayList<String>();
-            list.add(precompile.getTargetOutputDirectory().get().toString());
+            list.add(precompile.getOutputDirectory().get().toString());
             list.addAll(dependencies);
             return list;
         });
@@ -120,29 +122,33 @@ public class MetalCxxPlugin implements Plugin<Project>
         compileSources.from(layout.getProjectDirectory().dir("src/main/cxx"));
         compileSources.from(precompileTask);
 
-        final var compileTask = tasks.register("compileCxx",MetalCxxCompile.class,compile ->
+        final var compileTask = tasks.register("compileCxx",MetalCxxCompile.class,task ->
         {
-            final var target = compile.getTarget();
-            final var targets = component.getTargets();
-
-            compile.getImportPath().convention(compileImports);
-            compile.getIncludePath().convention(includePath);
-            compile.getOutputDirectory().convention(buildDirectory.dir("obj/main/cxx"));
-            compile.getOptions().convention(component.getCompileOptions());
-            compile.setSource(compileSources);
-            compile.getTarget().convention(component.getTarget());
-
-            compile.exclude(component.getExcludes());
-            compile.include(component.getIncludes());
-            compile.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+            final var condition = component.getTargets().zip(task.getTarget(),
+                (allowed,target) -> allowed.isEmpty() || allowed.contains(target)
             );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("obj/main/cxx/%s"::formatted)
+            );
+
+            task.getImportPath().convention(compileImports);
+            task.getIncludePath().convention(includePath);
+            task.getOutputDirectory().convention(output);
+            task.getOptions().convention(component.getCompileOptions());
+            task.setSource(compileSources);
+            task.getTarget().convention(component.getTarget());
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
+            task.onlyIf("target is enabled",it -> condition.get());
         });
         component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
@@ -165,7 +171,6 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var objects =  project.getObjects();
         final var tasks = project.getTasks();
 
-        final var buildDirectory = layout.getBuildDirectory();
         final var projectDirectory = layout.getProjectDirectory();
 
         final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
@@ -174,7 +179,7 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var importPath = importDependencies.map(it -> {
             final var list = new HashSet<String>();
-            list.add(tasks.named("precompileIxx",MetalIxxPrecompile.class).get().getTargetOutputDirectory().get().toString());
+            list.add(tasks.named("precompileIxx",MetalIxxPrecompile.class).get().getOutputDirectory().get().toString());
             it.getElements().get().forEach(element -> list.add(element.toString()));
             return list;
         });
@@ -186,32 +191,37 @@ public class MetalCxxPlugin implements Plugin<Project>
             return list;
         });
 
-        final var precompileTask = tasks.register("precompileTestIxx",MetalIxxPrecompile.class,precompile ->
+        final var precompileTask = tasks.register("precompileTestIxx",MetalIxxPrecompile.class,task ->
         {
-            final var target = precompile.getTarget();
-            final var targets = component.getTargets();
+            final var condition = component.getTargets().zip(task.getTarget(),
+                (allowed,target) -> allowed.isEmpty() || allowed.contains(target)
+            );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("bmi/test/ixx/%s"::formatted)
+            );
+            final var source = task.getProject().getLayout().getProjectDirectory().dir("src/test/ixx");
 
-            precompile.dependsOn(
+            task.dependsOn(
                 includeDependencies.map(Configuration::getBuildDependencies),
                 importDependencies.map(Configuration::getBuildDependencies)
             );
-            precompile.getImportPath().convention(importPath);
-            precompile.getIncludePath().convention(includePath);
-            precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/test/ixx"));
-            precompile.getOptions().convention(component.getCompileOptions());
-            precompile.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
-            precompile.getTarget().convention(component.getTarget());
+            task.getImportPath().convention(importPath);
+            task.getIncludePath().convention(includePath);
+            task.getOutputDirectory().convention(output);
+            task.getOptions().convention(component.getCompileOptions());
+            task.setSource(source);
+            task.getTarget().convention(component.getTarget());
 
-            precompile.exclude(component.getExcludes());
-            precompile.include(component.getIncludes());
-            precompile.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
-            );
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
+            task.onlyIf("target is enabled",it -> condition.get());
         });
 
         final var precommandsTask = tasks.register("precompileTestIxxCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
@@ -228,8 +238,8 @@ public class MetalCxxPlugin implements Plugin<Project>
 
         final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
             final var list = new ArrayList<String>();
-            list.add(tasks.named("precompileIxx",MetalIxxPrecompile.class).get().getTargetOutputDirectory().get().toString());
-            list.add(precompile.getTargetOutputDirectory().get().toString());
+            list.add(tasks.named("precompileIxx",MetalIxxPrecompile.class).get().getOutputDirectory().get().toString());
+            list.add(precompile.getOutputDirectory().get().toString());
             list.addAll(dependencies);
             return list;
         });
@@ -238,30 +248,34 @@ public class MetalCxxPlugin implements Plugin<Project>
         compileSources.from(layout.getProjectDirectory().dir("src/test/cxx"));
         compileSources.from(precompileTask);
 
-        final var compileTask = tasks.register("compileTestCxx",MetalCxxCompile.class,compile ->
+        final var compileTask = tasks.register("compileTestCxx",MetalCxxCompile.class,task ->
         {
-            final var target = compile.getTarget();
-            final var targets = component.getTargets();
-
-            compile.dependsOn(tasks.named("precompileIxx")); // TODO
-            compile.getImportPath().convention(compileImports);
-            compile.getIncludePath().convention(includePath);
-            compile.getOutputDirectory().convention(buildDirectory.dir("obj/test/cxx"));
-            compile.getOptions().convention(component.getCompileOptions());
-            compile.setSource(compileSources);
-            compile.getTarget().convention(component.getTarget());
-
-            compile.exclude(component.getExcludes());
-            compile.include(component.getIncludes());
-            compile.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
+            final var condition = component.getTargets().zip(task.getTarget(),
+                (allowed,target) -> allowed.isEmpty() || allowed.contains(target)
             );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("obj/test/cxx/%s"::formatted)
+            );
+
+            task.dependsOn(tasks.named("precompileIxx")); // TODO
+            task.getImportPath().convention(compileImports);
+            task.getIncludePath().convention(includePath);
+            task.getOutputDirectory().convention(output);
+            task.getOptions().convention(component.getCompileOptions());
+            task.setSource(compileSources);
+            task.getTarget().convention(component.getTarget());
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
+            task.onlyIf("target is enabled",it -> condition.get());
         });
         component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileTestCxxCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));

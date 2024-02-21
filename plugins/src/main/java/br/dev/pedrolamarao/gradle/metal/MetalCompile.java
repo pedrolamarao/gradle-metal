@@ -2,7 +2,6 @@
 
 package br.dev.pedrolamarao.gradle.metal;
 
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.FileOperations;
@@ -58,7 +57,7 @@ public abstract class MetalCompile extends SourceTask
      *
      * @return property
      */
-    @Internal
+    @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory ();
 
     /**
@@ -68,17 +67,6 @@ public abstract class MetalCompile extends SourceTask
      */
     @Input
     public abstract Property<String> getTarget ();
-
-    /**
-     * Compiler target directory.
-     *
-     * @return provider
-     */
-    @OutputDirectory
-    public Provider<Directory> getTargetOutputDirectory ()
-    {
-        return getOutputDirectory().zip(getTarget(),Directory::dir);
-    }
 
     // services
 
@@ -209,9 +197,8 @@ public abstract class MetalCompile extends SourceTask
 
         final var compiler = getMetal().get().locateTool(getCompiler().get());
         final var options = getOptions();
+        final var outputDirectory = getOutputDirectory().get();
         final var target = getTarget().get();
-
-        final var outputDirectory = getTargetOutputDirectory().get();
 
         getSource().forEach(source ->
         {

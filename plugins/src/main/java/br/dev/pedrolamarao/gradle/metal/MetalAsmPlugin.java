@@ -38,36 +38,38 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var layout = project.getLayout();
         final var tasks = project.getTasks();
 
-        final var buildDirectory = layout.getBuildDirectory();
-        final var sourceDirectory = layout.getProjectDirectory().dir("src/main/asm");
-
         final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
+        final var sourceDirectory = layout.getProjectDirectory().dir("src/main/asm");
 
         final var compileTask = tasks.register("compileAsm",MetalAsmCompile.class,task ->
         {
-            final var target = task.getTarget();
-            final var targets = component.getTargets();
+            final var condition = component.getTargets().zip(task.getTarget(),
+                (allowed,target) -> allowed.isEmpty() || allowed.contains(target)
+            );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("obj/main/asm/%s"::formatted)
+            );
 
-            task.getOutputDirectory().set(buildDirectory.dir("obj/main/asm"));
+            task.getOutputDirectory().set(output);
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
-            task.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
-            );
+            task.onlyIf("target is enabled",it -> condition.get());
         });
         component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/main/asm/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/main/asm/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
-            task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
+            task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
             task.getTarget().convention(component.getTarget());
@@ -85,36 +87,38 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var layout = project.getLayout();
         final var tasks = project.getTasks();
 
-        final var buildDirectory = layout.getBuildDirectory();
-        final var sourceDirectory = layout.getProjectDirectory().dir("src/test/asm");
-
         final var commandsElements = configurations.named(Metal.COMMANDS_ELEMENTS);
+        final var sourceDirectory = layout.getProjectDirectory().dir("src/test/asm");
 
         final var compileTask = tasks.register("compileTestAsm",MetalAsmCompile.class,task ->
         {
-            final var target = task.getTarget();
-            final var targets = component.getTargets();
+            final var condition = component.getTargets().zip(task.getTarget(),(allowed,target) ->
+                allowed.isEmpty() || allowed.contains(target)
+            );
+            final var output = task.getProject().getLayout().getBuildDirectory().dir(
+                task.getTarget().map("obj/test/asm/%s"::formatted)
+            );
 
-            task.getOutputDirectory().set(buildDirectory.dir("obj/test/asm"));
+            task.getOutputDirectory().set(output);
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
-            task.onlyIf("target is enabled",it ->
-                targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
-            );
+            task.onlyIf("target is enabled",it -> condition.get());
         });
         component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileTestAsmCommands",MetalCompileCommands.class,task ->
         {
-            final var output = buildDirectory.file( task.getTarget().map("commands/test/asm/%s/commands.json"::formatted) );
+            final var output = task.getProject().getLayout().getBuildDirectory().file(
+                task.getTarget().map("commands/test/asm/%s/commands.json"::formatted)
+            );
 
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
-            task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
+            task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
             task.getTarget().convention(component.getTarget());

@@ -269,14 +269,10 @@ public abstract class MetalIxxPrecompile extends MetalCompile
         final var compiler = metal.locateTool(getCompiler().get());
         final var target = getTarget().get();
 
-        final var outputDirectory = getTargetOutputDirectory().get().getAsFile().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
 
         // discover dependencies from sources
         final var modules = scan();
-
-        // remove old objects
-        getFiles().delete(outputDirectory);
-        Files.createDirectories(outputDirectory);
 
         // prepare compile arguments
         final var baseArgs = new ArrayList<String>();

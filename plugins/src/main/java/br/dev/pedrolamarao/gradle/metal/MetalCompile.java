@@ -2,6 +2,7 @@
 
 package br.dev.pedrolamarao.gradle.metal;
 
+import org.gradle.api.Task;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -12,7 +13,7 @@ import org.gradle.api.tasks.OutputDirectory;
 /**
  * Gradle Metal compile task.
  */
-public interface MetalCompile
+public interface MetalCompile extends Task
 {
     /**
      * Compiler tool.

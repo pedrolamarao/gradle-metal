@@ -8,7 +8,7 @@ import org.gradle.api.provider.SetProperty;
 /**
  * Gradle Metal application extension.
  */
-public abstract class MetalApplication
+public abstract class MetalApplication extends MetalComponent
 {
     /**
      * Compile options.

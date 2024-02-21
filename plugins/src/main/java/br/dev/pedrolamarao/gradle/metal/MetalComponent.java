@@ -1,17 +1,13 @@
-// Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
-
 package br.dev.pedrolamarao.gradle.metal;
 
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.SetProperty;
 
-/**
- * Gradle Metal library extension.
- */
-public abstract class MetalLibrary extends MetalComponent
+public abstract class MetalComponent
 {
     /**
-     * Compiler options.
+     * Compile options.
      *
      * @return property
      */
@@ -23,4 +19,8 @@ public abstract class MetalLibrary extends MetalComponent
      * @return property
      */
     public abstract SetProperty<String> getTargets ();
+
+    abstract ConfigurableFileCollection getObjectFiles ();
+
+    abstract ConfigurableFileCollection getTestObjectFiles ();
 }

@@ -26,34 +26,127 @@ public class MetalBasePlugin implements Plugin<Project>
 
         project.getExtensions().create("metal",MetalExtension.class);
 
+        // dependency management
+
         final var api = configurations.dependencyScope("api", configuration -> {
-            configuration.setDescription("library api dependencies");
+            configuration.setDescription("api dependencies");
         });
 
         final var implementation = configurations.dependencyScope("implementation", configuration -> {
-            configuration.setDescription("library implementation dependencies");
+            configuration.setDescription("implementation dependencies");
             configuration.extendsFrom(api.get());
         });
 
-        final var commandsScope = configurations.dependencyScope("commands");
+        final var testImplementation = configurations.dependencyScope("testImplementation", configuration -> {
+            configuration.setDescription("test implementation dependencies");
+            configuration.extendsFrom(implementation.get());
+        });
+
+        final var commands = configurations.dependencyScope("commands");
+
+        // outgoing elements
 
         configurations.consumable(Metal.COMMANDS_ELEMENTS, configuration -> {
             configuration.attributes(it -> {
                 it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
                 it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
             });
-            configuration.extendsFrom(implementation.get());
-            configuration.setDescription("project commands elements");
+            configuration.setDescription("commands elements");
         });
+
+        configurations.consumable(Metal.IMPORTABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("include dependencies");
+        });
+
+        configurations.consumable(Metal.INCLUDABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("includable elements");
+        });
+
+        configurations.consumable(Metal.LINKABLE_ELEMENTS, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(api.get());
+            configuration.setDescription("linkable elements");
+        });
+
+        // incoming dependencies
 
         final var commandsDependencies = configurations.resolvable(Metal.COMMANDS_DEPENDENCIES, configuration -> {
             configuration.attributes(it -> {
                 it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.COMMANDS);
                 it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
             });
-            configuration.extendsFrom(commandsScope.get());
-            configuration.setDescription("project commands dependencies");
+            configuration.extendsFrom(commands.get());
+            configuration.setDescription("commands dependencies");
         });
+
+        configurations.resolvable(Metal.IMPORTABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("import dependencies");
+        });
+
+        configurations.resolvable(Metal.INCLUDABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("include dependencies");
+        });
+
+        configurations.resolvable(Metal.LINKABLE_DEPENDENCIES, configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(implementation.get());
+            configuration.setDescription("link dependencies");
+        });
+
+        configurations.resolvable("testImportDependencies", configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.IMPORTABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(testImplementation.get());
+            configuration.setDescription("test import dependencies");
+        });
+
+        configurations.resolvable("testIncludeDependencies", configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.INCLUDABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(testImplementation.get());
+            configuration.setDescription("test include dependencies");
+        });
+
+        configurations.resolvable("testLinkDependencies", configuration -> {
+            configuration.attributes(it -> {
+                it.attribute(MetalCapability.ATTRIBUTE, MetalCapability.LINKABLE);
+                it.attribute(MetalVisibility.ATTRIBUTE, MetalVisibility.COMPILE);
+            });
+            configuration.extendsFrom(testImplementation.get());
+            configuration.setDescription("test link dependencies");
+        });
+
+        // aggregate commands task
 
         final var inputFiles = project.files(commandsDependencies);
         final var outputFile = project.file("compile_commands.json");

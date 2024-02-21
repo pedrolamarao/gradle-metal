@@ -1,5 +1,6 @@
 package br.dev.pedrolamarao.gradle.metal;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
@@ -8,6 +9,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 /**
  * Gradle Metal component extension.
  */
+@NonNullApi
 public interface MetalComponent extends PatternFilterable
 {
     /**

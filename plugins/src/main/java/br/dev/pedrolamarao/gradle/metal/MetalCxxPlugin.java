@@ -93,6 +93,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.setSource(projectDirectory.dir("src/main/ixx"));
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(precommandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
 
         final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
@@ -130,6 +131,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.setSource(compileSources);
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 
@@ -188,6 +190,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.setSource(projectDirectory.dir("src/test/ixx"));
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(precommandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
 
         final var compileImports = precompileTask.zip(importPath,(precompile,dependencies) -> {
@@ -227,6 +230,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.setSource(compileSources);
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 }

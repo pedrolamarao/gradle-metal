@@ -23,5 +23,7 @@ public abstract class MetalComponent
      */
     public abstract SetProperty<String> getTargets ();
 
+    abstract ConfigurableFileCollection getCommandFiles ();
+
     abstract ConfigurableFileCollection getObjectFiles ();
 }

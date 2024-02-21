@@ -75,6 +75,7 @@ public class MetalCPlugin implements Plugin<Project>
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 
@@ -122,6 +123,7 @@ public class MetalCPlugin implements Plugin<Project>
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
         });
+        component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 }

@@ -4,7 +4,6 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.SourceTask;
 
 import java.io.IOException;
@@ -148,12 +147,17 @@ public class MetalBasePlugin implements Plugin<Project>
 
         // aggregate commands task
 
-        final var inputFiles = project.files(commandsDependencies);
-        final var outputFile = project.file("compile_commands.json");
-
         project.getTasks().register("aggregateCommands",SourceTask.class).configure(task ->
         {
-            task.dependsOn(commandsDependencies.map(Configuration::getBuildDependencies));
+            final var inputFiles = task.getProject().getObjects().fileCollection();
+            inputFiles.from(commandsDependencies);
+            final var application = task.getProject().getExtensions().findByType(MetalApplication.class);
+            if (application != null) inputFiles.from(application.getCommandFiles());
+            final var library = task.getProject().getExtensions().findByType(MetalLibrary.class);
+            if (library != null) inputFiles.from(library.getCommandFiles());
+
+            final var outputFile = task.getProject().file("compile_commands.json");
+
             task.setGroup("metal");
             task.getOutputs().file(outputFile);
             task.setSource(inputFiles);

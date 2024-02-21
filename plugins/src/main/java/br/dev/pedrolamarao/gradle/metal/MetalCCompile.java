@@ -3,9 +3,13 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gradle Metal C compile task.
@@ -30,10 +34,19 @@ public abstract class MetalCCompile extends MetalCompile
     }
 
     @Override
-    protected final void addLanguageOptions (ListProperty<String> list)
+    Provider<List<String>> getCommand ()
     {
-        getIncludePath().get().forEach(path -> list.add("--include-directory=%s".formatted(path)));
-        list.add("--language=c");
+        return getProviders().provider(() ->
+        {
+            final var list = new ArrayList<String>();
+            list.add(getMetal().get().locateTool(getCompiler().get()).toString());
+            list.add("--target=%s".formatted(getTarget().get()));
+            list.addAll(getOptions().get());
+            getIncludePath().get().forEach(path -> list.add("--include-directory=%s".formatted(path)));
+            list.add("--compile");
+            list.add("--language=c");
+            return list;
+        });
     }
 
     /**

@@ -98,11 +98,11 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-            task.setSource(projectDirectory.dir("src/main/ixx"));
+            task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
+            task.setSource(projectDirectory.dir("src/main/ixx"));
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
@@ -150,10 +150,10 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
-            task.getOutput().convention(output);
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
+            task.getDirectory().convention(task.getProject().getProjectDir());
+            task.getOutput().convention(output);
             task.setSource(compileSources);
             task.getTarget().convention(component.getTarget());
 
@@ -223,11 +223,11 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-            task.setSource(projectDirectory.dir("src/test/ixx"));
+            task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
+            task.setSource(projectDirectory.dir("src/test/ixx"));
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
@@ -277,11 +277,11 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-            task.setSource(compileSources);
+            task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
+            task.setSource(compileSources);
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());

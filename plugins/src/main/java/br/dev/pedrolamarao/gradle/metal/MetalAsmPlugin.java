@@ -67,11 +67,11 @@ public class MetalAsmPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/asm/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-            task.setSource(sourceDirectory);
+            task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
+            task.setSource(sourceDirectory);
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
@@ -116,11 +116,11 @@ public class MetalAsmPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/asm/%s/commands.json"::formatted)
             );
 
-            task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
-            task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
-            task.setSource(sourceDirectory);
+            task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
+            task.setSource(sourceDirectory);
             task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());

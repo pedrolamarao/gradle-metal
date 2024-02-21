@@ -4,8 +4,6 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.internal.file.FileOperations;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -71,28 +69,12 @@ public abstract class MetalCompile extends SourceTask
     // services
 
     /**
-     * FileOperations service.
-     *
-     * @return service
-     */
-    @Inject
-    protected abstract FileOperations getFiles ();
-
-    /**
      * Gradle Metal service.
      *
      * @return service
      */
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
-
-    /**
-     * ObjectFactory service.
-     *
-     * @return service
-     */
-    @Inject
-    protected abstract ObjectFactory getObjects ();
 
     /**
      * ProviderFactory service.
@@ -110,37 +92,16 @@ public abstract class MetalCompile extends SourceTask
     @Inject
     protected abstract WorkerExecutor getWorkers ();
 
-    /**
-     * Add this task's language options to the specified list.
-     *
-     * @param list list to receive this task's language options
-     */
-    protected void addLanguageOptions (ListProperty<String> list) { };
-
     @Internal
-    Provider<List<String>> getInternalOptions ()
-    {
-        return getProviders().provider(() ->
-        {
-            final var list = new ArrayList<String>();
-            list.add("--target=%s".formatted(getTarget().get()));
-            list.addAll(getOptions().get());
-            list.add("--compile");
-            return list;
-        });
-    }
+    abstract Provider<List<String>> getCommand ();
 
     interface CompileParameter extends WorkParameters
     {
-        Property<String> getCompiler ();
-
-        ListProperty<String> getOptions ();
+        ListProperty<String> getCommand ();
 
         DirectoryProperty getOutputDirectory ();
 
         RegularFileProperty getSource ();
-
-        Property<String> getTarget ();
     }
 
     static abstract class CompileAction implements WorkAction<CompileParameter>
@@ -156,11 +117,8 @@ public abstract class MetalCompile extends SourceTask
         {
             final var parameters = getParameters();
 
-            final var compiler = parameters.getCompiler().get();
-            final var options = parameters.getOptions().get();
+            final var commandBase = parameters.getCommand().get();
             final var source = parameters.getSource().getAsFile().get();
-            final var target = parameters.getTarget().get();
-
             final var output = parameters.getOutputDirectory()
                 .file("%X/%s.%s".formatted(hash(source),source.getName(),"o"))
                 .get().getAsFile();
@@ -174,17 +132,11 @@ public abstract class MetalCompile extends SourceTask
                 throw new RuntimeException(e);
             }
 
-            final var args = new ArrayList<String>();
-            args.add("--target=%s".formatted(target));
-            args.addAll(options);
-            args.add("--compile");
-            args.add("--output=%s".formatted(output));
-            args.add(source.toString());
+            final var command = new ArrayList<>(commandBase);
+            command.add("--output=%s".formatted(output));
+            command.add(source.toString());
 
-            getExec().exec(it -> {
-                it.executable(compiler);
-                it.args(args);
-            });
+            getExec().exec(it -> it.commandLine(command));
         }
     }
 
@@ -195,21 +147,16 @@ public abstract class MetalCompile extends SourceTask
     {
         final var workers = getWorkers().noIsolation();
 
-        final var compiler = getMetal().get().locateTool(getCompiler().get());
-        final var options = getOptions();
-        final var outputDirectory = getOutputDirectory().get();
-        final var target = getTarget().get();
+        final var options = getCommand();
+        final var outputDirectory = getOutputDirectory();
 
         getSource().forEach(source ->
         {
-            workers.submit(CompileAction.class, parameters ->
+            workers.submit(CompileAction.class,parameters ->
             {
-                parameters.getCompiler().set(compiler.toString());
+                parameters.getCommand().set(options);
                 parameters.getOutputDirectory().set(outputDirectory);
-                parameters.getOptions().set(options);
-                addLanguageOptions(parameters.getOptions());
                 parameters.getSource().set(source);
-                parameters.getTarget().set(target);
             });
         });
     }

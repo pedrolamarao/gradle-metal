@@ -2,9 +2,12 @@
 
 package br.dev.pedrolamarao.gradle.metal;
 
-import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gradle Metal assembler "compile" task.
@@ -21,9 +24,18 @@ public abstract class MetalAsmCompile extends MetalCompile
     }
 
     @Override
-    protected final void addLanguageOptions (ListProperty<String> list)
+    Provider<List<String>> getCommand ()
     {
-        list.add("--language=assembler");
+        return getProviders().provider(() ->
+        {
+            final var list = new ArrayList<String>();
+            list.add(getMetal().get().locateTool(getCompiler().get()).toString());
+            list.add("--target=%s".formatted(getTarget().get()));
+            list.addAll(getOptions().get());
+            list.add("--compile");
+            list.add("--language=assembler");
+            return list;
+        });
     }
 
     /**

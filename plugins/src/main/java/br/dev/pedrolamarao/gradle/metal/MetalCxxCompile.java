@@ -42,18 +42,12 @@ public abstract class MetalCxxCompile extends MetalCompile
     }
 
     @Override
-    protected final void addLanguageOptions (ListProperty<String> list)
-    {
-        getImportPath().get().forEach(path -> list.add("-fprebuilt-module-path=%s".formatted(path)));
-        getIncludePath().get().forEach(path -> list.add("--include-directory=%s".formatted(path)));
-    }
-
-    @Override
-    Provider<List<String>> getInternalOptions ()
+    Provider<List<String>> getCommand ()
     {
         return getProviders().provider(() ->
         {
             final var list = new ArrayList<String>();
+            list.add(getMetal().get().locateTool(getCompiler().get()).toString());
             list.add("--target=%s".formatted(getTarget().get()));
             list.addAll(getOptions().get());
             getImportPath().get().forEach(path -> list.add("-fprebuilt-module-path=%s".formatted(path)));

@@ -29,8 +29,10 @@ public class MetalLibraryPlugin implements Plugin<Project>
         final var includableElements = configurations.named(Metal.INCLUDABLE_ELEMENTS);
         final var linkableElements = configurations.named(Metal.LINKABLE_ELEMENTS);
 
-        final var library = project.getExtensions().create("library",MetalLibrary.class);
-        final var test = project.getExtensions().create("test",MetalApplication.class);
+        final var library = (MetalLibraryImpl) project.getExtensions()
+            .create(MetalLibrary.class,"library",MetalLibraryImpl.class);
+        final var test = (MetalApplicationImpl) project.getExtensions()
+            .create(MetalApplication.class,"test",MetalApplicationImpl.class);
         test.getCompileOptions().convention(library.getCompileOptions());
 
         final var includeDir = layout.getProjectDirectory().dir("src/main/cpp");

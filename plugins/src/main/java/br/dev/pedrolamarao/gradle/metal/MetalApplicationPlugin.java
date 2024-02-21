@@ -24,7 +24,8 @@ public class MetalApplicationPlugin implements Plugin<Project>
         plugins.apply(BasePlugin.class);
         plugins.apply(MetalBasePlugin.class);
 
-        final var application = project.getExtensions().create("application",MetalApplication.class);
+        final var application = (MetalApplicationImpl) project.getExtensions()
+            .create(MetalApplication.class,"application",MetalApplicationImpl.class);
 
         // tasks
 

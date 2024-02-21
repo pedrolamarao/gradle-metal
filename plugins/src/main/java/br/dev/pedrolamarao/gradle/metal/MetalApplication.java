@@ -3,31 +3,16 @@
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.SetProperty;
 
 /**
  * Gradle Metal application extension.
  */
-public abstract class MetalApplication extends MetalComponent
+public interface MetalApplication extends MetalComponent
 {
-    /**
-     * Compile options.
-     *
-     * @return property
-     */
-    public abstract ListProperty<String> getCompileOptions ();
-
     /**
      * Link options.
      *
      * @return property
      */
-    public abstract ListProperty<String> getLinkOptions ();
-
-    /**
-     * Allowed targets.
-     *
-     * @return property
-     */
-    public abstract SetProperty<String> getTargets ();
+    ListProperty<String> getLinkOptions ();
 }

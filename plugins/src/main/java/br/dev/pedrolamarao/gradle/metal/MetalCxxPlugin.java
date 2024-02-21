@@ -17,23 +17,26 @@ public class MetalCxxPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().withPlugin("br.dev.pedrolamarao.metal.application",plugin ->
+        final var extensions = project.getExtensions();
+        final var plugins = project.getPluginManager();
+
+        plugins.withPlugin("br.dev.pedrolamarao.metal.application",plugin ->
         {
-            final var application = project.getExtensions().getByType(MetalApplication.class);
+            final var application = (MetalApplicationImpl) extensions.getByType(MetalApplication.class);
             registerMain(project,application);
         });
 
-        project.getPluginManager().withPlugin("br.dev.pedrolamarao.metal.library",plugin ->
+        plugins.withPlugin("br.dev.pedrolamarao.metal.library",plugin ->
         {
-            final var library = project.getExtensions().getByType(MetalLibrary.class);
+            final var library = (MetalLibraryImpl) extensions.getByType(MetalLibrary.class);
             registerMain(project,library);
 
-            final var test = project.getExtensions().getByType(MetalApplication.class);
+            final var test = (MetalApplicationImpl) extensions.getByType(MetalApplication.class);
             registerTest(project,test);
         });
     }
 
-    static void registerMain (Project project, MetalComponent component)
+    private static void registerMain (Project project, MetalComponentImpl component)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -65,6 +68,7 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             final var target = precompile.getTarget();
             final var targets = component.getTargets();
+
             precompile.dependsOn(
                 includeDependencies.map(Configuration::getBuildDependencies),
                 importDependencies.map(Configuration::getBuildDependencies)
@@ -74,6 +78,9 @@ public class MetalCxxPlugin implements Plugin<Project>
             precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/main/ixx"));
             precompile.getOptions().convention(component.getCompileOptions());
             precompile.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
+
+            precompile.exclude(component.getExcludes());
+            precompile.include(component.getIncludes());
             precompile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -87,11 +94,15 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var precommandsTask = tasks.register("precompileIxxCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(projectDirectory.dir("src/main/ixx"));
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(precommandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
@@ -111,11 +122,15 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             final var target = compile.getTarget();
             final var targets = component.getTargets();
+
             compile.getImportPath().convention(compileImports);
             compile.getIncludePath().convention(includePath);
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/main/cxx"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(compileSources);
+
+            compile.exclude(component.getExcludes());
+            compile.include(component.getIncludes());
             compile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -125,17 +140,21 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileCxxCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(compileSources);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 
-    static void registerTest (Project project, MetalComponent component)
+    private static void registerTest (Project project, MetalComponentImpl component)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -167,6 +186,7 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             final var target = precompile.getTarget();
             final var targets = component.getTargets();
+
             precompile.dependsOn(
                 includeDependencies.map(Configuration::getBuildDependencies),
                 importDependencies.map(Configuration::getBuildDependencies)
@@ -176,6 +196,9 @@ public class MetalCxxPlugin implements Plugin<Project>
             precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/test/ixx"));
             precompile.getOptions().convention(component.getCompileOptions());
             precompile.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
+
+            precompile.exclude(component.getExcludes());
+            precompile.include(component.getIncludes());
             precompile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -184,11 +207,15 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var precommandsTask = tasks.register("precompileTestIxxCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(precompileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(precompileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(projectDirectory.dir("src/test/ixx"));
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(precommandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(precommandsTask));
@@ -209,12 +236,16 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             final var target = compile.getTarget();
             final var targets = component.getTargets();
+
             compile.dependsOn(tasks.named("precompileIxx")); // TODO
             compile.getImportPath().convention(compileImports);
             compile.getIncludePath().convention(includePath);
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/test/cxx"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(compileSources);
+
+            compile.exclude(component.getExcludes());
+            compile.include(component.getIncludes());
             compile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -224,11 +255,15 @@ public class MetalCxxPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileTestCxxCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(compileSources);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));

@@ -8,12 +8,5 @@ plugins {
 
 library {
     compileOptions = listOf("-std=c++20")
-}
-
-tasks.compileAsm.configure {
-    include("${target.get()}/*")
-}
-
-tasks.compileAsmCommands.configure {
-    include("${target.get()}/*")
+    include("${target.get()}/*","*")
 }

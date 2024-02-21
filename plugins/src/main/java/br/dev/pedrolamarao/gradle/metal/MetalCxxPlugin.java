@@ -27,7 +27,9 @@ public class MetalCxxPlugin implements Plugin<Project>
         {
             final var library = project.getExtensions().getByType(MetalLibrary.class);
             registerMain(project,library);
-            registerTest(project,library);
+
+            final var test = project.getExtensions().getByType(MetalApplication.class);
+            registerTest(project,test);
         });
     }
 
@@ -214,7 +216,7 @@ public class MetalCxxPlugin implements Plugin<Project>
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
         });
-        component.getTestObjectFiles().from(compileTask);
+        component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileTestCxxCommands",MetalCompileCommands.class,task ->
         {

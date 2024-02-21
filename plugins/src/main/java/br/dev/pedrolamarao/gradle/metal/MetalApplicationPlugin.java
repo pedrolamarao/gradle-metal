@@ -60,8 +60,6 @@ public class MetalApplicationPlugin implements Plugin<Project>
             );
         });
 
-        tasks.named("assemble",assemble -> {
-            assemble.dependsOn(linkTask);
-        });
+        tasks.named("assemble",it -> it.dependsOn(linkTask));
     }
 }

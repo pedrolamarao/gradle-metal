@@ -4,6 +4,7 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.tasks.Exec;
 
@@ -29,6 +30,8 @@ public class MetalLibraryPlugin implements Plugin<Project>
         final var linkableElements = configurations.named(Metal.LINKABLE_ELEMENTS);
 
         final var library = project.getExtensions().create("library",MetalLibrary.class);
+        final var test = project.getExtensions().create("test",MetalApplication.class);
+        test.getCompileOptions().convention(library.getCompileOptions());
 
         final var includeDir = layout.getProjectDirectory().dir("src/main/cpp");
         includableElements.configure(it -> it.getOutgoing().artifact(includeDir));
@@ -67,11 +70,12 @@ public class MetalLibraryPlugin implements Plugin<Project>
                 dir.file("exe/test/%s/%s".formatted(target,linkName.get()))
             );
 
+            link.dependsOn(linkDependencies.map(Configuration::getBuildDependencies));
             link.getLinkDependencies().from(archiveTask);
             link.getLinkDependencies().from(linkDependencies);
-//            link.getOptions().convention(application.getLinkOptions());
+            link.getOptions().convention(test.getLinkOptions());
             link.getOutput().convention(linkFile);
-            link.setSource(library.getTestObjectFiles());
+            link.setSource(test.getObjectFiles());
         });
 
         final var runTestTask = tasks.register("runTest", Exec.class, exec ->

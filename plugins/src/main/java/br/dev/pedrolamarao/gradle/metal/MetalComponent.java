@@ -4,6 +4,9 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.SetProperty;
 
+/**
+ * Gradle Metal component, library or application.
+ */
 public abstract class MetalComponent
 {
     /**
@@ -21,6 +24,4 @@ public abstract class MetalComponent
     public abstract SetProperty<String> getTargets ();
 
     abstract ConfigurableFileCollection getObjectFiles ();
-
-    abstract ConfigurableFileCollection getTestObjectFiles ();
 }

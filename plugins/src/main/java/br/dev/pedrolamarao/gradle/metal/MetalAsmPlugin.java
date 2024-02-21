@@ -23,7 +23,9 @@ public class MetalAsmPlugin implements Plugin<Project>
         {
             final var library = project.getExtensions().getByType(MetalLibrary.class);
             MetalAsmPlugin.registerMain(project,library);
-            MetalAsmPlugin.registerTest(project,library);
+
+            final var test = project.getExtensions().getByType(MetalApplication.class);
+            MetalAsmPlugin.registerTest(project,test);
         });
     }
 
@@ -85,7 +87,7 @@ public class MetalAsmPlugin implements Plugin<Project>
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
         });
-        component.getTestObjectFiles().from(compileTask);
+        component.getObjectFiles().from(compileTask);
 
         final var commandsTask = tasks.register("compileTestAsmCommands",MetalCompileCommands.class,task ->
         {

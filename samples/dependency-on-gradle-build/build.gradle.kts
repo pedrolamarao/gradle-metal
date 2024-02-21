@@ -1,5 +1,10 @@
 plugins {
-    id("base")
+    id("br.dev.pedrolamarao.metal.base")
+}
+
+dependencies {
+    commands("br.dev.pedrolamarao.gradle.metal.sample:application:1.0")
+    commands("br.dev.pedrolamarao.gradle.metal.sample:archive:1.0")
 }
 
 tasks.build.configure {

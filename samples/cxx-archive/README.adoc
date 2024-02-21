@@ -1,9 +1,0 @@
-= archive with cxx sources
-
-This sample demonstrates an archive with C++ sources.
-
-Look for source files in `src/main`.
-
-To build this sample, run: `../../gradlew --include-build=../.. build`
-
-Look for the executable file in `build/exe`.

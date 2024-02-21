@@ -1,7 +1,8 @@
 plugins {
-    id("base")
+    id("br.dev.pedrolamarao.metal.base")
 }
 
-tasks.wrapper.configure {
-    gradleVersion = "8.4"
+dependencies {
+    commands(project(":application"))
+    commands(project(":archive"))
 }

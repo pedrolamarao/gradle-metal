@@ -21,6 +21,8 @@ public class MetalBasePlugin implements Plugin<Project>
     {
         final var configurations = project.getConfigurations();
 
+        project.getPluginManager().apply("base");
+
         project.getGradle().getSharedServices().registerIfAbsent("metal",MetalService.class,it -> {});
 
         project.getExtensions().create("metal",MetalExtension.class);

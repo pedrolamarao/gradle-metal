@@ -1,3 +1,5 @@
+// Copyright (c) Pedro Lamarão <pedro.lamarao@gmail.com>. All rights reserved.
+
 package br.dev.pedrolamarao.gradle.metal;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +19,7 @@ public abstract class MetalTestBase
     {
         final var metalPath = System.getProperty("metal.path");
         if (metalPath != null) {
-            Files.writeString(projectDir.resolve("gradle.properties"),"metal.path = %s".formatted(metalPath));
+            Files.writeString(projectDir.resolve("gradle.properties"),"metal.path="+metalPath);
         }
     }
 }

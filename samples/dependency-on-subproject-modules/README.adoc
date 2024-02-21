@@ -1,7 +1,0 @@
-= dependency on subproject's C++ module interfaces
-
-This sample demonstrates an application with dependency on archive subproject C++ module interfaces.
-
-To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
-
-Look for the executable file in `application/build/exe`.

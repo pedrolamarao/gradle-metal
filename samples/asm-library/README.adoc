@@ -1,0 +1,9 @@
+= library with asm sources
+
+This sample demonstrates a library with assembler sources.
+
+Look for source files in `src/main`.
+
+To build this sample, run: `../../gradlew build`
+
+Look for the library file in `build/lib`.

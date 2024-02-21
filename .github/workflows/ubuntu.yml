@@ -7,9 +7,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Validate Gradle Wrapper"
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v2
       - name: "Set up JDK 17"
         uses: actions/setup-java@v3
         with:
@@ -21,16 +21,27 @@ jobs:
           ubuntu-version: 22.04
           version: 16.0.4
       - name: "Build with Gradle"
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build
+      - name: "Generate Allure Report"
+        uses: gradle/gradle-build-action@v3
+        if: always()
+        with:
+            arguments: allureAggregateReport
+      - name: "Publish Allure Report"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ubuntu-22.04-llvm-16
+          path: "build/reports/allure-report/allureAggregateReport/index.html"
   build-llvm-17:
       name: "build with llvm 17"
       runs-on: ubuntu-22.04
       timeout-minutes: 10
       steps:
           - name: "Checkout"
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
           - name: "Validate Gradle Wrapper"
             uses: gradle/wrapper-validation-action@v1
           - name: "Set up JDK 17"
@@ -38,13 +49,24 @@ jobs:
             with:
                 java-version: "17"
                 distribution: "temurin"
-          - name: "Install LLVM 16"
+          - name: "Install LLVM 17"
             uses: KyleMayes/install-llvm-action@v1
             with:
                 force-version: true
                 ubuntu-version: 22.04
-                version: 17.0.2
+                version: 17.0.6
           - name: "Build with Gradle"
             uses: gradle/gradle-build-action@v2
             with:
                 arguments: build
+          - name: "Generate Allure Report"
+            uses: gradle/gradle-build-action@v3
+            if: always()
+            with:
+                arguments: allureAggregateReport
+          - name: "Publish Allure Report"
+            uses: actions/upload-artifact@v4
+            if: always()
+            with:
+                name: ubuntu-22.04-llvm-17
+                path: "build/reports/allure-report/allureAggregateReport/index.html"

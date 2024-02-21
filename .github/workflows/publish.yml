@@ -1,5 +1,8 @@
 name: "publish"
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    branches:
+      - current
 jobs:
   publish:
     name: "publish"

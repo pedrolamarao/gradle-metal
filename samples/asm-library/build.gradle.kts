@@ -3,18 +3,10 @@ plugins {
     id("br.dev.pedrolamarao.metal.asm")
 }
 
-tasks.compileAsm.configure {
+library {
     include("${target.get()}/*")
 }
 
-tasks.compileTestAsm.configure {
-    include("${target.get()}/*")
-}
-
-tasks.compileAsmCommands.configure {
-    include("${target.get()}/*")
-}
-
-tasks.compileTestAsmCommands.configure {
+test {
     include("${target.get()}/*")
 }

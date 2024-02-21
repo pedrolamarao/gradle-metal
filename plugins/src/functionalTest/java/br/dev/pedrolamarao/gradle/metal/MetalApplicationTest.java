@@ -123,7 +123,7 @@ class MetalApplicationTest extends MetalTestBase
             }
             
             application {
-                include("main.*")
+                exclude("oops.s")
             }
             """
         );
@@ -579,7 +579,7 @@ class MetalApplicationTest extends MetalTestBase
             
             application {
                 compileOptions = listOf("-std=c++20")
-                exclude("oops.cxx")
+                exclude("oops.*")
             }
             """
         );

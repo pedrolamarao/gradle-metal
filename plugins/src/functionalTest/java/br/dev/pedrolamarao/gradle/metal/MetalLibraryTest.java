@@ -129,6 +129,11 @@ class MetalLibraryTest extends MetalTestBase
                 ret
             """
         );
+        Files.writeString(projectDir.resolve("src/main/asm/oops.s"),
+            """
+            this obviously cannot compile
+            """
+        );
 
         Files.createDirectories(projectDir.resolve("src/test/asm"));
         Files.writeString(projectDir.resolve("src/test/asm/main.s"),
@@ -141,13 +146,6 @@ class MetalLibraryTest extends MetalTestBase
             """
         );
 
-        Files.createDirectories(projectDir.resolve("src/test/asm"));
-        Files.writeString(projectDir.resolve("src/test/asm/oops.s"),
-            """
-            this obviously cannot compile
-            """
-        );
-
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """
             plugins {
@@ -156,7 +154,7 @@ class MetalLibraryTest extends MetalTestBase
             }
             
             library {
-                include("main.*")
+                include("foo.s")
             }
             """
         );
@@ -357,6 +355,11 @@ class MetalLibraryTest extends MetalTestBase
             }
             """
         );
+        Files.writeString(projectDir.resolve("src/main/c/oops.c"),
+            """
+            this obviously cannot compile
+            """
+        );
 
         Files.createDirectories(projectDir.resolve("src/test/c"));
         Files.writeString(projectDir.resolve("src/test/c/main.c"),
@@ -367,13 +370,6 @@ class MetalLibraryTest extends MetalTestBase
             {
                 return foo();
             }
-            """
-        );
-
-        Files.createDirectories(projectDir.resolve("src/test/c"));
-        Files.writeString(projectDir.resolve("src/test/c/oops.c"),
-            """
-            this obviously cannot compile
             """
         );
 
@@ -615,8 +611,6 @@ class MetalLibraryTest extends MetalTestBase
             export int bar ();
             """
         );
-
-        Files.createDirectories(projectDir.resolve("src/main/ixx"));
         Files.writeString(projectDir.resolve("src/main/ixx/oops.ixx"),
             """            
             this obviously cannot compile
@@ -648,6 +642,11 @@ class MetalLibraryTest extends MetalTestBase
             }
             """
         );
+        Files.writeString(projectDir.resolve("src/main/cxx/oops.cxx"),
+            """
+            this obviously cannot compile
+            """
+        );
 
         Files.createDirectories(projectDir.resolve("src/test/cxx"));
         Files.writeString(projectDir.resolve("src/test/cxx/main.cxx"),
@@ -663,13 +662,6 @@ class MetalLibraryTest extends MetalTestBase
             """
         );
 
-        Files.createDirectories(projectDir.resolve("src/test/cxx"));
-        Files.writeString(projectDir.resolve("src/test/cxx/oops.cxx"),
-            """
-            this obviously cannot compile
-            """
-        );
-
         Files.writeString(projectDir.resolve("build.gradle.kts"),
             """         
             plugins {
@@ -679,6 +671,7 @@ class MetalLibraryTest extends MetalTestBase
             
             library {
                 compileOptions = listOf("-std=c++20")
+                exclude("oops.*")
             }
             """
         );

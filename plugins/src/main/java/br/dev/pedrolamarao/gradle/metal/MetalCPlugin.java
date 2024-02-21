@@ -58,11 +58,15 @@ public class MetalCPlugin implements Plugin<Project>
         {
             final var target = compile.getMetal().map(MetalService::getTarget);
             final var targets = component.getTargets();
+
             compile.dependsOn(includeDependencies.map(Configuration::getBuildDependencies));
             compile.getIncludePath().convention(includePath);
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/main/c"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(sourceDirectory);
+
+            compile.exclude(component.getExcludes());
+            compile.include(component.getIncludes());
             compile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -72,11 +76,15 @@ public class MetalCPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileCCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/main/c/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
@@ -106,11 +114,15 @@ public class MetalCPlugin implements Plugin<Project>
         {
             final var target = compile.getMetal().map(MetalService::getTarget);
             final var targets = component.getTargets();
+
             compile.dependsOn(includeDependencies.map(Configuration::getBuildDependencies));
             compile.getIncludePath().convention(includePath);
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/test/c"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(sourceDirectory);
+
+            compile.exclude(component.getExcludes());
+            compile.include(component.getIncludes());
             compile.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -120,11 +132,15 @@ public class MetalCPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileTestCCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/test/c/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));

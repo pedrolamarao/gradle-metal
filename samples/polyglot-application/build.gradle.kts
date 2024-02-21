@@ -4,6 +4,6 @@ plugins {
     id("br.dev.pedrolamarao.metal.c")
 }
 
-tasks.compileAsm.configure {
-    include("${target.get()}/*")
+application {
+    include("${target.get()}/*","*")
 }

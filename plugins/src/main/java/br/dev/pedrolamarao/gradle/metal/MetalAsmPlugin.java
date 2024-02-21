@@ -47,9 +47,13 @@ public class MetalAsmPlugin implements Plugin<Project>
         {
             final var target = task.getTarget();
             final var targets = component.getTargets();
+
             task.getOutputDirectory().set(buildDirectory.dir("obj/main/asm"));
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
             task.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -59,11 +63,15 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileAsmCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/main/asm/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
@@ -84,9 +92,13 @@ public class MetalAsmPlugin implements Plugin<Project>
         {
             final var target = task.getTarget();
             final var targets = component.getTargets();
+
             task.getOutputDirectory().set(buildDirectory.dir("obj/test/asm"));
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
             task.onlyIf("target is enabled",it ->
                 targets.zip(target,(list,item) -> list.isEmpty() || list.contains(item)).get()
             );
@@ -96,11 +108,15 @@ public class MetalAsmPlugin implements Plugin<Project>
         final var commandsTask = tasks.register("compileTestAsmCommands",MetalCompileCommands.class,task ->
         {
             final var output = buildDirectory.file( task.getTarget().map("commands/test/asm/%s/commands.json"::formatted) );
+
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+
+            task.exclude(component.getExcludes());
+            task.include(component.getIncludes());
         });
         component.getCommandFiles().from(commandsTask).builtBy(commandsTask);
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));

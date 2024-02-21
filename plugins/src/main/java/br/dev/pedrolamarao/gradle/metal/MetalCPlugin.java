@@ -64,6 +64,7 @@ public class MetalCPlugin implements Plugin<Project>
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/main/c"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(sourceDirectory);
+            compile.getTarget().convention(component.getTarget());
 
             compile.exclude(component.getExcludes());
             compile.include(component.getIncludes());
@@ -82,6 +83,7 @@ public class MetalCPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -120,6 +122,7 @@ public class MetalCPlugin implements Plugin<Project>
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/test/c"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(sourceDirectory);
+            compile.getTarget().convention(component.getTarget());
 
             compile.exclude(component.getExcludes());
             compile.include(component.getIncludes());
@@ -138,6 +141,7 @@ public class MetalCPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());

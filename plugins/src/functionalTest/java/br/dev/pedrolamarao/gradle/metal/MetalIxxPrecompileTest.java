@@ -52,6 +52,7 @@ class MetalIxxPrecompileTest extends MetalTestBase
                 options = listOf("-std=c++20")
                 outputDirectory = layout.buildDirectory.dir("obj")
                 source = layout.projectDirectory.dir("src").asFileTree
+                target = metal.host
             }
             """
         );

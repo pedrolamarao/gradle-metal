@@ -83,7 +83,6 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     public MetalIxxPrecompile ()
     {
         getCompiler().convention("clang++");
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     /**

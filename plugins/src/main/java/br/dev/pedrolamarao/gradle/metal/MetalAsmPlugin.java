@@ -51,6 +51,7 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getOutputDirectory().set(buildDirectory.dir("obj/main/asm"));
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -69,6 +70,7 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -96,6 +98,7 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getOutputDirectory().set(buildDirectory.dir("obj/test/asm"));
             task.getOptions().convention(component.getCompileOptions());
             task.setSource(sourceDirectory);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -114,6 +117,7 @@ public class MetalAsmPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(compileTask.map(it -> it.getTargetOutputDirectory().get().getAsFile()));
             task.setSource(sourceDirectory);
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());

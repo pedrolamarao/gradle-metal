@@ -78,6 +78,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/main/ixx"));
             precompile.getOptions().convention(component.getCompileOptions());
             precompile.setSource(layout.getProjectDirectory().dir("src/main/ixx"));
+            precompile.getTarget().convention(component.getTarget());
 
             precompile.exclude(component.getExcludes());
             precompile.include(component.getIncludes());
@@ -100,6 +101,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(projectDirectory.dir("src/main/ixx"));
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -128,6 +130,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/main/cxx"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(compileSources);
+            compile.getTarget().convention(component.getTarget());
 
             compile.exclude(component.getExcludes());
             compile.include(component.getIncludes());
@@ -143,9 +146,10 @@ public class MetalCxxPlugin implements Plugin<Project>
 
             task.getCompiler().convention(compileTask.flatMap(MetalCompile::getCompiler));
             task.getOptions().convention(compileTask.flatMap(MetalCompile::getInternalOptions));
+            task.getOutput().convention(output);
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(compileSources);
-            task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -196,6 +200,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             precompile.getOutputDirectory().convention(buildDirectory.dir("bmi/test/ixx"));
             precompile.getOptions().convention(component.getCompileOptions());
             precompile.setSource(layout.getProjectDirectory().dir("src/test/ixx"));
+            precompile.getTarget().convention(component.getTarget());
 
             precompile.exclude(component.getExcludes());
             precompile.include(component.getIncludes());
@@ -213,6 +218,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(projectDirectory.dir("src/test/ixx"));
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());
@@ -243,6 +249,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             compile.getOutputDirectory().convention(buildDirectory.dir("obj/test/cxx"));
             compile.getOptions().convention(component.getCompileOptions());
             compile.setSource(compileSources);
+            compile.getTarget().convention(component.getTarget());
 
             compile.exclude(component.getExcludes());
             compile.include(component.getIncludes());
@@ -261,6 +268,7 @@ public class MetalCxxPlugin implements Plugin<Project>
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.setSource(compileSources);
             task.getOutput().convention(output);
+            task.getTarget().convention(component.getTarget());
 
             task.exclude(component.getExcludes());
             task.include(component.getIncludes());

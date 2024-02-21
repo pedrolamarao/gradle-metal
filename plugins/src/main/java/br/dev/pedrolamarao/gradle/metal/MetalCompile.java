@@ -4,7 +4,6 @@ package br.dev.pedrolamarao.gradle.metal;
 
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.model.ObjectFactory;
@@ -92,14 +91,6 @@ public abstract class MetalCompile extends SourceTask
     protected abstract FileOperations getFiles ();
 
     /**
-     * ProjectLayout service.
-     *
-     * @return service
-     */
-    @Inject
-    protected abstract ProjectLayout getLayout ();
-
-    /**
      * Gradle Metal service.
      *
      * @return service
@@ -130,16 +121,6 @@ public abstract class MetalCompile extends SourceTask
      */
     @Inject
     protected abstract WorkerExecutor getWorkers ();
-
-    // task
-
-    /**
-     * Constructor.
-     */
-    public MetalCompile ()
-    {
-        getTarget().convention(getMetal().map(MetalService::getTarget));
-    }
 
     /**
      * Add this task's language options to the specified list.

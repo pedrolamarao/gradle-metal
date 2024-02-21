@@ -75,7 +75,6 @@ public abstract class MetalArchive extends SourceTask
     public MetalArchive ()
     {
         getArchiver().convention("llvm-ar");
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     /**

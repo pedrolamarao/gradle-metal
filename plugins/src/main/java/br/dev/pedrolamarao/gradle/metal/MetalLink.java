@@ -101,7 +101,6 @@ public abstract class MetalLink extends SourceTask
     public MetalLink ()
     {
         getLinker().convention("clang++");
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     /**

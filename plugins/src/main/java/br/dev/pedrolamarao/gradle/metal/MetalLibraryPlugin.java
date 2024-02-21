@@ -55,6 +55,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
 
             archive.getOutput().convention(archiveFile);
             archive.setSource(library.getObjectFiles());
+            archive.getTarget().convention(library.getTarget());
         });
         linkableElements.configure(it -> it.getOutgoing().artifact(archiveTask));
 
@@ -78,6 +79,7 @@ public class MetalLibraryPlugin implements Plugin<Project>
             link.getOptions().convention(test.getLinkOptions());
             link.getOutput().convention(linkFile);
             link.setSource(test.getObjectFiles());
+            link.getTarget().convention(test.getTarget());
         });
 
         final var runTestTask = tasks.register("runTest", Exec.class, exec ->

@@ -7,6 +7,7 @@ import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.services.ServiceReference;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
@@ -57,7 +58,7 @@ public abstract class MetalIxxPrecompile extends MetalCompile
      * @return property
      */
     @Inject
-    public abstract ExecOperations getExec ();
+    protected abstract ExecOperations getExec ();
 
     /**
      * FileOperations service.
@@ -75,6 +76,24 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     @Inject
     protected abstract ObjectFactory getObjects ();
 
+    @Override
+    Provider<List<String>> getCommand ()
+    {
+        return getProviders().provider(() ->
+        {
+            final var list = new ArrayList<String>();
+            list.add(getMetal().get().locateTool(getCompiler().get()).toString());
+            list.add("--target=%s".formatted(getTarget().get()));
+            list.addAll(getOptions().get());
+            getImportPath().get().forEach(path -> list.add("-fprebuilt-module-path=%s".formatted(path)));
+            list.add("-fprebuilt-module-path=%s".formatted(getOutputDirectory().get()));
+            getIncludePath().get().forEach(path -> list.add("--include-directory=%s".formatted(path)));
+            list.add("--precompile");
+            list.add("--language=c++-module");
+            return list;
+        });
+    }
+
     // task
 
     /**
@@ -83,7 +102,6 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     public MetalIxxPrecompile ()
     {
         getCompiler().convention("clang++");
-        getTarget().convention(getMetal().map(MetalService::getTarget));
     }
 
     /**
@@ -265,29 +283,13 @@ public abstract class MetalIxxPrecompile extends MetalCompile
     @TaskAction
     public void precompile () throws Exception
     {
-        final var metal = getMetal().get();
-
-        final var compiler = metal.locateTool(getCompiler().get());
-        final var target = getTarget().get();
-
-        final var outputDirectory = getTargetOutputDirectory().get().getAsFile().toPath();
+        final var outputDirectory = getOutputDirectory().get().getAsFile().toPath();
 
         // discover dependencies from sources
         final var modules = scan();
 
-        // remove old objects
-        getFiles().delete(outputDirectory);
-        Files.createDirectories(outputDirectory);
-
         // prepare compile arguments
-        final var baseArgs = new ArrayList<String>();
-        baseArgs.add("--target=%s".formatted(target));
-        baseArgs.addAll(getOptions().get());
-        getIncludePath().get().forEach(dir -> baseArgs.add("--include-directory=%s".formatted(dir)));
-        getImportPath().get().forEach(dir -> baseArgs.add("-fprebuilt-module-path=%s".formatted(dir)));
-        baseArgs.add("-fprebuilt-module-path=%s".formatted(outputDirectory));
-        baseArgs.add("--precompile");
-        baseArgs.add("--language=c++-module");
+        final var commandBase = new ArrayList<>(getCommand().get());
 
         // compile objects from sources
         for (var module : modules)
@@ -296,14 +298,11 @@ public abstract class MetalIxxPrecompile extends MetalCompile
             final var output = outputDirectory.resolve( moduleName.replace(":","-") + ".pcm" );
 
             // finish compile arguments
-            final var compileArgs = new ArrayList<>(baseArgs);
-            compileArgs.add("--output=%s".formatted(output));
-            compileArgs.add(module.source().toString());
+            final var command = new ArrayList<>(commandBase);
+            command.add("--output=%s".formatted(output));
+            command.add(module.source().toString());
 
-            getExec().exec(it -> {
-                it.executable(compiler);
-                it.args(compileArgs);
-            });
+            getExec().exec(it -> it.commandLine(command));
         }
     }
 }

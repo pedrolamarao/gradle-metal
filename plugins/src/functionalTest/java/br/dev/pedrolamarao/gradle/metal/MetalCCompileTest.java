@@ -45,6 +45,7 @@ class MetalCCompileTest extends MetalTestBase
             val compile = tasks.register<MetalCCompile>("compile") {
                 outputDirectory = layout.buildDirectory.dir("obj")
                 source = layout.projectDirectory.dir("src").asFileTree
+                target = metal.host
             }
             """
         );

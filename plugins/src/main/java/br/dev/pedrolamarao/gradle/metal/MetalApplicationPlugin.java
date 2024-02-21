@@ -48,6 +48,7 @@ public class MetalApplicationPlugin implements Plugin<Project>
             link.getOptions().convention(application.getLinkOptions());
             link.getOutput().convention(linkFile);
             link.setSource(application.getObjectFiles());
+            link.getTarget().convention(application.getTarget());
         });
 
         tasks.register("run",Exec.class,exec ->

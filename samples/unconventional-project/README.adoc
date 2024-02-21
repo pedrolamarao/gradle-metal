@@ -1,9 +1,0 @@
-= unconventional project
-
-This sample demonstrates a project with source directories in a style different from gradle-metal convention.
-There is a limit to how flexible we can be: we accept the user's source layout, but partially impose our build layout.
-The users configures object output to `obj` and assembled outputs to `bin`, but the inner layout is ours.
-
-To build this sample inside a `gradle-metal` source tree, run: `../../gradlew --include-build=../.. build`
-
-Look for the executable file in `bin`.

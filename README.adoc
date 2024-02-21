@@ -1,16 +1,16 @@
 = gradle-metal
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
-Gradle Metal is a suite of Gradle plugins supporting development for the bare metal,
+Gradle Metal is a suite of Gradle plugins for bare metal development,
 primarily design to support project link:https://github.com/pedrolamarao/metal[Metal].
 
 Features:
 
-* compile assembler, c and c++ (including c++ module interfaces)
-* assemble archives and executables
-* build target support (e.g. `x86_64-elf`)
-* generate compilation commands database
-* source dependency on included project
+* compile assembler, c and c++ sources (with support for c++ modules)
+* assemble applications and (static) libraries
+* cross-compilation support
+* compilation commands database support
+* source dependency on included project or build
 * binary dependency on prebuilt external project
 * LLVM tools
 
@@ -19,15 +19,31 @@ This project is under early development.
 Compatibility *will be broken* without prior notice.
 In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
 
+A C++ library project with modules support is defined as simply as:
+
+[source,kotlin]
+----
+plugins {
+    id("br.dev.pedrolamarao.metal.library")
+    id("br.dev.pedrolamarao.metal.cxx")
+}
+
+library {
+    compileOptions = listOf("-std=c++20")
+}
+----
+
+Check the link:samples[] for a variety of use-cases.
+
 Current requirements:
 
-* Gradle 8.4 or newer
+* Gradle 8.6 or newer
 * JDK 17 or newer
-* LLVM 16 or newer (with clang, clang-scan-deps, lld, llvm-ar etc.)
+* LLVM 16 or newer (with `clang`, `clang-scan-deps`, `lld`, `llvm-ar` etc.)
 
 To use the development version, you may install from source with `./gradlew publishToMavenLocal` and configure your project's settings like this:
 
-[source]
+[source,kotlin]
 ----
 pluginManagement {
     repositories {
@@ -36,32 +52,19 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id.startsWith("br.dev.pedrolamarao.metal.")) {
-                useModule("br.dev.pedrolamarao.gradle.metal:plugins:0.4")
+                useModule("br.dev.pedrolamarao.gradle.metal:plugins:0.5")
             }
         }
     }
 }
 ----
 
-Check the link:samples[] for a variety of use-cases.
-
-Plugins:
-
-* `br.dev.pedrolamarao.metal.base`: adds the Gradle Metal service and extension
-* `br.dev.pedrolamarao.metal.application`: conventional application project
-* `br.dev.pedrolamarao.metal.archive`: conventional archive project
-* `br.dev.pedrolamarao.metal.asm`:  adds assembler source sets
-* `br.dev.pedrolamarao.metal.c`: adds C sources sets
-* `br.dev.pedrolamarao.metal.cpp`: adds C preprocessor source sets
-* `br.dev.pedrolamarao.metal.cxx`: adds C++ module implementation source sets
-* `br.dev.pedrolamarao.metal.ixx`: adds C++ module interface source sets
-
 Under construction:
 
-* build flavour support (e.g. `debug`, `release`)
-* shared library component
+* build flavour (e.g. `debug`, `release`)
+* shared library
 * source dependencies on cmake project
-* binary dependencies on maven repository
+* binary dependencies from maven repository
 * GCC tools
 * MSVC tools
 

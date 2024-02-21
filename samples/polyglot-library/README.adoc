@@ -1,0 +1,9 @@
+= library with polyglot sources
+
+This sample demonstrates a library with polyglot sources.
+
+Look for source files in `src/main`.
+
+To build this sample, run: `../../gradlew build`
+
+Look for the library file in `build/lib`.

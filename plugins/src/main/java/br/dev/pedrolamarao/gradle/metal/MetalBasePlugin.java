@@ -153,9 +153,9 @@ public class MetalBasePlugin implements Plugin<Project>
         {
             final var inputFiles = task.getProject().getObjects().fileCollection();
             inputFiles.from(commandsDependencies);
-            final var application = task.getProject().getExtensions().findByType(MetalApplication.class);
+            final var application = task.getProject().getExtensions().findByType(MetalApplicationImpl.class);
             if (application != null) inputFiles.from(application.getCommandFiles());
-            final var library = task.getProject().getExtensions().findByType(MetalLibrary.class);
+            final var library = task.getProject().getExtensions().findByType(MetalLibraryImpl.class);
             if (library != null) inputFiles.from(library.getCommandFiles());
 
             final var outputFile = task.getProject().file("compile_commands.json");

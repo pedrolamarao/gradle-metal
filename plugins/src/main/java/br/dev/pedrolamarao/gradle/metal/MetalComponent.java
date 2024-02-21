@@ -1,29 +1,35 @@
 package br.dev.pedrolamarao.gradle.metal;
 
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.util.PatternFilterable;
 
 /**
- * Gradle Metal component, library or application.
+ * Gradle Metal component extension.
  */
-public abstract class MetalComponent
+public interface MetalComponent extends PatternFilterable
 {
     /**
      * Compile options.
      *
      * @return property
      */
-    public abstract ListProperty<String> getCompileOptions ();
+    ListProperty<String> getCompileOptions ();
 
     /**
-     * Allowed targets.
+     * Build target.
+     *
+     * @return provider
+     */
+    Provider<String> getTarget ();
+
+    /**
+     * Allowed build targets.
+     *
+     * <p>This component builds only for allowed targets. Default is any target.</p>
      *
      * @return property
      */
-    public abstract SetProperty<String> getTargets ();
-
-    abstract ConfigurableFileCollection getCommandFiles ();
-
-    abstract ConfigurableFileCollection getObjectFiles ();
+    SetProperty<String> getTargets ();
 }

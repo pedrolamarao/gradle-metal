@@ -16,23 +16,26 @@ public class MetalCPlugin implements Plugin<Project>
     @Override
     public void apply (Project project)
     {
-        project.getPluginManager().withPlugin("br.dev.pedrolamarao.metal.application",plugin ->
+        final var extensions = project.getExtensions();
+        final var plugins = project.getPluginManager();
+
+        plugins.withPlugin("br.dev.pedrolamarao.metal.application",plugin ->
         {
-            final var application = project.getExtensions().getByType(MetalApplication.class);
+            final var application = (MetalApplicationImpl) extensions.getByType(MetalApplication.class);
             registerMain(project,application);
         });
 
-        project.getPluginManager().withPlugin("br.dev.pedrolamarao.metal.library",plugin ->
+        plugins.withPlugin("br.dev.pedrolamarao.metal.library",plugin ->
         {
-            final var library = project.getExtensions().getByType(MetalLibrary.class);
+            final var library = (MetalLibraryImpl) extensions.getByType(MetalLibrary.class);
             registerMain(project,library);
 
-            final var test = project.getExtensions().getByType(MetalApplication.class);
+            final var test = (MetalApplicationImpl) extensions.getByType(MetalApplication.class);
             registerTest(project,test);
         });
     }
 
-    static void registerMain (Project project, MetalComponent component)
+    private static void registerMain (Project project, MetalComponentImpl component)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();
@@ -79,7 +82,7 @@ public class MetalCPlugin implements Plugin<Project>
         commandsElements.configure(it -> it.getOutgoing().artifact(commandsTask));
     }
 
-    static void registerTest (Project project, MetalComponent component)
+    private static void registerTest (Project project, MetalComponentImpl component)
     {
         final var configurations = project.getConfigurations();
         final var layout = project.getLayout();

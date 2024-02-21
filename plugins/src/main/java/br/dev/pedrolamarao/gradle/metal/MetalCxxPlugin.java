@@ -98,7 +98,7 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/ixx/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
@@ -150,7 +150,7 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/cxx/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
@@ -223,7 +223,7 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/ixx/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(precompileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(precompileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
@@ -277,7 +277,7 @@ public class MetalCxxPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/cxx/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);

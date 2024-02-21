@@ -30,7 +30,7 @@ import java.util.Map;
  * Gradle Metal C++ module interface compiler task.
  */
 @CacheableTask
-public abstract class MetalIxxPrecompile extends MetalCompile
+public abstract class MetalIxxPrecompile extends MetalCompileImpl
 {
     // properties
 

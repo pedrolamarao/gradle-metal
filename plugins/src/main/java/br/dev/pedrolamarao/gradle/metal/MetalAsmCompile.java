@@ -13,7 +13,7 @@ import java.util.List;
  * Gradle Metal assembler "compile" task.
  */
 @CacheableTask
-public abstract class MetalAsmCompile extends MetalCompile
+public abstract class MetalAsmCompile extends MetalCompileImpl
 {
     /**
      * Constructor.

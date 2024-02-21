@@ -80,7 +80,7 @@ public class MetalCPlugin implements Plugin<Project>
                 task.getTarget().map("commands/main/c/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);
@@ -140,7 +140,7 @@ public class MetalCPlugin implements Plugin<Project>
                 task.getTarget().map("commands/test/c/%s/commands.json"::formatted)
             );
 
-            task.getCompileCommand().convention(compileTask.flatMap(MetalCompile::getCommand));
+            task.getCompileCommand().convention(compileTask.flatMap(MetalCompileImpl::getCommand));
             task.getCompileDirectory().convention(compileTask.flatMap(it -> it.getOutputDirectory().getAsFile()));
             task.getDirectory().convention(task.getProject().getProjectDir());
             task.getOutput().convention(output);

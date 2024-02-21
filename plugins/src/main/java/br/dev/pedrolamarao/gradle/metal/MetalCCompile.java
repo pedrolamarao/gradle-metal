@@ -15,7 +15,7 @@ import java.util.List;
  * Gradle Metal C compile task.
  */
 @CacheableTask
-public abstract class MetalCCompile extends MetalCompile
+public abstract class MetalCCompile extends MetalCompileImpl
 {
     /**
      * Compiler include path.

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 
-import static br.dev.pedrolamarao.gradle.metal.MetalCompile.hash;
+import static br.dev.pedrolamarao.gradle.metal.MetalCompileImpl.hash;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**

@@ -676,4 +676,56 @@ class MetalApplicationTest extends MetalTestBase
 
         assertThat( check.task(":run").getOutcome() ).isEqualTo( SKIPPED );
     }
+
+    @DisplayName("link a large source set")
+    @Test
+    void largeSourceSet () throws IOException
+    {
+        Files.createDirectories(projectDir.resolve("src/main/cpp"));
+        Files.writeString(projectDir.resolve("src/main/cpp/foo.h"),
+            """
+            int foo (int i);
+            """
+        );
+
+        Files.createDirectories(projectDir.resolve("src/main/c"));
+        Files.writeString(projectDir.resolve("src/main/c/foo.c"),
+            """
+            #include <foo.h>
+            int foo (int i) { return i % 42; }
+            """
+        );
+        for (int i = 0, j = 512; i != j; ++i)
+        {
+            Files.writeString(projectDir.resolve("src/main/c/%d.c".formatted(i)),
+                """
+                #include <foo.h>
+                int foo_%d () { return foo(%d); }
+                """.formatted(i,i)
+            );
+        }
+        Files.writeString(projectDir.resolve("src/main/c/main.c"),
+            """
+            #include <foo.h>
+            int main (int argc, char* argv[]) { return foo(0); }
+            """
+        );
+
+        Files.writeString(projectDir.resolve("build.gradle.kts"),
+            """
+            plugins {
+                id("br.dev.pedrolamarao.metal.application")
+                id("br.dev.pedrolamarao.metal.c")
+            }
+            """
+        );
+
+        final var archive = GradleRunner.create()
+            .withArguments("--build-cache","--configuration-cache","link")
+            .withPluginClasspath()
+            .withProjectDir(projectDir.toFile())
+            .build();
+
+        assertThat( archive.task(":archive").getOutcome() ).isEqualTo(SUCCESS);
+    }
 }

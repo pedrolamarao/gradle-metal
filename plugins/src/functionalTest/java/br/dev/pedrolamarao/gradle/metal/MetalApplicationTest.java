@@ -726,6 +726,6 @@ class MetalApplicationTest extends MetalTestBase
             .withProjectDir(projectDir.toFile())
             .build();
 
-        assertThat( archive.task(":archive").getOutcome() ).isEqualTo(SUCCESS);
+        assertThat( archive.task(":link").getOutcome() ).isEqualTo(SUCCESS);
     }
 }

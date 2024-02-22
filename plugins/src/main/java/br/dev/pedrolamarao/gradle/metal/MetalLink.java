@@ -107,7 +107,7 @@ public abstract class MetalLink extends SourceTask
      * Link action.
      */
     @TaskAction
-    public void link ()
+    public void link () throws Exception
     {
         final var metal = getMetal().get();
 
@@ -117,28 +117,28 @@ public abstract class MetalLink extends SourceTask
         final var output = getOutput().getAsFile().get();
         final var target = getTarget().map(this::targetMapper).get();
 
-        try
-        {
-            Files.createDirectories(output.toPath().getParent());
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
+        final var atFile = this.getTemporaryDir().toPath().resolve("sources");
+        try (var writer = Files.newBufferedWriter(atFile)) {
+            getSource().forEach(file -> {
+                try { writer.write(file.toString().replace("\\","\\\\") + "\n"); }
+                    catch (IOException e) { throw new RuntimeException(e); }
+            });
+            getLinkDependencies().forEach(file -> {
+                try { writer.write(file.toString().replace("\\","\\\\") + "\n"); }
+                    catch (IOException e) { throw new RuntimeException(e); }
+            });
         }
 
-        final var args = new ArrayList<String>();
-        args.add("--target=%s".formatted(target));
-        if (! target.contentEquals(host)) args.add("-fuse-ld=lld");
-        args.addAll(options);
-        getLibraryPath().get().forEach(path -> args.add("--library-directory=%s".formatted(path)));
-        args.add("--output=%s".formatted(output));
-        getSource().forEach(source -> args.add(source.toString()));
-        getLinkDependencies().forEach(linkable -> args.add(linkable.toString()));
+        final var command = new ArrayList<String>();
+        command.add(linker.toString());
+        command.add("--target=%s".formatted(target));
+        if (! target.contentEquals(host)) command.add("-fuse-ld=lld");
+        command.addAll(options);
+        getLibraryPath().get().forEach(path -> command.add("--library-directory=%s".formatted(path)));
+        command.add("--output=%s".formatted(output));
+        command.add("@"+atFile);
 
-        getExec().exec(it -> {
-            it.executable(linker);
-            it.args(args);
-        });
+        getExec().exec(it -> it.commandLine(command));
     }
 
     String targetMapper (String target)

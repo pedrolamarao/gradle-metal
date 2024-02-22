@@ -81,30 +81,27 @@ public abstract class MetalArchive extends SourceTask
      * Archive action.
      */
     @TaskAction
-    public void archive ()
+    public void archive () throws Exception
     {
         final var archiver = getMetal().get().locateTool(getArchiver().get());
         final var options = getOptions().get();
         final var output = getOutput().getAsFile().get();
 
-        try
-        {
-            Files.createDirectories(output.toPath().getParent());
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
+        final var atFile = this.getTemporaryDir().toPath().resolve("sources");
+        try (var writer = Files.newBufferedWriter(atFile)) {
+            getSource().forEach(file -> {
+                try { writer.write(file.toString().replace("\\","\\\\") + "\n"); }
+                    catch (IOException e) { throw new RuntimeException(e); }
+            });
         }
 
-        final var args = new ArrayList<String>();
-        args.add("rcs");
-        args.addAll(options);
-        args.add(output.toString());
-        getSource().forEach(source -> args.add(source.toString()));
+        final var command = new ArrayList<String>();
+        command.add(archiver.toString());
+        command.add("rcs");
+        command.addAll(options);
+        command.add(output.toString());
+        command.add("@"+atFile);
 
-        getExec().exec(it -> {
-            it.executable(archiver);
-            it.args(args);
-        });
+        getExec().exec(it -> it.commandLine(command));
     }
 }

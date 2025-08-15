@@ -8,22 +8,21 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
-      - name: "Validate Gradle Wrapper"
-        uses: gradle/wrapper-validation-action@v2
+      - name: "Install LLVM 16"
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: 16
       - name: "Set up JDK 17"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
-      - name: "Install LLVM 16"
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          ubuntu-version: 22.04
-          version: 16.0.4
-      - name: "Build with Gradle"
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: build
+      - name: "Validate Gradle Wrapper"
+        uses: gradle/actions/wrapper-validation@v4
+      - name: "Set up Gradle"
+        uses: gradle/actions/setup-gradle@v4
+      - name: "Build"
+        run: ./gradlew build
   build-llvm-17:
       name: "build with llvm 17"
       runs-on: ubuntu-22.04
@@ -31,20 +30,18 @@ jobs:
       steps:
           - name: "Checkout"
             uses: actions/checkout@v4
-          - name: "Validate Gradle Wrapper"
-            uses: gradle/wrapper-validation-action@v2
-          - name: "Set up JDK 17"
-            uses: actions/setup-java@v3
-            with:
-                java-version: "17"
-                distribution: "temurin"
           - name: "Install LLVM 17"
-            uses: KyleMayes/install-llvm-action@v1
+            uses: KyleMayes/install-llvm-action@v2
             with:
-                force-version: true
-                ubuntu-version: 22.04
-                version: 17.0.6
-          - name: "Build with Gradle"
-            uses: gradle/gradle-build-action@v2
+              version: 17
+          - name: "Set up JDK 17"
+            uses: actions/setup-java@v4
             with:
-                arguments: build
+              java-version: "17"
+              distribution: "temurin"
+          - name: "Validate Gradle Wrapper"
+            uses: gradle/actions/wrapper-validation@v4
+          - name: "Set up Gradle"
+            uses: gradle/actions/setup-gradle@v4
+          - name: "Build"
+            run: ./gradlew build

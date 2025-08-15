@@ -16,19 +16,15 @@ import java.util.Set;
 
 abstract class MetalComponentImpl implements MetalComponent
 {
-    private final PatternSet patternSet;
+    private final PatternSet patternSet = new PatternSet();
 
     @Inject
     public MetalComponentImpl ()
     {
-        patternSet = getPatternSetFactory().create();
     }
 
     @ServiceReference
     protected abstract Property<MetalService> getMetal ();
-
-    @Inject
-    protected abstract Factory<PatternSet> getPatternSetFactory ();
 
     /**
      * Compiled object files

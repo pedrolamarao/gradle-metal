@@ -17,7 +17,6 @@ Features:
 [WARNING]
 This project is under early development.
 Compatibility *will be broken* without prior notice.
-In particular, we will *not* stabilize our Gradle dependency before Gradle 9.
 
 A C++ library project with modules support is defined as simply as:
 
@@ -37,8 +36,7 @@ Check the link:samples[] for a variety of use-cases.
 
 Current requirements:
 
-* Gradle 8.10 or newer
-* JDK 17 or newer
+* Gradle 9.0.0 or newer
 * LLVM 16 or newer (with `clang`, `clang-scan-deps`, `lld`, `llvm-ar` etc.)
 
 To use the development version, you may install from source with `./gradlew publishToMavenLocal` and configure your project's settings like this:
